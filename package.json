@@ -1,0 +1,29 @@
+{
+  "name": "form-manager",
+  "version": "0.0.0",
+  "description": "A form manager API application",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'"
+  },
+  "keywords": [
+    "Form.io",
+    "forms",
+    "rest",
+    "api"
+  ],
+  "author": "Randall Knutson <randall@form.io>",
+  "license": "ISC",
+  "dependencies": {
+    "fast-json-patch": "^2.0.6",
+    "formiojs": "^2.31.2",
+    "joi": "^13.2.0",
+    "lodash": "^4.17.5",
+    "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.1.1",
+    "sinon": "^5.0.2"
+  }
+}
