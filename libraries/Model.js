@@ -13,13 +13,13 @@ module.exports = class Model {
     };
 
     // @TODO
-    // populate (deprecate?)
-    // get
-    // description (what does this do?)
     // type [String]
     // type [{schema}]
     // readOnly
+    // get
     // to string (read)
+    // populate (deprecate?)
+    // description (what does this do?)
 
     this.schema = schema;
 
@@ -85,28 +85,23 @@ module.exports = class Model {
     if (Array.isArray(schema.type) && schema.type.length >= 1) {
       const values = _.get(input, path, []);
       values.forEach((value, index) => {
-        const arrayPath = path + '[' + index + ']';
-        promises.push(this.setFields(arrayPath, schema.type[0], input, doc, execute));
+        if (typeof schema.type[0] === 'object') {
+          for (const name in schema.type[0]) {
+            promises.push(this.iterateFields(path + '[' + index + '].' + name, schema.type[0][name], input, doc, execute));
+          }
+        }
+        else {
+          const field = {
+            ...schema,
+            type: schema.type[0]
+          };
+          promises.push(this.iterateFields(path + '[' + index + ']', field, input, doc, execute));
+        }
       });
     }
     else if (typeof schema.type === 'object') {
-      for (const name in schema) {
-        promises.push(this.setFields(path + (path ? '.' : '') + name, schema[name], input, doc, execute));
-
-        // if (field.type && Array.isArray(field.type) && field.type.length === 1) {
-        //   const values = _.get(input, path, []);
-        //   values.forEach((value, index) => {
-        //     const arrayPath = path + '[' + index + ']';
-        //     if (typeof field.type[0] === 'object') {
-        //     }
-        //     else {
-        //       promises.push(execute(arrayPath, field, _.get(input, arrayPath), context));
-        //     }
-        //   });
-        // }
-        // else {
-        //   promises.push(execute(path, field, _.get(input, path), context));
-        // }
+      for (const name in schema.type) {
+        promises.push(this.iterateFields(path + '.' + name, schema.type[name], input, doc, execute));
       }
     }
     else {

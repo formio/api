@@ -240,9 +240,90 @@ describe('Model.js', () => {
       });
     });
 
-    // nested type
+    it('Nests object types', () => {
+      sandbox.spy(db, 'create');
 
-    // nested schema
+      const model = new Model({
+        name: 'test',
+        schema: {
+          foo: {
+            type: {
+              bar: {
+                type: 'string'
+              }
+            }
+          },
+        },
+      }, db);
+
+      return model.create({
+        foo: { bar: 3}
+      }).then(doc => {
+        assert(db.create.calledOnce, 'Should call db create');
+        assert.equal(db.create.args[0][1].foo.bar, '3');
+        assert.isString(db.create.args[0][1].foo.bar);
+        assert.equal(doc.foo.bar, '3');
+        assert.isString(doc.foo.bar);
+      });
+    });
+
+    it('Nests array object types', () => {
+      sandbox.spy(db, 'create');
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          foo: {
+            type: [{
+              bar: {
+                type: 'string'
+              }
+            }]
+          },
+        },
+      }, db);
+
+      return model.create({
+        foo: [{ bar: 3}, {bar: 4}]
+      }).then(doc => {
+        assert(db.create.calledOnce, 'Should call db create');
+        assert.equal(db.create.args[0][1].foo[0].bar, '3');
+        assert.isString(db.create.args[0][1].foo[0].bar);
+        assert.equal(db.create.args[0][1].foo[1].bar, '4');
+        assert.isString(db.create.args[0][1].foo[1].bar);
+        assert.equal(doc.foo[0].bar, '3');
+        assert.isString(doc.foo[0].bar);
+        assert.equal(doc.foo[1].bar, '4');
+        assert.isString(doc.foo[1].bar);
+      });
+    });
+
+    it('Nests array types', () => {
+      sandbox.spy(db, 'create');
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          foo: {
+            type: ['string']
+          },
+        },
+      }, db);
+
+      return model.create({
+        foo: [3, 4]
+      }).then(doc => {
+        assert(db.create.calledOnce, 'Should call db create');
+        assert.isString(db.create.args[0][1].foo[0]);
+        assert.isString(db.create.args[0][1].foo[1]);
+        assert.equal(db.create.args[0][1].foo[0], '3');
+        assert.equal(db.create.args[0][1].foo[1], '4');
+        assert.isString(doc.foo[0]);
+        assert.isString(doc.foo[1]);
+        assert.equal(doc.foo[0], '3');
+        assert.equal(doc.foo[1], '4');
+      });
+    });
   });
 
   describe('Create Tests', () => {
