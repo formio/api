@@ -279,7 +279,7 @@ module.exports = class Model {
   find(query, options) {
     return this.initialized.then(() => {
       return this.db.find(this.collectionName, query, options)
-        .then(docs => docs.map(doc => this.afterLoad(doc)));
+        .then(docs => Promise.all(docs.map(doc => this.afterLoad(doc))));
     });
   }
 

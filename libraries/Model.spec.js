@@ -849,4 +849,31 @@ describe('Model.js', () => {
       });
     });
   });
+
+  describe('Find Tests', () => {
+    it('Finds results', () => {
+      sandbox.stub(db, 'find').resolves([{_id: 1, foo: 'bar'}, {_id: 2, foo: 'bar'}, {_id: 3, foo: 'bar'}]);
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          foo: {
+            type: 'string',
+          },
+        },
+      }, db);
+
+      const query = {foo: 'bar'};
+      const options = {sort: 1, limit: 10};
+      return model.find(query, options).then(result => {
+        assert(db.find.calledOnce, 'Should call find');
+        assert.deepEqual(db.find.args[0][1], query);
+        assert.deepEqual(db.find.args[0][2], options);
+        assert.equal(result.length, 3);
+        assert.isString(result[0]._id);
+        assert.isString(result[1]._id);
+        assert.isString(result[2]._id);
+      });
+    });
+  });
 });
