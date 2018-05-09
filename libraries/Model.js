@@ -9,12 +9,10 @@ module.exports = class Model {
 
     // Ensure there is an entry for _id
     schema.schema._id = {
-      type: this.db.ID,
+      type: 'id',
     };
 
     // @TODO
-    // type [String]
-    // type [{schema}]
     // readOnly
     // get
     // to string (read)
@@ -110,6 +108,15 @@ module.exports = class Model {
     return Promise.all(promises).then(() => doc);
   }
 
+  beforeSave(input, doc) {
+    const promises = [];
+    for (const path in this.schema.schema) {
+      promises.push(this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this)))
+    }
+    return Promise.all(promises)
+      .then(result => doc);
+  }
+
   setField(path, field, value, doc) {
     return new Promise((resolve, reject) => {
       const async = [];
@@ -121,6 +128,11 @@ module.exports = class Model {
         else {
           value = field.default;
         }
+      }
+
+      // Check for read only
+      if (field.readOnly) {
+        value = _.get(doc, path, value);
       }
 
       // Use set function
@@ -137,7 +149,7 @@ module.exports = class Model {
                 value = value.toString();
               }
               break;
-            case 'integer':
+            case 'number':
               value = parseInt(value);
               break;
             case 'boolean':
@@ -234,23 +246,32 @@ module.exports = class Model {
     });
   }
 
-  getField() {
-
-  }
-
-  beforeSave(input, doc) {
+  afterLoad(doc) {
     const promises = [];
     for (const path in this.schema.schema) {
-      promises.push(this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this)))
+      promises.push(this.iterateFields(path, this.schema.schema[path], doc, doc, this.getField.bind(this)))
     }
     return Promise.all(promises)
       .then(result => doc);
   }
 
-  afterLoad(doc) {
-    return new Promise((resolve, reject) => {
-      resolve(doc);
-    });
+  getField(path, field, value, doc) {
+    // Use get function
+    if (field.hasOwnProperty('get') && typeof field.set === 'function') {
+      value = field.get(value);
+    }
+
+    // Change ids back to strings for simplicity
+    if (field.type === 'id') {
+      value = value ? value.toString() : value;
+    }
+
+    // Set the path on the doc
+    if (value !== null && value !== undefined) {
+      _.set(doc, path, value);
+    }
+
+    return Promise.resolve(doc);
   }
 
   /** Public Functions */
@@ -278,20 +299,22 @@ module.exports = class Model {
     });
   }
 
-  read(query, options) {
+  read(id) {
     return this.initialized.then(() => {
-      return this.db.read(this.collectionName, query, options)
+      return this.db.read(this.collectionName, id)
         .then(doc => this.afterLoad(doc));
     });
   }
 
-  update(doc) {
+  update(input) {
     return this.initialized.then(() => {
-      this.beforeSave(doc)
-        .then(doc => {
-          return this.db.update(this.collectionName, doc)
-            .then(doc => this.afterLoad(doc));
-        });
+      return this.read(input._id).then(previous => {
+        return this.beforeSave(input, previous)
+          .then(doc => {
+            return this.db.update(this.collectionName, doc)
+              .then(doc => this.afterLoad(doc));
+          });
+      });
     });
   }
 

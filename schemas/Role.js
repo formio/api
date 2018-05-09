@@ -8,7 +8,7 @@ module.exports = {
   basePath: '',
   schema: {
     title: {
-      type: String,
+      type: 'string',
       required: true,
       validate: [
         {
@@ -41,19 +41,19 @@ module.exports = {
       ]
     },
     description: {
-      type: String,
+      type: 'string',
       default: ''
     },
     deleted: {
-      type: Number,
+      type: 'numbr',
       default: null
     },
     default: {
-      type: Boolean,
+      type: 'boolean',
       default: false
     },
     admin: {
-      type: Boolean,
+      type: 'boolean',
       default: false
     },
     ...MachineName,

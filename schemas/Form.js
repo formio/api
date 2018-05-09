@@ -31,12 +31,12 @@ module.exports = {
   basePath: '',
   schema: {
     title: {
-      type: String,
+      type: 'string',
       description: 'The title for the form.',
       required: true
     },
     name: {
-      type: String,
+      type: 'string',
       description: 'The machine name for this form.',
       required: true,
       validate: [
@@ -52,7 +52,7 @@ module.exports = {
       ]
     },
     path: {
-      type: String,
+      type: 'string',
       description: 'The path for this resource.',
       index: true,
       required: true,
@@ -75,7 +75,7 @@ module.exports = {
       ]
     },
     type: {
-      type: String,
+      type: 'string',
       enum: ['form', 'resource'],
       required: true,
       default: 'form',
@@ -83,19 +83,19 @@ module.exports = {
       index: true
     },
     display: {
-      type: String,
+      type: 'string',
       description: 'The display method for this form'
     },
     action: {
-      type: String,
+      type: 'string',
       description: 'A custom action URL to submit the data to.'
     },
     tags: {
-      type: [String],
+      type: ['string'],
       index: true
     },
     deleted: {
-      type: Number,
+      type: 'number',
       default: null
     },
     access: [PermissionSchema],

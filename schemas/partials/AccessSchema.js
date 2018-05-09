@@ -10,7 +10,7 @@ const available = [
 module.exports = {
   _id: false,
   type: {
-    type: String,
+    type: 'string',
     enum: available,
     required: 'A permission type is required to associate an available permission with a Resource.'
   },

@@ -1,7 +1,13 @@
 'use strict';
 
 module.exports = {
-  type: String,
-  resource: String,
-  id: String
+  type: {
+    type: 'string'
+  },
+  resource: {
+    type: 'string'
+  },
+  id: {
+    type: 'string'
+  }
 };

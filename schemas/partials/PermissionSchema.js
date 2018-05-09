@@ -16,7 +16,7 @@ let available = [
 // Defines the permissions schema for form permissions.
 module.exports = {
   type: {
-    type: String,
+    type: 'string',
     enum: available,
     required: 'A permission type is required to associate an available permission with a given role.'
   },

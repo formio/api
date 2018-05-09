@@ -2,7 +2,7 @@
 
 module.exports = {
   machineName: {
-    type: String,
+    type: 'string',
     description: 'A unique, exportable name.',
     readonly: true,
     index: true

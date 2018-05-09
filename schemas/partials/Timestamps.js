@@ -2,13 +2,13 @@
 
 module.exports = {
   created: {
-    type: Date,
+    type: 'date',
     description: 'The date this resource was created.',
     default: Date.now,
     readonly: true
   },
   modified: {
-    type: Date,
+    type: 'date',
     description: 'The date this resource was modified.',
     readonly: true,
     set: () => Date.now()

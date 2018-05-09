@@ -5,26 +5,26 @@ module.exports = {
   basePath: '/form/:formId',
   schema: {
     title: {
-      type: String,
+      type: 'string',
       required: true
     },
     name: {
-      type: String,
+      type: 'string',
       required: true
     },
     handler: [{
-      type: String,
+      type: 'string',
       require: true
     }],
     method: [{
-      type: String,
+      type: 'string',
       require: true
     }],
     condition: {
       required: false
     },
     priority: {
-      type: Number,
+      type: 'number',
       require: true,
       default: 0
     },
@@ -38,7 +38,7 @@ module.exports = {
       required: true
     },
     deleted: {
-      type: Number,
+      type: 'number',
       index: true,
       default: null
     },

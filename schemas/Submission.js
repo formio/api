@@ -14,16 +14,13 @@ module.exports = {
     owner: {
       index: true,
       default: null,
-      set: owner => {
-        // Attempt to convert to objectId.
-        return formio.util.ObjectId(owner);
-      },
+      looseType: true,
       get: owner => {
         return owner ? owner.toString() : owner;
       }
     },
     deleted: {
-      type: Number,
+      type: 'number',
       default: null
     },
 

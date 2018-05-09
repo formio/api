@@ -98,8 +98,8 @@ describe('Model.js', () => {
 
       return model.create({foo: 'bar'}).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.instanceOf(db.create.args[0][1].foo, db.ID, 'Should set the type');
-        assert.instanceOf(doc.foo, db.ID, 'Should set the type');
+        assert.isString(db.create.args[0][1].foo);
+        assert.isString(doc.foo);
       });
     });
 
@@ -175,14 +175,14 @@ describe('Model.js', () => {
       });
     });
 
-    it('Converts to integer', () => {
+    it('Converts to number', () => {
       sandbox.spy(db, 'create');
 
       const model = new Model({
         name: 'test',
         schema: {
           foo: {
-            type: 'integer'
+            type: 'number'
           },
         },
       }, db);
@@ -667,6 +667,185 @@ describe('Model.js', () => {
       return model.create({foo: 'bar'}).catch(error => {
         assert(!db.create.called, 'Should not call db create');
         assert.equal(error, 'must pass sync validator');
+      });
+    });
+
+    it('Allows write on read only', () => {
+      sandbox.spy(db, 'create');
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          foo: {
+            type: 'string',
+            readOnly: true
+          },
+        },
+      }, db);
+
+      return model.create({_id: '3', foo: 'baz'}).then(doc => {
+        assert(db.create.calledOnce, 'Should call db update');
+        assert.equal(db.create.args[0][1].foo, 'baz');
+        assert.equal(doc.foo, 'baz');
+      });
+    })
+
+  });
+
+  describe('Read Tests', () => {
+    it('Reads an existing record', () => {
+      sandbox.stub(db, 'read').resolves({_id: 'foo', bar: 'baz'});
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          bar: {
+            type: 'string',
+          },
+        },
+      }, db);
+
+      return model.read('foo').then(doc => {
+        assert(db.read.calledOnce, 'Should call read');
+        assert.deepEqual(db.read.args[0][1], 'foo');
+        assert.deepEqual(doc, {_id: 'foo', bar: 'baz'});
+      });
+    });
+
+    it('Converts ids to strings', () => {
+      sandbox.stub(db, 'read').resolves({_id: 3, bar: 'baz'});
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          bar: {
+            type: 'string',
+          },
+        },
+      }, db);
+
+      return model.read(3).then(doc => {
+        assert.isString(doc._id);
+        assert.deepEqual(doc, {_id: '3', bar: 'baz'});
+      });
+    });
+
+    it('Returns read errors', () => {
+      sandbox.stub(db, 'read').rejects('Could not find entry');
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          bar: {
+            type: 'string',
+          },
+        },
+      }, db);
+
+      return model.read(3).catch(error => {
+        assert.equal(error, 'Could not find entry');
+      });
+    });
+  });
+
+  describe('Update Tests', () => {
+    it('Updates a record', () => {
+      sandbox.stub(db, 'read').resolves({_id: 3, foo: 'bar'});
+      sandbox.spy(db, 'update');
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          foo: {
+            type: 'string'
+          },
+        },
+      }, db);
+
+      return model.update({_id: '3', foo: 'baz'}).then(doc => {
+        assert(db.update.calledOnce, 'Should call db update');
+        assert.equal(db.update.args[0][1].foo, 'baz');
+        assert.equal(doc.foo, 'baz');
+      });
+    });
+
+    it('Enforces read only', () => {
+      sandbox.stub(db, 'read').resolves({_id: 3, foo: 'bar'});
+      sandbox.spy(db, 'update');
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          foo: {
+            type: 'string',
+            readOnly: true
+          },
+        },
+      }, db);
+
+      return model.update({_id: '3', foo: 'baz'}).then(doc => {
+        assert(db.update.calledOnce, 'Should call db update');
+        assert.equal(db.update.args[0][1].foo, 'bar');
+        assert.equal(doc.foo, 'bar');
+      });
+    })
+  });
+
+  describe('Delete Tests', () => {
+    it('Deletes an existing record', () => {
+      sandbox.spy(db, 'delete');
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          bar: {
+            type: 'string',
+          },
+        },
+      }, db);
+
+      return model.delete('foo').then(doc => {
+        assert(db.delete.calledOnce, 'Should call delete');
+        assert.deepEqual(db.delete.args[0][1], 'foo');
+      });
+    });
+
+    it('Returns delete errors', () => {
+      sandbox.stub(db, 'delete').rejects('Could not delete entry');
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          bar: {
+            type: 'string',
+          },
+        },
+      }, db);
+
+      return model.delete('foo').catch(error => {
+        assert.equal(error, 'Could not delete entry');
+      });
+    });
+  });
+
+  describe('Count Tests', () => {
+    it('Counts records', () => {
+      sandbox.stub(db, 'count').resolves(4);
+
+      const model = new Model({
+        name: 'test',
+        schema: {
+          bar: {
+            type: 'string',
+          },
+        },
+      }, db);
+
+      const query = {foo: 'bar'};
+      return model.count(query).then(result => {
+        assert(db.count.calledOnce, 'Should call count');
+        assert.deepEqual(db.count.args[0][1], query);
+        assert.equal(result, 4);
       });
     });
   });
