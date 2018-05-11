@@ -1,4 +1,4 @@
-const util = require('formiojs/lib/utils');
+const util = require('formiojs/Utils');
 
 module.exports = {
   ...util

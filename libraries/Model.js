@@ -8,14 +8,11 @@ module.exports = class Model {
     this.db = db;
 
     // Ensure there is an entry for _id
-    schema.schema._id = {
+    schema.schema._id = schema.schema._id || {
       type: 'id',
     };
 
     // @TODO
-    // readOnly
-    // get
-    // to string (read)
     // populate (deprecate?)
     // description (what does this do?)
 
@@ -299,9 +296,9 @@ module.exports = class Model {
     });
   }
 
-  read(id) {
+  read(query) {
     return this.initialized.then(() => {
-      return this.db.read(this.collectionName, id)
+      return this.db.read(this.collectionName, query)
         .then(doc => this.afterLoad(doc));
     });
   }

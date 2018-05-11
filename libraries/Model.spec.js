@@ -2,7 +2,7 @@ const assert = require('chai').assert;
 const sinon = require('sinon');
 
 // A fake db wrapper for stubbing.
-const db = require('../test/db');
+const db = require('../test/mocks/db');
 const sandbox = sinon.createSandbox();
 
 const Model = require('./Model');
@@ -37,7 +37,7 @@ describe('Model.js', () => {
       }, db);
 
       return model.initialized.then(() => {
-        assert(!db.createCollection.calledOnce, 'Should not call createCollection');
+        assert(db.createCollection.notCalled, 'Should not call createCollection');
       });
     });
 
@@ -553,7 +553,7 @@ describe('Model.js', () => {
       }, db);
 
       return model.create({foo: 'bal'}).catch(error => {
-        assert(!db.create.called, 'Should not call db create');
+        assert(db.create.notCalled, 'Should not call db create');
         assert.equal(error, 'Invalid enumerated option in \'foo\'');
       });
     });
@@ -606,7 +606,7 @@ describe('Model.js', () => {
       }, db);
 
       return model.create({foo: 'bar'}).catch(error => {
-        assert(!db.create.called, 'Should not call db create');
+        assert(db.create.notCalled, 'Should not call db create');
         assert.equal(error, 'must pass sync validator');
       });
     });
@@ -665,7 +665,7 @@ describe('Model.js', () => {
       }, db);
 
       return model.create({foo: 'bar'}).catch(error => {
-        assert(!db.create.called, 'Should not call db create');
+        assert(db.create.notCalled, 'Should not call db create');
         assert.equal(error, 'must pass sync validator');
       });
     });
