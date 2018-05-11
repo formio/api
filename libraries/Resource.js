@@ -161,31 +161,38 @@ module.exports = class Resource {
   }
 
   put(req, res, next) {
+    req.body._id = req.params[this.name + 'Id'];
     this.model.update(req.body)
       .then((doc) => {
         res.resource = {
           item: doc
         };
         next();
-      });
+      })
+      .catch(next);
   }
 
   patch(req, res, next) {
-    this.model.read(req.body._id)
+    this.model.read(req.params[this.name + 'Id'])
       .then(doc => {
-        const patched = jsonpatch.apply(doc, req.body);
-        this.model.update(this.collection, patched)
+        const patched = jsonpatch.applyPatch(doc, req.body);
+
+        // Ensure _id remains the same.
+        patched.newDocument._id = req.params[this.name + 'Id'];
+
+        this.model.update(patched.newDocument)
           .then((doc) => {
             res.resource = {
               item: doc
             };
             next();
           });
-      });
+      })
+      .catch(next);
   }
 
   delete(req, res, next) {
-    this.model.delete(req.body._id)
+    this.model.delete(req.params[this.name + 'Id'])
       .then((doc) => {
         res.resource = {
           item: doc

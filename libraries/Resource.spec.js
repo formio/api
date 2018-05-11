@@ -154,14 +154,98 @@ describe('Resource.js', () => {
   });
 
   describe('Handles Put', done => {
+    it('Calls update', done => {
+      sandbox.spy(model, 'update');
 
+      const resource = new Resource(model, app);
+
+      resource.put({params: {testId: 1}, body: {baz: 'bur'}}, {}, err => {
+        assert(model.update.calledOnce, 'Should call update');
+        assert.deepEqual(model.update.args[0][0], {baz: 'bur', _id: 1});
+        done(err);
+      });
+    });
+
+    it('Returns an error from put', done => {
+      sandbox.stub(model, 'update').rejects('Not found');
+
+      const resource = new Resource(model, app);
+
+      resource.put({params: {testId: 1}, body: {baz: 'bur'}}, {}, err => {
+        assert(model.update.calledOnce, 'Should call update');
+        assert.equal(err, 'Not found');
+        done();
+      });
+    });
   });
 
   describe('Handles Patch', done => {
+    it('Calls patch', done => {
+      sandbox.stub(model, 'read').resolves({foo: 'bar', fiz: 'buz', _id: 1});
+      sandbox.spy(model, 'update');
 
+      const resource = new Resource(model, app);
+
+      resource.patch({
+        params: {
+          testId: 1
+        },
+        body: [
+          {
+            op: 'add',
+            path: '/bing',
+            value: 'bong'
+          },
+          {
+            op: 'remove',
+            path: '/fiz',
+          }
+        ]}, {}, err => {
+        assert(model.update.calledOnce, 'Should call patch');
+        assert.deepEqual(model.update.args[0][0], {foo: 'bar', bing: 'bong', _id: 1});
+        done(err);
+      });
+    });
+
+    // it('Returns an error from patch', done => {
+    //   sandbox.stub(model, 'read').resolves({foo: 'bar'});
+    //   sandbox.stub(model, 'update').rejects('Not found');
+    //
+    //   const resource = new Resource(model, app);
+    //
+    //   resource.patch({params: {testId: 1}, body: {foo: 'bar'}}, {}, err => {
+    //     assert(model.patch.calledOnce, 'Should call patch');
+    //     assert.deepEqual(model.patch.args[0][0], 1);
+    //     assert.equal(err, 'Not found');
+    //     done();
+    //   });
+    // });
   });
 
   describe('Handles Delete', done => {
+    it('Calls delete', done => {
+      sandbox.spy(model, 'delete');
 
+      const resource = new Resource(model, app);
+
+      resource.delete({params: {testId: 1}}, {}, err => {
+        assert(model.delete.calledOnce, 'Should call delete');
+        assert.deepEqual(model.delete.args[0][0], 1);
+        done(err);
+      });
+    });
+
+    it('Returns an error from delete', done => {
+      sandbox.stub(model, 'delete').rejects('Not found');
+
+      const resource = new Resource(model, app);
+
+      resource.delete({params: {testId: 1}}, {}, err => {
+        assert(model.delete.calledOnce, 'Should call delete');
+        assert.deepEqual(model.delete.args[0][0], 1);
+        assert.equal(err, 'Not found');
+        done();
+      });
+    });
   });
 });
