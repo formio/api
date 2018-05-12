@@ -1,10 +1,23 @@
 'use strict'
 
 const Resource = require('../libraries/Resource');
-const Model = require('../libraries/Model');
 
 module.exports = class Action extends Resource {
-  constructor(model, router, options) {
-    super(model, router, options);
+  constructor(model, router) {
+    super(model, router);
+    this.register('use', this.route + '/actions', 'actions');
+    this.register('use', this.route + '/actions/:name', 'loadAction');
+  }
+
+  get route() {
+    return 'form/:formId/' + this.name;
+  }
+
+  actions(req, res, next) {
+    next();
+  }
+
+  loadAction(req, res, next) {
+    next();
   }
 };

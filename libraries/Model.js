@@ -271,6 +271,10 @@ module.exports = class Model {
     return Promise.resolve(doc);
   }
 
+  toID(value) {
+    return new this.db.ID(value);
+  }
+
   /** Public Functions */
 
   find(query, options) {

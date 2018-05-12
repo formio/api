@@ -1,14 +1,18 @@
 'use strict'
 
 const Resource = require('../libraries/Resource');
-const Model = require('../libraries/Model');
 
 module.exports = class Submission extends Resource {
-  constructor(model, router, options) {
-    super(model, router, options);
+  constructor(model, router) {
+    super(model, router);
+    this.register('use', this.route + '/exists', 'exists');
   }
 
   get route() {
     return 'form/:formId/' + this.name;
+  }
+
+  exists(req, res, next) {
+
   }
 };

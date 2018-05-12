@@ -1,10 +1,10 @@
 'use strict';
 
 const jsonpatch = require('fast-json-patch');
+const moment = require('moment');
 
 module.exports = class Resource {
-  constructor(model, router, options = {}) {
-    this.options = options;
+  constructor(model, router) {
     this.model = model;
     this.router = router;
 
@@ -36,92 +36,123 @@ module.exports = class Resource {
     });
   }
 
-  getFindQuery(req) {
-    const findQuery = {};
-
-    // Get the filters and omit the limit, skip, select, and sort.
-    var filters = _.omit(req.query, 'limit', 'skip', 'select', 'sort', 'populate');
+  getQuery(req, query = {}) {
+    const {limit, skip, select, sort, populate, ...filters} = req.query || {};
 
     // Iterate through each filter.
-    _.each(filters, (value, name) => {
-
-      // Get the filter object.
-      var filter = _.zipObject(['name', 'selector'], name.split('__'));
+    for (let key in filters) {
+      let value = filters[key];
+      const [name, selector] = key.split('__');
 
       // See if this parameter is defined in our model.
-      var param = this.model.schema.paths[filter.name.split('.')[0]];
+      const param = this.model.schema[name.split('.')[0]];
+
       if (param) {
+        if (selector) {
+          switch (selector) {
+            case 'regex':
+              // Set the regular expression for the filter.
+              const parts = value.match(/\/?([^/]+)\/?([^/]+)?/);
 
-        // See if there is a selector.
-        if (filter.selector) {
-
-          // See if this selector is a regular expression.
-          if (filter.selector === 'regex') {
-
-            // Set the regular expression for the filter.
-            var parts = value.match(/\/?([^/]+)\/?([^/]+)?/);
-            var regex = null;
-            try {
-              regex = new RegExp(parts[1], (parts[2] || 'i'));
-            }
-            catch (err) {
-              debug.query(err);
-              regex = null;
-            }
-            if (regex) {
-              findQuery[filter.name] = regex;
-            }
-            return;
-          }
-          else {
-            // Init the filter.
-            if (!findQuery.hasOwnProperty(filter.name)) {
-              findQuery[filter.name] = {};
-            }
-
-            if (filter.selector === 'exists') {
+              try {
+                value = new RegExp(parts[1], (parts[2] || 'i'));
+              }
+              catch (err) {
+                value = null;
+              }
+              query[name] = value;
+              break;
+            case 'exists':
               value = ((value === 'true') || (value === '1')) ? true : value;
               value = ((value === 'false') || (value === '0')) ? false : value;
               value = !!value;
-            }
-            // Special case for in filter with multiple values.
-            else if ((_.indexOf(['in', 'nin'], filter.selector) !== -1)) {
-              value = _.isArray(value) ? value : value.split(',');
-              value = _.map(value, (item) => {
-                return this.getQueryValue(filter.name, item, param, options);
+              query[name] = query[name] || {};
+              query[name]['$' + selector] = value;
+              break;
+            case 'in':
+            case 'nin':
+              value = Array.isArray(value) ? value : value.split(',');
+              value = value.map(item => {
+                return this.getQueryValue(name, item, param);
               });
-            }
-            else {
-              // Set the selector for this filter name.
-              value = this.getQueryValue(filter.name, value, param, options);
-            }
-
-            findQuery[filter.name]['$' + filter.selector] = value;
-            return;
+              query[name] = query[name] || {};
+              query[name]['$' + selector] = value;
+              break;
+            default:
+              value = this.getQueryValue(name, value, param);
+              query[name] = query[name] || {};
+              query[name]['$' + selector] = value;
+              break;
           }
         }
         else {
           // Set the find query to this value.
-          value = this.getQueryValue(filter.name, value, param, options);
-          findQuery[filter.name] = value;
-          return;
+          value = this.getQueryValue(name, value, param);
+          query[name] = value;
         }
       }
+      else {
+        // Set the find query to this value.
+        query[name] = value;
+      }
+    }
 
-      // Set the find query to this value.
-      findQuery[filter.name] = value;
+    return query;
+  }
+
+  getQueryValue(name, value, param) {
+    if (param.type === 'number') {
+      return parseInt(value, 10);
+    }
+
+    var date = moment.utc(value, ['YYYY-MM-DD', 'YYYY-MM', moment.ISO_8601], true);
+    if (date.isValid()) {
+      return date.toDate();
+    }
+
+    // If this is an ID, and the value is a string, convert to an ObjectId.
+    if (param.type === 'id' && typeof value === 'string') {
+      try {
+        value = this.model.toID(value);
+      }
+      catch (err) {
+        console.warn(`Invalid ObjectID: ${value}`);
+      }
+    }
+
+    return value;
+  }
+
+  getOptions(req, options = {}) {
+    const optionKeys = ['limit', 'skip', 'select', 'sort'];
+
+    optionKeys.forEach(key => {
+      if (req.query.hasOwnProperty(key)) {
+        switch(key) {
+          case 'limit':
+          case 'skip':
+            options[key] = req.query[key];
+            break;
+          case 'sort':
+          case 'select':
+            // Select has changed to projection.
+            options[(key === 'select' ? 'projection' : key)] = req.query[key].split(',')
+              .map(item => item.trim())
+              .reduce((prev, item) => {
+                prev[item] = 1;
+                return prev;
+              }, {});
+            break;
+        }
+      }
     });
 
-    // Return the findQuery.
-    return findQuery;
+    return options;
   }
 
   index(req, res, next) {
-    const query = {};
-    const options = {
-      limit: 10,
-      skip: 0
-    };
+    const query = this.getQuery(req);
+    const options = this.getOptions(req);
     Promise.all([
       this.model.count(query),
       this.model.find(query, options)

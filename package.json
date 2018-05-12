@@ -20,6 +20,7 @@
     "formiojs": "^3.0.0-alpha.11",
     "joi": "^13.2.0",
     "lodash": "^4.17.5",
+    "moment": "^2.22.1",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
