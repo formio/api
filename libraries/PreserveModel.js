@@ -1,53 +1,48 @@
 'use strict';
 
-import Model from './Model';
+const Model = require('./Model');
 
 module.exports = class PreserveModel extends Model {
+  constructor(schema, db) {
+    // Add delete field to track delete status.
+    schema.schema.deleted = schema.schema.deleted || {
+      type: 'number',
+      index: true,
+      default: null
+    };
+
+    super(schema, db);
+  }
+
+  afterLoad(doc) {
+    return super.afterLoad(doc)
+      .then(doc => {
+        delete doc.deleted;
+        return doc;
+      })
+  }
+
   find(query, options) {
-    return this.initialized.then(() => {
-      return this.db.find(this.collectionName, query, options)
-        .then(docs => Promise.all(docs.map(doc => this.afterLoad(doc))));
-    });
+    query.deleted = {$eq: null};
+    return super.find(query, options);
   }
 
   count(query) {
-    return this.initialized.then(() => {
-      return this.db.count(this.collectionName, query);
-    });
-  }
-
-  create(input) {
-    return this.initialized.then(() => {
-      return this.beforeSave(input, {})
-        .then(doc => {
-          return this.db.create(this.collectionName, doc)
-            .then(doc => this.afterLoad(doc));
-        });
-    });
+    query.deleted = {$eq: null};
+    return super.count(query);
   }
 
   read(query) {
-    return this.initialized.then(() => {
-      return this.db.read(this.collectionName, query)
-        .then(doc => this.afterLoad(doc));
-    });
-  }
-
-  update(input) {
-    return this.initialized.then(() => {
-      return this.read(input._id).then(previous => {
-        return this.beforeSave(input, previous)
-          .then(doc => {
-            return this.db.update(this.collectionName, doc)
-              .then(doc => this.afterLoad(doc));
-          });
-      });
-    });
+    query.deleted = {$eq: null};
+    return super.read(query);
   }
 
   delete(_id) {
     return this.initialized.then(() => {
-      return this.db.delete(this.collectionName, _id);
+      return this.read({_id}).then(doc => {
+        doc.deleted = Date.now();
+        return this.db.update(this.collectionName, doc);
+      });
     });
   }
 };

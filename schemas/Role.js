@@ -44,10 +44,6 @@ module.exports = {
       type: 'string',
       default: ''
     },
-    deleted: {
-      type: 'numbr',
-      default: null
-    },
     default: {
       type: 'boolean',
       default: false

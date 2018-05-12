@@ -705,9 +705,9 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.read('foo').then(doc => {
+      return model.read({_id: 'foo'}).then(doc => {
         assert(db.read.calledOnce, 'Should call read');
-        assert.deepEqual(db.read.args[0][1], 'foo');
+        assert.deepEqual(db.read.args[0][1], {_id: 'foo'});
         assert.deepEqual(doc, {_id: 'foo', bar: 'baz'});
       });
     });
@@ -724,7 +724,7 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.read(3).then(doc => {
+      return model.read({_id: 3}).then(doc => {
         assert.isString(doc._id);
         assert.deepEqual(doc, {_id: '3', bar: 'baz'});
       });

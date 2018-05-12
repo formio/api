@@ -37,11 +37,6 @@ module.exports = {
       index: true,
       required: true
     },
-    deleted: {
-      type: 'number',
-      index: true,
-      default: null
-    },
     ...MachineName
   }
 };

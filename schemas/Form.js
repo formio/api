@@ -94,10 +94,6 @@ module.exports = {
       type: ['string'],
       index: true
     },
-    deleted: {
-      type: 'number',
-      default: null
-    },
     access: [PermissionSchema],
     submissionAccess: [PermissionSchema],
     owner: {

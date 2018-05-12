@@ -19,10 +19,6 @@ module.exports = {
         return owner ? owner.toString() : owner;
       }
     },
-    deleted: {
-      type: 'number',
-      default: null
-    },
 
     // The roles associated with this submission, if any.
     // Useful for complex custom resources.
