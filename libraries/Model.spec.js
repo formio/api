@@ -81,6 +81,20 @@ describe('Model.js', () => {
         assert.equal(db.createIndex.args[2][2], testIndex.options);
       });
     });
+
+    it('Provides a way to transform IDs', done => {
+      sandbox.spy(db, 'ID');
+
+      const model = new Model({
+        name: 'test',
+        schema: {}
+      }, db);
+
+      const result = model.toID('test');
+      assert(db.ID.calledOnce, 'Should call db id');
+      assert.deepEqual(result, {id: 'test'});
+      done();
+    });
   });
 
   describe('Type tests', () => {

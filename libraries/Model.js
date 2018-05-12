@@ -67,14 +67,6 @@ module.exports = class Model {
     //   .then(doc => console.log(doc));
   }
 
-  validate(input) {
-    const doc = {};
-    return new Promise((resolve, reject) => {
-      for (const path in this.schema) {
-      }
-    });
-  }
-
   iterateFields(path, schema, input, doc, execute) {
     const promises = [];
     if (Array.isArray(schema.type) && schema.type.length >= 1) {

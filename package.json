@@ -4,7 +4,7 @@
   "description": "A form manager API application",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'"
+    "test": "nyc --reporter=text mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'"
   },
   "keywords": [
     "Form.io",
@@ -26,6 +26,7 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "mocha": "^5.1.1",
+    "nyc": "^11.7.3",
     "sinon": "^5.0.2"
   }
 }
