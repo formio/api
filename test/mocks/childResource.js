@@ -11,7 +11,7 @@ module.exports = class Child extends Resource {
   }
 
   get route() {
-    return 'foo/' + super.route;
+    return '/foo' + super.route;
   }
 
   test(req, res, next) {

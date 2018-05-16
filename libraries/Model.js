@@ -264,7 +264,12 @@ module.exports = class Model {
   }
 
   toID(value) {
-    return new this.db.ID(value);
+    try {
+      return new this.db.ID(value);
+    }
+    catch (err) {
+      return value;
+    }
   }
 
   /** Public Functions */

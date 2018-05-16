@@ -16,7 +16,7 @@ module.exports = class Resource {
   }
 
   get route() {
-    return this.name;
+    return '/' + this.name;
   }
 
   rest() {
@@ -31,6 +31,7 @@ module.exports = class Resource {
   }
 
   register(method, route, callback) {
+    console.log('registering ' + method.toUpperCase() + ': ' + route);
     this.router[method](route, (req, res, next) => {
       this[callback](req, res, next);
     });
@@ -180,7 +181,7 @@ module.exports = class Resource {
 
   get(req, res, next) {
     this.model.read({
-      _id: req.params[this.name + 'Id']
+      _id: this.model.toID(req.params[this.name + 'Id'])
     })
       .then((doc) => {
         res.resource = {

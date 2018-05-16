@@ -13,7 +13,7 @@ module.exports = class FormManager {
     console.log('Initializing database');
     this.addModels();
     this.router.use(this.beforePhases);
-    // this.addResources();
+    this.addResources();
     this.router.use(this.afterPhases);
   }
 
@@ -43,7 +43,7 @@ module.exports = class FormManager {
   }
 
   getModelClass(schema) {
-    return require('./libraries/Model');
+    return require('./libraries/PreserveModel');
   }
 
   addModels() {
@@ -60,7 +60,7 @@ module.exports = class FormManager {
   }
   init(req, res, next) {
     req.uuid = uuid();
-    console.log(req.uuid, req.path, 'init');
+    console.log(req.uuid, req.method, req.path, 'init');
 
     // Do alias here.
 
@@ -120,6 +120,9 @@ module.exports = class FormManager {
 
   respond(req, res, next) {
     console.log('response');
+    if (!res.resource) {
+      return res.status(404).send();
+    }
     if (res.resource.items) {
       return res.send(res.resource.items);
     }

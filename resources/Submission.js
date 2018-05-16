@@ -9,7 +9,7 @@ module.exports = class Submission extends Resource {
   }
 
   get route() {
-    return 'form/:formId/' + this.name;
+    return '/form/:formId/' + this.name;
   }
 
   exists(req, res, next) {

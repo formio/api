@@ -26,16 +26,16 @@ describe('Resource.js', () => {
       const resource = new Resource(model, app);
 
       assert(app.get.calledTwice, 'Should call get twice');
-      assert.equal(app.get.args[0][0], model.name);
-      assert.equal(app.get.args[1][0], model.name + '/:' + model.name + 'Id');
+      assert.equal(app.get.args[0][0], '/' + model.name);
+      assert.equal(app.get.args[1][0], '/' + model.name + '/:' + model.name + 'Id');
       assert(app.put.calledOnce, 'Should call put once');
-      assert.equal(app.put.args[0][0], model.name + '/:' + model.name + 'Id');
+      assert.equal(app.put.args[0][0], '/' + model.name + '/:' + model.name + 'Id');
       assert(app.post.calledOnce, 'Should call post once');
-      assert.equal(app.post.args[0][0], model.name);
+      assert.equal(app.post.args[0][0], '/' + model.name);
       assert(app.patch.calledOnce, 'Should call patch once');
-      assert.equal(app.patch.args[0][0], model.name + '/:' + model.name + 'Id');
+      assert.equal(app.patch.args[0][0], '/' + model.name + '/:' + model.name + 'Id');
       assert(app.delete.calledOnce, 'Should call delete once');
-      assert.equal(app.delete.args[0][0], model.name + '/:' + model.name + 'Id');
+      assert.equal(app.delete.args[0][0], '/' + model.name + '/:' + model.name + 'Id');
       assert(app.use.notCalled, 'Should not call use');
 
       done();
@@ -52,18 +52,18 @@ describe('Resource.js', () => {
       const resource = new ChildResource(model, app);
 
       assert(app.get.calledTwice, 'Should call get twice');
-      assert.equal(app.get.args[0][0], 'foo/' + model.name);
-      assert.equal(app.get.args[1][0], 'foo/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.get.args[0][0], '/foo/' + model.name);
+      assert.equal(app.get.args[1][0], '/foo/' + model.name + '/:' + model.name + 'Id');
       assert(app.put.calledOnce, 'Should call put once');
-      assert.equal(app.put.args[0][0], 'foo/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.put.args[0][0], '/foo/' + model.name + '/:' + model.name + 'Id');
       assert(app.post.calledOnce, 'Should call post once');
-      assert.equal(app.post.args[0][0], 'foo/' + model.name);
+      assert.equal(app.post.args[0][0], '/foo/' + model.name);
       assert(app.patch.calledOnce, 'Should call patch once');
-      assert.equal(app.patch.args[0][0], 'foo/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.patch.args[0][0], '/foo/' + model.name + '/:' + model.name + 'Id');
       assert(app.delete.calledOnce, 'Should call delete once');
-      assert.equal(app.delete.args[0][0], 'foo/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.delete.args[0][0], '/foo/' + model.name + '/:' + model.name + 'Id');
       assert(app.use.calledOnce, 'Should call use once');
-      assert.equal(app.use.args[0][0], 'foo/' + model.name + '/test');
+      assert.equal(app.use.args[0][0], '/foo/' + model.name + '/test');
 
       done();
     });
