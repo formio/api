@@ -63,8 +63,6 @@ module.exports = class Model {
         }
         return Promise.all(promises);
       });
-    // this.applySchema({tags: ['one', 'two'], form: 'Test', name: 'test', path: 'test', 'form': '592346d2cc462910c67c6200', data: {}}, {})
-    //   .then(doc => console.log(doc));
   }
 
   iterateFields(path, schema, input, doc, execute) {

@@ -17,6 +17,20 @@ module.exports = class FormManager {
     this.router.use(this.afterPhases);
   }
 
+  get reservedForms() {
+    return [
+      'submission',
+      'exists',
+      'export',
+      'role',
+      'current',
+      'logout',
+      'form',
+      'access',
+      'token',
+    ]
+  }
+
   get beforePhases() {
     return [
       this.init.bind(this),
@@ -42,6 +56,38 @@ module.exports = class FormManager {
     return require('./resources');
   }
 
+  alias(req, baseUrl = '', next) {
+    const formsRegEx = new RegExp(`\/(${this.reservedForms.join('|')})($|\/.*)`, 'i');
+
+    // Get the alias from the request.
+    const alias = req.url.split('?')[0].substr(baseUrl.length).replace(formsRegEx, '').substr(1);
+
+    // If this is normal request, pass this middleware.
+    /* eslint-disable no-useless-escape */
+    if (!alias || alias.match(/^(form$|form[\?\/])/) || alias === 'spec.json') {
+      return next();
+    }
+
+    this.models.Form.find({
+      path: alias
+    })
+      .then(forms => {
+        const form = forms[0];
+        // Get the additional path.
+        let additional = req.url.substr(baseUrl.length + alias.length + 1);
+
+        // Handle a special case where they 'POST' to the form. Assume to create a submission.
+        if (!additional && req.method === 'POST') {
+          additional = '/submission';
+        }
+
+        // Create the new URL for the project.
+        req.url = `${baseUrl}/form/${form._id}${additional}`;
+        next();
+      })
+      .catch(next);
+  }
+
   getModelClass(schema) {
     return require('./libraries/PreserveModel');
   }
@@ -62,9 +108,7 @@ module.exports = class FormManager {
     req.uuid = uuid();
     console.log(req.uuid, req.method, req.path, 'init');
 
-    // Do alias here.
-
-    next();
+    this.alias(req, '', next);
   }
 
   context(req, res, next) {

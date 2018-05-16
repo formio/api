@@ -12,7 +12,12 @@ module.exports = class Submission extends Resource {
     return '/form/:formId/' + this.name;
   }
 
-  exists(req, res, next) {
+  getQuery(req, query = {}) {
+    query.form = this.model.toID(req.params.formId);
+    return super.getQuery(req, query);
+  }
 
+  exists(req, res, next) {
+    next();
   }
 };
