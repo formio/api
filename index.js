@@ -1,7 +1,7 @@
 'use strict';
 
-const FormManager = require('./libraries/FormManager');
-const log = require('./libraries/log');
+const FormManager = require('./src/FormManager');
+const log = require('./src/log');
 
 module.exports = {
   FormManager,

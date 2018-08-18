@@ -2,12 +2,12 @@ const assert = require('chai').assert;
 const sinon = require('sinon');
 
 // A fake db wrapper for stubbing.
-const app = require('../test/mocks/app');
-const model = require('../test/mocks/model');
+const app = require('../../test/mocks/app');
+const model = require('../../test/mocks/model');
 const sandbox = sinon.createSandbox();
 
 const Resource = require('./Resource');
-const ChildResource = require('../test/mocks/childResource');
+const ChildResource = require('../../test/mocks/childResource');
 
 describe('Resource.js', () => {
   afterEach(() => {

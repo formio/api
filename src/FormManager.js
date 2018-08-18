@@ -50,11 +50,11 @@ module.exports = class FormManager {
   }
 
   get schemas() {
-    return require('../schemas');
+    return require('./schemas/index');
   };
 
   get resourceClasses() {
-    return require('../resources');
+    return require('./resources/index');
   }
 
   get resourceTypes() {
@@ -208,7 +208,7 @@ module.exports = class FormManager {
   }
 
   getModelClass(schema) {
-    return require('./PreserveModel');
+    return require('./libraries/PreserveModel');
   }
 
   addModels() {

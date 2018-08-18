@@ -2,7 +2,7 @@
 
 const Joi = require('joi');
 const _ = require('lodash');
-const log = require('./log');
+const log = require('../log');
 
 module.exports = class Model {
   constructor(schema, db) {

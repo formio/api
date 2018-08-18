@@ -2,7 +2,7 @@
 
 const jsonpatch = require('fast-json-patch');
 const moment = require('moment');
-const log = require('./log');
+const log = require('../log');
 
 module.exports = class Resource {
   constructor(model, router) {

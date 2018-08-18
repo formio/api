@@ -1,5 +1,5 @@
 const cm = require('composable-middleware');
-const Resource = require('../../libraries/Resource');
+const Resource = require('../../src/libraries/Resource');
 
 // @Todo
 // swagger
