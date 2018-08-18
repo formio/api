@@ -16,8 +16,9 @@
   "license": "ISC",
   "dependencies": {
     "composable-middleware": "^0.3.0",
+    "debug": "^3.1.0",
     "fast-json-patch": "^2.0.6",
-    "formiojs": "^3.0.0-alpha.11",
+    "formiojs": "^3.3.0",
     "joi": "^13.2.0",
     "lodash": "^4.17.5",
     "moment": "^2.22.1",

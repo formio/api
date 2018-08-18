@@ -2,6 +2,7 @@
 
 const Joi = require('joi');
 const _ = require('lodash');
+const log = require('./log');
 
 module.exports = class Model {
   constructor(schema, db) {
@@ -36,13 +37,13 @@ module.exports = class Model {
     return this.db.getCollections()
       .then(collections => {
         if (collections.includes(this.collectionName)) {
-          console.log(`${this.collectionName} collection already exists`);
+          log('debug', `${this.collectionName} collection already exists`);
           return Promise.resolve();
         }
         else {
-          console.log(`${this.collectionName} collection doesn't exist. Creating...`);
+          log('debug', `${this.collectionName} collection doesn't exist. Creating...`);
           return this.db.createCollection(this.collectionName)
-            .then(() => console.log(`${this.collectionName} collection created successfully`))
+            .then(() => log('debug', `${this.collectionName} collection created successfully`))
             .catch(err => console.error(err));
         }
       })
@@ -51,13 +52,13 @@ module.exports = class Model {
         for (const name in this.schema.schema) {
           const field = this.schema.schema[name];
           if (field.index) {
-            console.log(`Ensuring index for ${this.collectionName}.${name}`)
-            promises.push(this.db.createIndex(this.collectionName, name));
+            log('debug', `Ensuring index for ${this.collectionName}.${name}`)
+            // promises.push(this.db.createIndex(this.collectionName, name));
           }
         }
         if (this.schema.indexes) {
           this.schema.indexes.map(index => {
-            console.log(`Ensure extra index for ${this.collectionName} ${index.name}`);
+            log('debug', `Ensure extra index for ${this.collectionName} ${index.name}`);
             promises.push(this.db.createIndex(this.collectionName, index.spec, index.options));
           });
         }

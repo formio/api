@@ -20,4 +20,8 @@ module.exports = class Submission extends Resource {
   exists(req, res, next) {
     next();
   }
+  //
+  // index(req, res, next) {
+  //
+  // }
 };

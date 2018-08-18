@@ -2,6 +2,7 @@
 
 const jsonpatch = require('fast-json-patch');
 const moment = require('moment');
+const log = require('./log');
 
 module.exports = class Resource {
   constructor(model, router) {
@@ -31,7 +32,7 @@ module.exports = class Resource {
   }
 
   register(method, route, callback) {
-    console.log('registering ' + method.toUpperCase() + ': ' + route);
+    log('debug', 'Registering route ' + method.toUpperCase() + ': ' + route);
     this.router[method](route, (req, res, next) => {
       this[callback](req, res, next);
     });
@@ -117,7 +118,7 @@ module.exports = class Resource {
         value = this.model.toID(value);
       }
       catch (err) {
-        console.warn(`Invalid ObjectID: ${value}`);
+        log('warning', `Invalid ObjectID: ${value}`);
       }
     }
 
