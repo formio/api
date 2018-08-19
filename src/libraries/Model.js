@@ -308,7 +308,7 @@ module.exports = class Model {
 
   update(input) {
     return this.initialized.then(() => {
-      return this.read(input._id).then(previous => {
+      return this.read({_id: this.db.ID(input._id)}).then(previous => {
         return this.beforeSave(input, previous)
           .then(doc => {
             return this.db.update(this.collectionName, doc)

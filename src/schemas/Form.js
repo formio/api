@@ -1,6 +1,8 @@
 const Timestamps = require('./partials/Timestamps');
 const MachineName = require('./partials/MachineName');
 const PermissionSchema = require('./partials/PermissionSchema');
+const eachComponent = require('formiojs/utils').eachComponent;
+const _ = require('lodash');
 
 const uniqueMessage = 'may only contain letters, numbers, hyphens, and forward slashes ' +
   '(but cannot start or end with a hyphen or forward slash)';
@@ -11,16 +13,58 @@ const uniqueValidator = property => function(value, model, done) {
 
   // Ignore the id if this is an update.
   if (this._id) {
-    search._id = {$ne: this._id};
+    query._id = {$ne: model.db.ID(this._id)};
   }
 
-  model('form').find(search).then((err, result) => {
-    if (err) {
-      return done(false);
-    }
+  model.find(query)
+    .then((result) => {
+      done(!result.length);
+    })
+    .catch(err => {
+      done(false);
+    });
+};
 
-    done(true);
-  });
+const invalidRegex = /[^0-9a-zA-Z\-\/]|^\-|\-$|^\/|\/$/;
+const validKeyRegex = /^[A-Za-z_]+[A-Za-z0-9\-._]*$/g;
+const validShortcutRegex = /^([A-Z]|Enter|Esc)$/i;
+
+const componentKeys = (components) => {
+  const keys = [];
+  eachComponent(components, (component) => {
+    if (!_.isUndefined(component.key) && !_.isNull(component.key)) {
+      keys.push(component.key);
+    }
+  }, true);
+  return _(keys);
+};
+
+const componentPaths = (components) => {
+  const paths = [];
+  eachComponent(components, (component, path) => {
+    if (component.input && !_.isUndefined(component.key) && !_.isNull(component.key)) {
+      paths.push(path);
+    }
+  }, true);
+  return _(paths);
+};
+
+const componentShortcuts = (components) => {
+  const shortcuts = [];
+  eachComponent(components, (component, path) => {
+    if (component.shortcut) {
+      shortcuts.push(_.capitalize(component.shortcut));
+    }
+    if (component.values) {
+      _.forEach(component.values, (value) => {
+        const shortcut = _.get(value, 'shortcut');
+        if (shortcut) {
+          shortcuts.push(_.capitalize(shortcut));
+        }
+      });
+    }
+  }, true);
+  return _(shortcuts);
 };
 
 const keyError = '';
@@ -107,7 +151,7 @@ module.exports = {
       }
     },
     components: {
-      type: [Object],
+      // type: [Object],
       description: 'An array of components within the form.',
       validate: [
         {
@@ -121,7 +165,7 @@ module.exports = {
         },
         {
           isAsync: true,
-          validator: (components, valid) => {
+          validator: (components, model, valid) => {
             const paths = componentPaths(components);
             const msg = 'Component keys must be unique: ';
             const uniq = paths.uniq();
@@ -136,7 +180,7 @@ module.exports = {
         },
         {
           isAsync: true,
-          validator: (components, valid) => {
+          validator: (components, model, valid) => {
             const shortcuts = componentShortcuts(components);
             const msg = 'Component shortcuts must be unique: ';
             const uniq = shortcuts.uniq();

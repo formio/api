@@ -17,7 +17,9 @@ module.exports = class PreserveModel extends Model {
   afterLoad(doc) {
     return super.afterLoad(doc)
       .then(doc => {
-        delete doc.deleted;
+        if (doc) {
+          delete doc.deleted;
+        }
         return doc;
       })
   }
@@ -27,12 +29,12 @@ module.exports = class PreserveModel extends Model {
     return super.find(query, options);
   }
 
-  count(query) {
+  count(query = {}) {
     query.deleted = {$eq: null};
     return super.count(query);
   }
 
-  read(query) {
+  read(query = {}) {
     query.deleted = {$eq: null};
     return super.read(query);
   }

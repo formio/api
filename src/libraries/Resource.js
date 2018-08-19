@@ -145,7 +145,7 @@ module.exports = class Resource {
         switch(key) {
           case 'limit':
           case 'skip':
-            options[key] = req.query[key];
+            options[key] = parseInt(req.query[key]);
             break;
           case 'sort':
           case 'select':
