@@ -5,9 +5,10 @@ const moment = require('moment');
 const log = require('../log');
 
 module.exports = class Resource {
-  constructor(model, router) {
+  constructor(model, router, app) {
     this.model = model;
     this.router = router;
+    this.app = app;
 
     this.rest();
   }
@@ -20,6 +21,16 @@ module.exports = class Resource {
     return '/' + this.name;
   }
 
+  /**
+   * Call an array of promises in series and call next() when done.
+   *
+   * @param promises
+   * @param next
+   */
+  callPromisesAsync(promises) {
+    return promises.reduce((p, f) => p.catch(err => Promise.reject(err)).then(f), Promise.resolve())
+  }
+
   rest() {
     this.register('get', this.route, 'index');
     this.register('post', this.route, 'post');
@@ -27,6 +38,7 @@ module.exports = class Resource {
     this.register('put', this.route + '/:' + this.name + 'Id', 'put');
     this.register('patch', this.route + '/:' + this.name + 'Id', 'patch');
     this.register('delete', this.route + '/:' + this.name + 'Id', 'delete');
+    this.register('use', this.route + '/exists', 'exists');
 
     return this;
   }
@@ -233,5 +245,9 @@ module.exports = class Resource {
         next();
       })
       .catch(next);
+  }
+
+  exists(req, res, next) {
+    next();
   }
 };

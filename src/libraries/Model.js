@@ -235,6 +235,9 @@ module.exports = class Model {
   }
 
   afterLoad(doc) {
+    if (!doc) {
+      return Promise.resolve(doc);
+    }
     const promises = [];
     for (const path in this.schema.schema) {
       promises.push(this.iterateFields(path, this.schema.schema[path], doc, doc, this.getField.bind(this)))

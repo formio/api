@@ -1,6 +1,7 @@
 const uuid = require('uuid/v1');
 const log = require('./log');
 const config = require('../config');
+const resources = require('./resources');
 const EVERYONE = '000000000000000000000000';
 
 module.exports = class FormManager {
@@ -15,6 +16,8 @@ module.exports = class FormManager {
     this.addModels();
     this.router.use(this.beforePhases);
     this.addResources();
+    this.router.get('/access', this.access);
+    this.router.get('/', this.root);
     this.router.use(this.afterPhases);
   }
 
@@ -50,11 +53,11 @@ module.exports = class FormManager {
   }
 
   get schemas() {
-    return require('./schemas/index');
+    return require('./schemas');
   };
 
   get resourceClasses() {
-    return require('./resources/index');
+    return resources;
   }
 
   get resourceTypes() {
@@ -96,7 +99,7 @@ module.exports = class FormManager {
       if (req.context.hasOwnProperty(type) && !entity) {
         entity = {
           type,
-          id: req.context[type]._id,
+          id: req.context.resources[type]._id,
         }
       }
     });
@@ -111,7 +114,7 @@ module.exports = class FormManager {
    * @param method
    */
   entityPermissionRoles(req, info, method) {
-    const entity = req.context[info.type];
+    const entity = req.context.resources[info.type];
     const accessKey = info.type === 'submission' ? 'submissionAccess' : 'access';
     let roles = [];
 
@@ -160,6 +163,28 @@ module.exports = class FormManager {
       ...req.user.roles,
       EVERYONE,
     ];
+  }
+
+  /**
+   * Load a role into context
+   *
+   * @param req
+   * @param roleName
+   * @param query
+   * @returns {*|PromiseLike<T>|Promise<T>}
+   */
+  loadContextRole(req, roleName, query) {
+    return this.models.Role.read(query)
+      .then(role => {
+        req.context.roles[roleName] = role;
+      });
+  }
+
+  loadActions(req, query) {
+    return this.models.Action.find(query)
+      .then(actions => {
+        req.context.actions = actions.sort((a, b) => b.priory - a.priority);
+      });
   }
 
   /**
@@ -224,7 +249,7 @@ module.exports = class FormManager {
     log('info', 'Adding resources');
     for (const resourceName in this.resourceClasses) {
       log('debug', 'Adding resource ' + resourceName);
-      this.resources[resourceName] = new this.resourceClasses[resourceName](this.models[resourceName], this.router);
+      this.resources[resourceName] = new this.resourceClasses[resourceName](this.models[resourceName], this.router, this);
     }
   }
 
@@ -239,23 +264,38 @@ module.exports = class FormManager {
     log('info', req.uuid, req.method, req.path, 'context');
 
     req.context = req.context || {};
-    const resources = [];
+    req.context.resources = req.context.resources || {};
+    req.context.params = req.context.params || {};
+    req.context.roles = req.context.roles || {};
+    const loads = [];
 
+    // Load any resources listed in path.
     const parts = req.path.split('/');
     // Throw away the first empty item.
     parts.shift();
 
-    const loads = [];
     parts.forEach((part, index) => {
       if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
+        req.context.params[part] = parts[index + 1];
         loads.push(this.db.read(part + 's', {
           _id: new this.db.ID(parts[index + 1])
         })
           .then(doc => {
-            req.context[part] = doc;
+            req.context.resources[part] = doc;
           }));
       }
     });
+
+    // Load admin and default roles.
+    loads.push(this.loadContextRole(req, 'admin', {admin: true}));
+    loads.push(this.loadContextRole(req, 'default', {default: true}));
+
+    // Load actions associated with a form if we have a submission.
+    if (req.context.params.hasOwnProperty('form')) {
+      loads.push(this.loadActions(req, {
+        form: this.db.ID(req.context.params['form']),
+      }))
+    }
 
     Promise.all(loads)
       .then(() => {
@@ -288,6 +328,10 @@ module.exports = class FormManager {
     }
 
     const entity = this.primaryEntity(req);
+    // If there is no entity we are at the root level. Give permission.
+    if (!entity) {
+      return next();
+    }
     const method = req.method.toUpperCase();
     const entityPermissionRoles = this.entityPermissionRoles(req, entity, method);
     const userRoles = this.userRoles(req);
@@ -303,6 +347,17 @@ module.exports = class FormManager {
     return res.status(401).send();
   }
 
+  access(req, res) {
+    log('info', req.uuid, req.method, req.path, 'access');
+    // TODO: Replication access endpoint.
+    res.send({});
+  }
+
+  root(req, res) {
+    // TODO: Should probably return the version and instructions here.
+    res.send({name: 'Form Manager'});
+  }
+
   beforeExecute(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'beforeExecute');
     next();
@@ -315,6 +370,13 @@ module.exports = class FormManager {
 
   respond(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'response');
+
+    if (res.token) {
+      res.setHeader('Access-Control-Expose-Headers', 'x-jwt-token, Authorization');
+      res.setHeader('x-jwt-token', res.token);
+      res.setHeader('Authorization', `Bearer: ${res.token}`);
+    }
+
     if (!res.resource) {
       return res.status(404).send();
     }
