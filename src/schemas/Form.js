@@ -203,7 +203,7 @@ module.exports = {
       type: Object,
       description: 'Custom form properties.'
     },
-    ...MachineName,
+    // ...MachineName,
     ...Timestamps
   }
 };

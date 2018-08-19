@@ -16,7 +16,8 @@ module.exports = class FormManager {
     this.addModels();
     this.router.use(this.beforePhases);
     this.addResources();
-    this.router.get('/access', this.access);
+    this.router.get('/access', this.access.bind(this));
+    this.router.get('/current', this.current.bind(this));
     this.router.get('/', this.root);
     this.router.use(this.afterPhases);
   }
@@ -154,7 +155,7 @@ module.exports = class FormManager {
   userRoles(req) {
     if (!req.user) {
       return [
-        // TODO: Anonymous?,
+        req.context.roles.default._id,
         EVERYONE,
       ];
     }
@@ -347,10 +348,43 @@ module.exports = class FormManager {
     return res.status(401).send();
   }
 
-  access(req, res) {
+  access(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'access');
-    // TODO: Replication access endpoint.
-    res.send({});
+
+    Promise.all([
+      this.models.Role.find({}),
+      this.models.Form.find({}),
+    ])
+      .then(results => {
+        res.send({
+          roles: results[0].reduce((result, role) => {
+            result[role.title.replace(/\s/g, '').toLowerCase()] = {
+              _id: role._id,
+              title: role.title,
+              admin: role.admin,
+              default: role.default,
+            }
+            return result;
+          }, {}),
+          forms: results[1].reduce((result, form) => {
+            result[form.name] = {
+              _id: form._id,
+              title: form.title,
+              name: form.name,
+              path: form.path,
+              access: form.access,
+              submissionAccess: form.submissionAccess,
+            }
+            return result;
+          }, {}),
+        });
+      });
+  }
+
+  current(req, res) {
+    log('info', req.uuid, req.method, req.path, 'current');
+    // TODO: convert this to subrequest? Need to protect password field.
+    res.send(req.user);
   }
 
   root(req, res) {
