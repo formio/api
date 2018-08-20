@@ -21,13 +21,13 @@ module.exports = class Submission extends Resource {
     return super.getQuery(req, query);
   }
 
-  index(req, res, next) {
-    Promise.all([
-      this.executeSuper('index', req, res)
-    ])
-      .then(() => next())
-      .catch(err => next(err));
-  }
+  // index(req, res, next) {
+  //   Promise.all([
+  //     this.executeSuper('index', req, res)
+  //   ])
+  //     .then(() => next())
+  //     .catch(err => next(err));
+  // }
 
   post(req, res, next) {
     this.callPromisesAsync([
@@ -44,37 +44,51 @@ module.exports = class Submission extends Resource {
       .catch(err => next(err));
   }
 
-  get(req, res, next) {
-    Promise.all([
-      this.executeSuper('get', req, res)
-    ])
-      .then(() => next())
-      .catch(err => next(err));
-  }
+  // get(req, res, next) {
+  //   Promise.all([
+  //     this.executeSuper('get', req, res)
+  //   ])
+  //     .then(() => next())
+  //     .catch(err => next(err));
+  // }
 
   put(req, res, next) {
-    Promise.all([
-      this.executeSuper('put', req, res)
+    this.callPromisesAsync([
+      this.initializeSubmission.bind(this, req, res),
+      this.executeFieldHandlers.bind(this, false, req, res),
+      this.validateSubmission.bind(this, req, res),
+      this.executeFieldHandlers.bind(this, true, req, res),
+      this.executeActions.bind(this, 'before', 'update', req, res),
+      this.executeSuper.bind(this, 'put', req, res),
+      this.executeActions.bind(this, 'after', 'update', req, res),
+      this.executeFieldHandlers.bind(this, true, req, res),
     ])
       .then(() => next())
       .catch(err => next(err));
   }
 
   patch(req, res, next) {
-    Promise.all([
-      this.executeSuper('patch', req, res)
+    this.callPromisesAsync([
+      this.initializeSubmission.bind(this, req, res),
+      this.executeFieldHandlers.bind(this, false, req, res),
+      this.validateSubmission.bind(this, req, res),
+      this.executeFieldHandlers.bind(this, true, req, res),
+      this.executeActions.bind(this, 'before', 'update', req, res),
+      this.executeSuper.bind(this, 'put', req, res),
+      this.executeActions.bind(this, 'after', 'update', req, res),
+      this.executeFieldHandlers.bind(this, true, req, res),
     ])
       .then(() => next())
       .catch(err => next(err));
   }
 
-  delete(req, res, next) {
-    Promise.all([
-      this.executeSuper('delete', req, res)
-    ])
-      .then(() => next())
-      .catch(err => next(err));
-  }
+  // delete(req, res, next) {
+  //   Promise.all([
+  //     this.executeSuper('delete', req, res)
+  //   ])
+  //     .then(() => next())
+  //     .catch(err => next(err));
+  // }
 
   getBody(req) {
     const {data, owner, access, metadata} = req.body;
@@ -128,8 +142,10 @@ module.exports = class Submission extends Resource {
     req.context.actions.forEach(action => {
       if (action.method.includes(method) && action.handler.includes(handler)) {
         // TODO: Check for conditional actions.
-        const instance = new this.actions[action.name](this.app, action.settings);
-        actions.push(instance.resolve.bind(instance, handler, method, req, res));
+        if (this.actions.hasOwnProperty(action.name)) {
+          const instance = new this.actions[action.name](this.app, action.settings);
+          actions.push(instance.resolve.bind(instance, handler, method, req, res));
+        }
       }
     });
     return this.callPromisesAsync(actions);
