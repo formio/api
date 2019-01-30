@@ -1,11 +1,11 @@
 'use strict';
 
-const FormManager = require('./src/FormManager');
+const FormApi = require('./src/FormApi');
 const log = require('./src/log');
 const Action = require('./src/actions/Action');
 
 module.exports = {
   Action,
-  FormManager,
+  FormApi,
   log
 };

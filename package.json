@@ -1,7 +1,7 @@
 {
-  "name": "form-manager",
+  "name": "form-api",
   "version": "0.0.0",
-  "description": "A form manager API application",
+  "description": "A form API library that creates rest endpoints and database integrations for forms.",
   "main": "index.js",
   "scripts": {
     "test": "nyc --reporter=text mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'"
