@@ -1,7 +1,6 @@
 'use strict'
 
 const Resource = require('../libraries/Resource');
-const actions = require('../actions');
 
 module.exports = class Submission extends Resource {
   constructor(model, router, app) {
@@ -13,7 +12,7 @@ module.exports = class Submission extends Resource {
   }
 
   get actions() {
-    return actions;
+    return this.app.resources.Action.actions;
   }
 
   getQuery(req, query = {}) {

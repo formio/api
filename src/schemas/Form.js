@@ -1,7 +1,7 @@
 const Timestamps = require('./partials/Timestamps');
 const MachineName = require('./partials/MachineName');
 const PermissionSchema = require('./partials/PermissionSchema');
-const eachComponent = require('formiojs/utils').eachComponent;
+const eachComponent = require('formiojs/utils/formUtils').eachComponent;
 const _ = require('lodash');
 
 const uniqueMessage = 'may only contain letters, numbers, hyphens, and forward slashes ' +

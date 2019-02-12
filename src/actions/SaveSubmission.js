@@ -1,6 +1,6 @@
 const Action = require('./Action');
 
-module.exports = class Login extends Action {
+module.exports = class SaveSubmission extends Action {
   static info(req, res, next) {
     next(null, {
       name: 'save',

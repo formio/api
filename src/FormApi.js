@@ -4,7 +4,7 @@ const config = require('../config');
 const resources = require('./resources');
 const EVERYONE = '000000000000000000000000';
 
-module.exports = class FormManager {
+module.exports = class FormApi {
   constructor(router, db) {
     this.config = config;
     this.router = router;
