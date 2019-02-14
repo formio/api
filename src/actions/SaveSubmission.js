@@ -1,8 +1,8 @@
 const Action = require('./Action');
 
 module.exports = class SaveSubmission extends Action {
-  static info(req, res, next) {
-    next(null, {
+  static info() {
+    return {
       name: 'save',
       title: 'Save Submission',
       description: 'Saves the submission into the database.',
@@ -15,18 +15,18 @@ module.exports = class SaveSubmission extends Action {
         handler: false,
         method: false
       }
-    });
+    };
   }
 
-  static settingsForm(req, res, next) {
-    next(null, [
+  static settingsForm(options) {
+    return super.settingsForm(options, [
       {
         type: 'resourcefields',
         key: 'resource',
         title: 'Save submission to',
         placeholder: 'This form',
-        basePath: hook.alter('path', '/form', req),
-        form: req.params.formId,
+        basePath: options.baseUrl,
+        form: '',
         required: false
       }
     ]);

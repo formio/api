@@ -18,7 +18,11 @@ module.exports = class Resource {
   }
 
   get route() {
-    return '/' + this.name;
+    return this.path('/' + this.name);
+  }
+
+  path(route) {
+    return route;
   }
 
   /**

@@ -8,7 +8,7 @@ module.exports = class Submission extends Resource {
   }
 
   get route() {
-    return '/form/:formId/' + this.name;
+    return this.path('/form/:formId/' + this.name);
   }
 
   get actions() {

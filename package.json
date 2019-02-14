@@ -15,6 +15,7 @@
   "author": "Randall Knutson <randall@form.io>",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^3.0.0",
     "composable-middleware": "^0.3.0",
     "core-js": "^2.6.4",
     "debug": "^3.1.0",
