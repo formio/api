@@ -1,6 +1,67 @@
 const vm = require('vm');
 const Joi = require('joi');
 const _ = require('lodash');
+const request = require('request-promise-native');
+const cache = require('memory-cache');
+const util = require('../libraries/Util');
+
+/*
+ * Returns true or false based on visibility.
+ *
+ * @param {Object} component
+ *   The form component to check.
+ * @param {Object} row
+ *   The local data to check.
+ * @param {Object} data
+ *   The full submission data.
+ */
+const checkConditional = (component, row, data, recurse = false) => {
+  let isVisible = true;
+
+  if (!component || !component.hasOwnProperty('key')) {
+    return isVisible;
+  }
+
+  // Custom conditional logic. Need special case so the eval is isolated in a sandbox
+  if (component.customConditional) {
+    try {
+      // Create the sandbox.
+      const sandbox = vm.createContext({
+        data,
+        row
+      });
+
+      // Execute the script.
+      const script = new vm.Script(component.customConditional);
+      script.runInContext(sandbox, {
+        timeout: 250
+      });
+
+      if (util.isBoolean(sandbox.show)) {
+        isVisible = util.boolean(sandbox.show);
+      }
+    }
+    catch (e) {
+      console.error(e);
+    }
+  }
+  else {
+    try {
+      isVisible = util.checkCondition(component, row, data);
+    }
+    catch (err) {
+      console.error(err);
+    }
+  }
+
+  // If visible and recurse, continue down tree to check parents.
+  if (isVisible && recurse && component.parent.type !== 'form') {
+    return !component.parent || checkConditional(component.parent, row, data, true);
+  }
+  else {
+    return isVisible;
+  }
+};
 
 const getRules = (type) => [
   {
@@ -124,12 +185,39 @@ const getRules = (type) => [
     }
   },
   {
+    name: 'maxWords',
+    params: {
+      maxWords: Joi.any()
+    },
+    validate(params, value, state, options) {
+      if (value.trim().split(/\s+/).length <= parseInt(params.maxWords, 10)) {
+        return value;
+      }
+
+      return this.createError(`${type}.maxWords`, {message: 'exceeded maximum words.'}, state, options);
+    }
+  },
+  {
+    name: 'minWords',
+    params: {
+      minWords: Joi.any()
+    },
+    validate(params, value, state, options) {
+      if (value.trim().split(/\s+/).length >= parseInt(params.minWords, 10)) {
+        return value;
+      }
+
+      return this.createError(`${type}.minWords`, {message: 'does not have enough words.'}, state, options);
+    }
+  },
+  {
     name: 'select',
     params: {
       component: Joi.any(),
       submission: Joi.any(),
       token: Joi.any(),
-      async: Joi.any()
+      async: Joi.any(),
+      requests: Joi.any()
     },
     validate(params, value, state, options) {
       // Empty values are fine.
@@ -141,6 +229,7 @@ const getRules = (type) => [
       const submission = params.submission;
       const token = params.token;
       const async = params.async;
+      const requests = params.requests;
 
       // Initialize the request options.
       const requestOptions = {
@@ -188,7 +277,7 @@ const getRules = (type) => [
       }
 
       // Make sure to interpolate.
-      requestOptions.url = FormioUtils.interpolate(requestOptions.url, {
+      requestOptions.url = util.interpolate(requestOptions.url, {
         data: submission.data
       });
 
@@ -207,35 +296,53 @@ const getRules = (type) => [
       }
 
       async.push(new Promise((resolve, reject) => {
-        // Make the request.
-        request(requestOptions, (err, response, body) => {
-          if (err) {
-            return resolve({
-              message: `Select validation error: ${err}`,
+        /* eslint-disable prefer-template */
+        const cacheKey = `${requestOptions.method}:${requestOptions.url}?` +
+          Object.keys(requestOptions.qs).map(key => key + '=' + requestOptions.qs[key]).join('&');
+        /* eslint-enable prefer-template */
+        const cacheTime = (process.env.VALIDATOR_CACHE_TIME || (3 * 60)) * 60 * 1000;
+
+        // Check if this request was cached
+        const result = cache.get(cacheKey);
+        if (result !== null) {
+          debug.validator(cacheKey, 'hit!');
+          // Null means no cache hit but is also used as a success callback which we are faking with true here.
+          if (result === true) {
+            return resolve(null);
+          }
+          else {
+            return resolve(result);
+          }
+        }
+        debug.validator(cacheKey, 'miss');
+
+        // Us an existing promise or create a new one.
+        requests[cacheKey] = requests[cacheKey] || request(requestOptions);
+
+        requests[cacheKey]
+          .then(body => {
+            if (!body || !body.length) {
+              const error = {
+                message: `"${value}" for "${component.label || component.key}" is not a valid selection.`,
+                path: state.path,
+                type: 'any.select'
+              };
+              cache.put(cacheKey, error, cacheTime);
+              return resolve(error);
+            }
+
+            cache.put(cacheKey, true, cacheTime);
+            return resolve(null);
+          })
+          .catch(result => {
+            const error = {
+              message: `Select validation error: ${result.error}`,
               path: state.path,
               type: 'any.select'
-            });
-          }
-
-          if (response && parseInt(response.statusCode / 100, 10) !== 2) {
-            return resolve({
-              message: `Select validation error: ${body}`,
-              path: state.path,
-              type: 'any.select'
-            });
-          }
-
-          if (!body || !body.length) {
-            return resolve({
-              message: `"${value}" for "${component.label || component.key}" is not a valid selection.`,
-              path: state.path,
-              type: 'any.select'
-            });
-          }
-
-          // This is a valid selection.
-          return resolve(null);
-        });
+            };
+            cache.put(cacheKey, error, cacheTime);
+            return resolve(error);
+          });
       }));
 
       return value;
@@ -321,7 +428,7 @@ const getRules = (type) => [
   }
 ];
 
-module.exports = Joi.extend([
+const JoiX = Joi.extend([
   {
     name: 'any',
     language: {
@@ -338,6 +445,8 @@ module.exports = Joi.extend([
     base: Joi.string(),
     language: {
       custom: '{{message}}',
+      maxWords: '{{message}}',
+      minWords: '{{message}}',
       json: '{{message}}',
       hidden: '{{message}}',
       select: '{{message}}',
@@ -406,4 +515,9 @@ module.exports = Joi.extend([
     rules: getRules('date')
   }
 ]);
+
+module.exports = {
+  checkConditional,
+  JoiX
+};
 

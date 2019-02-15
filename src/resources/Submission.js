@@ -1,9 +1,10 @@
 'use strict'
 
-const Resource = require('../libraries/Resource');
 const FormioUtils = require('formiojs/utils');
 const _ = require('lodash');
 const vm = require('vm');
+const Validator = require('../libraries/Validator');
+const Resource = require('../libraries/Resource');
 
 module.exports = class Submission extends Resource {
   constructor(model, router, app) {
@@ -134,8 +135,19 @@ module.exports = class Submission extends Resource {
   }
 
   validateSubmission(req, res) {
+    const validator = new Validator(req.context.resources.form, this.app.models.Submission, req.token);
+
     console.log('validateSubmission');
-    return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      validator.validate(req.body, (err, data) => {
+        if (err) {
+          return res.status(400).json(err);
+        }
+
+        req.body.data = data;
+        resolve();
+      });
+    });
   }
 
   executeActions(handler, method, req, res) {

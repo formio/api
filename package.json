@@ -20,10 +20,13 @@
     "core-js": "^2.6.4",
     "debug": "^3.1.0",
     "fast-json-patch": "^2.0.6",
-    "formiojs": "^3.14.1",
+    "formiojs": "^3.15.1",
     "joi": "^13.2.0",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.11",
+    "memory-cache": "^0.2.0",
     "moment": "^2.22.1",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
