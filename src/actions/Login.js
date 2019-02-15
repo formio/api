@@ -104,7 +104,7 @@ module.exports = class Login extends Action {
     ]);
   }
 
-  resolve(handler, method, req, res) {
+  resolve(handler, method, req, res, event) {
     if (!req.body || !req.body.hasOwnProperty('data')) {
       return res.status(401).send('User or password was incorrect.');
     }

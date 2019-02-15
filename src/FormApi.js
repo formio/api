@@ -226,7 +226,7 @@ module.exports = class FormApi {
           additional = '/submission';
         }
 
-        // Create the new URL for the project.
+        // Create the new URL for the form.
         req.url = `${baseUrl}/form/${form._id}${additional}`;
         next();
       })
