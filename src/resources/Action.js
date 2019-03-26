@@ -1,7 +1,6 @@
 'use strict'
 
 const Resource = require('../libraries/Resource');
-const actions = require('../actions');
 const {eachComponent} = require('../libraries/Util');
 
 module.exports = class Action extends Resource {
@@ -13,10 +12,6 @@ module.exports = class Action extends Resource {
 
   get route() {
     return this.path('/form/:formId/' + this.name);
-  }
-
-  get actions() {
-    return actions;
   }
 
   getQuery(req, query = {}) {

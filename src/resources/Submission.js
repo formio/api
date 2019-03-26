@@ -16,7 +16,7 @@ module.exports = class Submission extends Resource {
   }
 
   get actions() {
-    return this.app.resources.Action.actions;
+    return this.app.actions;
   }
 
   getQuery(req, query = {}) {
@@ -135,10 +135,8 @@ module.exports = class Submission extends Resource {
   }
 
   validateSubmission(req, res) {
-    const validator = new Validator(req.context.resources.form, this.app.models.Submission, req.token);
-
-    console.log('validateSubmission');
     return new Promise((resolve, reject) => {
+      const validator = new Validator(req.context.resources.form, this.app.models.Submission, req.token);
       validator.validate(req.body, (err, data) => {
         if (err) {
           return res.status(400).json(err);

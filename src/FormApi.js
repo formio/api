@@ -1,5 +1,7 @@
 const uuid = require('uuid/v1');
+const info = require('../package.json');
 const log = require('./log');
+const actions = require('./actions');
 const config = require('../config');
 const resources = require('./resources');
 const EVERYONE = '000000000000000000000000';
@@ -18,7 +20,7 @@ module.exports = class FormApi {
     this.addResources();
     this.router.get('/access', this.access.bind(this));
     this.router.get('/current', this.current.bind(this));
-    this.router.get('/', this.root);
+    this.router.get('/', this.root.bind(this));
     this.router.use(this.afterPhases);
   }
 
@@ -85,6 +87,10 @@ module.exports = class FormApi {
       'PATCH': {all: 'update_all', own: 'update_own'},
       'DELETE': {all: 'delete_all', own: 'delete_own'}
     }
+  }
+
+  get actions() {
+    return actions;
   }
 
   /**
@@ -387,9 +393,13 @@ module.exports = class FormApi {
     res.send(req.user);
   }
 
+  getStatus (status = {}) {
+    status.formApiVersion = info.version;
+    return status;
+  }
+
   root(req, res) {
-    // TODO: Should probably return the version and instructions here.
-    res.send({name: 'Form Manager'});
+    res.send(this.getStatus());
   }
 
   beforeExecute(req, res, next) {

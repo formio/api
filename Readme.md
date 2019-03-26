@@ -1,11 +1,5 @@
-Machine names
-Finish Actions
-Submission Validation
-Finish resources
-DB Updates
-Export/Import
-/exists and /components endpoints?
+# Form API
+This library is designed to create REST APIs for forms generated with the form.io system. It is designed to have a pluggable architecture where it does not rely on a specific DB and can run in both the browser (service workers) and on the server (node.js). 
 
-deprecated:
-websocket (remote middleware)
-populate (mongoose)
+## Usage
+In order to use this library you need to import FormApi into your own application and pass in a db wrapper and express instance to it. Details to come.
