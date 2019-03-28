@@ -23,7 +23,7 @@ module.exports = class FormApi {
     this.router.get('/access', this.access.bind(this));
     this.router.get('/current', this.current.bind(this));
     this.router.get('/import', this.import.bind(this));
-    this.router.get('/', this.root.bind(this));
+    this.router.get('/status', this.status.bind(this));
     this.router.use(this.afterPhases);
   }
 
@@ -425,7 +425,7 @@ module.exports = class FormApi {
     return status;
   }
 
-  root(req, res) {
+  status(req, res) {
     res.send(this.getStatus());
   }
 
