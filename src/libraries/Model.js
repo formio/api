@@ -283,6 +283,11 @@ module.exports = class Model {
     });
   }
 
+  findOne(query, options) {
+    return this.find(query, options)
+      .then(docs => docs[0]);
+  }
+
   count(query) {
     return this.initialized.then(() => {
       return this.db.count(this.collectionName, query);

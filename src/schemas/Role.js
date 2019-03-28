@@ -29,13 +29,8 @@ module.exports = {
             }
 
             // Search for roles that exist, with the given parameters.
-            model('role').find(search).then((err, result) => {
-              if (err || result) {
-                return done(false);
-              }
-
-              done(true);
-            });
+            model.find(search)
+              .then(result => done(result.length === 0))
           }
         }
       ]

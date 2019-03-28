@@ -1,6 +1,8 @@
 const uuid = require('uuid/v1');
 const info = require('../package.json');
 const log = require('./log');
+const util = require('./util');
+const ImportClass = require('./libraries/Import');
 const actions = require('./actions');
 const config = require('../config');
 const resources = require('./resources');
@@ -20,6 +22,7 @@ module.exports = class FormApi {
     this.addResources();
     this.router.get('/access', this.access.bind(this));
     this.router.get('/current', this.current.bind(this));
+    this.router.get('/import', this.import.bind(this));
     this.router.get('/', this.root.bind(this));
     this.router.use(this.afterPhases);
   }
@@ -35,6 +38,7 @@ module.exports = class FormApi {
       'form',
       'access',
       'token',
+      'recaptcha',
     ]
   }
 
@@ -387,6 +391,29 @@ module.exports = class FormApi {
       });
   }
 
+  import(req, res, next) {
+    let template = req.body.template;
+    if (typeof template === 'string') {
+      template = JSON.parse(template);
+    }
+
+    this.importClass(template)
+      .then(() => {
+        res.status(200).send('Ok');
+      })
+      .catch(next)
+  }
+
+  get ImportClass() {
+    return ImportClass
+  };
+
+  importTemplate(template) {
+    const importer = new this.ImportClass(this, template);
+
+    return importer.import();
+  }
+
   current(req, res) {
     log('info', req.uuid, req.method, req.path, 'current');
     // TODO: convert this to subrequest? Need to protect password field.
@@ -431,5 +458,9 @@ module.exports = class FormApi {
       return res.send(res.resource.item);
     }
     res.status(404).send('Not found');
+  }
+
+  get util() {
+    return util;
   }
 };
