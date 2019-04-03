@@ -7,7 +7,7 @@ const actions = require('./src/actions');
 const dbs = require('./src/dbs');
 const resources = require('./src/resources');
 const schemas = require('./src/schemas');
-
+const libraries = require('./src/libraries');
 
 module.exports = {
   Action,
@@ -17,4 +17,5 @@ module.exports = {
   dbs,
   resources,
   schemas,
+  libraries,
 };

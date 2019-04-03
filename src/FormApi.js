@@ -328,7 +328,7 @@ module.exports = class FormApi {
 
     if (this.config.adminKey) {
       // If admin key is set in config and matches what is sent in the header,
-      if (req.headers['admin_key'] && this.config.adminKey === req.headers['admin_key']) {
+      if (req.headers['x-admin-key'] && this.config.adminKey === req.headers['x-admin-key']) {
         return next();
       }
 

@@ -276,14 +276,14 @@ module.exports = class Model {
 
   /** Public Functions */
 
-  find(query, options) {
+  find(query = {}, options = {}) {
     return this.initialized.then(() => {
       return this.db.find(this.collectionName, query, options)
         .then(docs => Promise.all(docs.map(doc => this.afterLoad(doc))));
     });
   }
 
-  findOne(query, options) {
+  findOne(query = {}, options = {}) {
     return this.find(query, options)
       .then(docs => docs[0]);
   }

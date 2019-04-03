@@ -1,3 +1,6 @@
+const util = require('formiojs/utils');
+
 module.exports = {
-  encrypt: require('./encrypt')
+  ...util,
+  encrypt: require('./encrypt'),
 };

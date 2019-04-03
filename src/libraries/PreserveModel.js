@@ -24,7 +24,7 @@ module.exports = class PreserveModel extends Model {
       })
   }
 
-  find(query, options) {
+  find(query = {}, options = {}) {
     query.deleted = {$eq: null};
     return super.find(query, options);
   }

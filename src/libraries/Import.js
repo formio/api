@@ -62,9 +62,9 @@ module.exports = class Import {
         return false;
       },
       transform: (resource) => {
-        this.mapEntityProperty(resource.submissionAccess, 'roles', 'roles');
-        this.mapEntityProperty(resource.access, 'roles', 'roles');
-        // componentMachineNameToId(resource.components);
+        this.mapEntityProperty(resource.submissionAccess, 'roles', this.template.roles);
+        this.mapEntityProperty(resource.access, 'roles', this.template.roles);
+        this.componentMachineNameToId(resource.components);
         return resource;
       },
       // cleanUp: (resources) => {
@@ -128,9 +128,9 @@ module.exports = class Import {
         return false;
       },
       transform: (form) => {
-        this.mapEntityProperty(form.submissionAccess, 'roles', 'roles');
-        this.mapEntityProperty(form.access, 'roles', 'roles');
-        // componentMachineNameToId(form.components);
+        this.mapEntityProperty(form.submissionAccess, 'roles', this.template.roles);
+        this.mapEntityProperty(form.access, 'roles', this.template.roles);
+        this.componentMachineNameToId(form.components);
         return form;
       },
       // cleanUp: (forms) => {
@@ -193,12 +193,12 @@ module.exports = class Import {
         return false;
       },
       transform: (action) => {
-        const resourceFound = this.mapEntityProperty(action, 'form', 'resources');
-        const formFound = this.mapEntityProperty(action, 'form', 'forms');
-        this.mapEntityProperty(action.settings, 'role', 'roles');
+        this.mapEntityProperty(action.settings, 'resources', this.template.resources);
+        this.mapEntityProperty(action.settings, 'role', this.template.roles);
+        const formFound = this.mapEntityProperty(action, 'form', this.template.forms);
 
         // If no changes were made, the form was invalid and we can't insert the action.
-        if (!resourceFound && !formFound) {
+        if (!formFound) {
           return undefined;
         }
 
@@ -216,8 +216,8 @@ module.exports = class Import {
     };
   }
 
-  mapEntityProperty(entities, property, refKey) {
-    if (!entities || !this.template.hasOwnProperty(refKey)) {
+  mapEntityProperty(entities, property, items) {
+    if (!entities || !items) {
       return false;
     }
 
@@ -230,15 +230,21 @@ module.exports = class Import {
       if (entity.hasOwnProperty(property)) {
         if (Array.isArray(entity[property])) {
           entity[property] = entity[property].map((prop) =>{
-            if (this.template[refKey].hasOwnProperty(prop)) {
-              return this.template[refKey][prop]._id;
+            if items.hasOwnProperty(prop)) {
+              return items[prop]._id;
             }
             found = false;
           });
         }
         else {
-          if (this.template[refKey][entity[property]]) {
-            entity[property] = this.template[refKey][entity[property]]._id;
+          if (items[entity[property]]) {
+            const key = entity[property];
+            entity[property] = items[key]]._id;
+
+            // Support resetting form revision on import.
+            if (items[key].hasOwnProperty._vid) {
+              entity[`${property}Revision`] = items[key]._vid;
+            }
           }
           else {
             found = false;
@@ -263,7 +269,25 @@ module.exports = class Import {
 
         return Promise.all(Object.keys(items)
           .map(machineName => this.importItem(machineName, items[machineName], entity)))
-          .then(() => entity.hasOwnProperty('cleanUp') ? entity.cleanUp(items) : Promise.resolve());
+          .then(() => {
+            // Run the cleanup function if avilable.
+            return (entity.hasOwnProperty('cleanUp') ? entity.cleanUp(items) : Promise.resolve())
+              .then(() => {
+                if (entity.root) {
+                  return Promise.resolve();
+                }
+
+                // Load all existing entities in the database.
+                return entity.model.find()
+                  .then(entities => {
+                    entities.forEach(item => {
+                      this.template[entity.key][item.machineName] = item;
+                    });
+                    return Promise.resolve();
+                  });
+                }
+              )
+          });
       });
     }, Promise.resolve());
   }
