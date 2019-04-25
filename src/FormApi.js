@@ -304,7 +304,7 @@ module.exports = class FormApi {
     // Load actions associated with a form if we have a submission.
     if (req.context.params.hasOwnProperty('form')) {
       loads.push(this.loadActions(req, {
-        form: this.db.ID(req.context.params['form']),
+        form: new this.db.ID(req.context.params['form']),
       }))
     }
 

@@ -1,8 +1,8 @@
-const Model = require('./src/libraries/Model');
-const PreserveModel = require('./src/libraries/PreserveModel');
-const Resource = require('./src/libraries/Resource');
-const Import = require('./src/libraries/Import');
-const Export = require('./src/libraries/Export');
+const Model = require('./Model');
+const PreserveModel = require('./PreserveModel');
+const Resource = require('./Resource');
+const Import = require('./Import');
+const Export = require('./Export');
 
 module.exports = {
   Model,

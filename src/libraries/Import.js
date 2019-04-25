@@ -230,7 +230,7 @@ module.exports = class Import {
       if (entity.hasOwnProperty(property)) {
         if (Array.isArray(entity[property])) {
           entity[property] = entity[property].map((prop) =>{
-            if items.hasOwnProperty(prop)) {
+            if (items.hasOwnProperty(prop)) {
               return items[prop]._id;
             }
             found = false;
@@ -239,7 +239,7 @@ module.exports = class Import {
         else {
           if (items[entity[property]]) {
             const key = entity[property];
-            entity[property] = items[key]]._id;
+            entity[property] = items[key]._id;
 
             // Support resetting form revision on import.
             if (items[key].hasOwnProperty._vid) {
@@ -254,6 +254,32 @@ module.exports = class Import {
     });
 
     return found;
+  }
+
+  componentMachineNameToId(components) {
+    let changed = false;
+    this.app.util.eachComponent(components, (component) => {
+      // Update resource machineNames for resource components.
+      if ((component.type === `resource`) && this.mapEntityProperty(component, 'resources', this.template.resources)) {
+        changed = true;
+      }
+
+      // Update the form property on the form component.
+      if ((component.type === 'form') && this.mapEntityProperty(component, 'form', {...this.template.resources, ...this.template.forms})) {
+        changed = true;
+      }
+
+      // Update resource machineNames for select components with the resource data type.
+      if (
+        (component.type === `select`) &&
+        (component.dataSrc === `resource`) &&
+        this.mapEntityProperty(component.data, 'resources', {...this.template.resources, ...this.template.forms})
+      ) {
+        changed = true;
+      }
+    });
+
+    return changed;
   }
 
   import() {

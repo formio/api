@@ -47,7 +47,7 @@ module.exports = class Form extends Resource {
       }),
       this.createDefaultAction.bind(this, req, res)
     ])
-      .then(next)
+      .then(() => next())
       .catch(next);
   }
 
@@ -63,7 +63,7 @@ module.exports = class Form extends Resource {
         })
       }),
     ])
-      .then(next)
+      .then(() => next())
       .catch(next);
   }
 };
