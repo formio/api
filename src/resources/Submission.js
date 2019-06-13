@@ -164,7 +164,7 @@ module.exports = class Submission extends Resource {
 
         if (this.shouldExecute(action, context)) {
           actions.push(() => {
-            return this.app.models.ActionEvent.create({
+            return this.app.models.Event.create({
               title: action.title,
               name: action.name,
               form: req.params.formId,
@@ -177,12 +177,12 @@ module.exports = class Submission extends Resource {
                   return instance.resolve(handler, method, req, res, event)
                     .then(() => {
                       event.state = 'executed';
-                      this.app.models.ActionEvent.update(event);
+                      this.app.models.Event.update(event);
                     })
                     .catch(error => {
                       event.state = 'error';
                       event.errors = [error];
-                      this.app.models.ActionEvent.update(event);
+                      this.app.models.Event.update(event);
                     });
                 }
               });

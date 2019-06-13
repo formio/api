@@ -21,8 +21,8 @@ module.exports = class Action extends Resource {
 
   actionsIndex(req, res, next) {
     const actions = [];
-    for (const key in this.actions) {
-      actions.push(this.getActionInfo(this.actions[key]));
+    for (const key in this.app.actions) {
+      actions.push(this.getActionInfo(this.app.actions[key]));
     }
     res.send(actions);
   }
@@ -53,12 +53,12 @@ module.exports = class Action extends Resource {
       components,
       componentsUrl: this.path(`/form/${req.params.formId}/components`)
     };
-    if (action && this.actions[action]) {
-      const info = this.getActionInfo(this.actions[action]);
+    if (action && this.app.actions[action]) {
+      const info = this.getActionInfo(this.app.actions[action]);
       options.info = info;
       info.settingsForm = {
         action: this.path(`/form/${req.params.formId}/action`),
-        components: this.actions[action].settingsForm(options)
+        components: this.app.actions[action].settingsForm(options)
       };
       res.json(info);
     }

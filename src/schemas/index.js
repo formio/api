@@ -2,7 +2,7 @@
 
 module.exports = {
   Action: require('./Action'),
-  ActionEvent: require('./ActionEvent'),
+  Event: require('./Event'),
   Form: require('./Form'),
   Submission: require('./Submission'),
   Role: require('./Role'),
