@@ -55,7 +55,7 @@ module.exports = class Form extends Resource {
     this.callPromisesAsync([
       this.checkModifiedDate.bind(this, req, res),
       () => new Promise((resolve, reject) => {
-        super.post(req, res, (err) => {
+        super.put(req, res, (err) => {
           if (err) {
             return reject(err);
           }

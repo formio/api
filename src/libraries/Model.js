@@ -98,8 +98,13 @@ module.exports = class Model {
 
   beforeSave(input, doc) {
     const promises = [];
+    // Do _id first so it is available for unique checking.
+    promises.push(this.iterateFields('_id', this.schema.schema['_id'], input, doc, this.setField.bind(this)));
+
     for (const path in this.schema.schema) {
-      promises.push(this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this)))
+      if (path !== '_id') {
+        promises.push(this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this)))
+      }
     }
     return Promise.all(promises)
       .then(result => doc);
