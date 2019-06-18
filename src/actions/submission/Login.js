@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const Action = require('./Action');
+const Action = require('../Action');
 const has = require('lodash/has');
 const get = require('lodash/get');
 

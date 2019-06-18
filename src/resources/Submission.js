@@ -24,47 +24,49 @@ module.exports = class Submission extends Resource {
     return super.getQuery(req, query);
   }
 
-  // index(req, res, next) {
-  //   Promise.all([
-  //     this.executeSuper('index', req, res)
-  //   ])
-  //     .then(() => next())
-  //     .catch(err => next(err));
-  // }
-
-  post(req, res, next) {
+  index(req, res, next) {
     this.callPromisesAsync([
-      this.initializeSubmission.bind(this, req, res),
-      this.executeFieldHandlers.bind(this, 'before', req, res),
-      this.validateSubmission.bind(this, req, res),
-      this.executeFieldHandlers.bind(this, 'before', req, res),
-      this.executeActions.bind(this, 'before', 'create', req, res),
-      this.executeSuper.bind(this, 'post', req, res),
-      this.executeActions.bind(this, 'after', 'create', req, res),
-      this.executeFieldHandlers.bind(this, 'after', req, res),
+      this.executeSuper('index', req, res),
+      this.executeFieldHandlers.bind(this, 'afterActions', 'index', req, res),
     ])
       .then(() => next())
       .catch(err => next(err));
   }
 
-  // get(req, res, next) {
-  //   Promise.all([
-  //     this.executeSuper('get', req, res)
-  //   ])
-  //     .then(() => next())
-  //     .catch(err => next(err));
-  // }
+  post(req, res, next) {
+    this.callPromisesAsync([
+      this.initializeSubmission.bind(this, req, res),
+      this.executeFieldHandlers.bind(this, 'beforeValidate', 'post', req, res),
+      this.validateSubmission.bind(this, req, res),
+      this.executeFieldHandlers.bind(this, 'afterValidate', 'post', req, res),
+      this.executeActions.bind(this, 'before', 'create', req, res),
+      this.executeSuper.bind(this, 'post', req, res),
+      this.executeActions.bind(this, 'after', 'create', req, res),
+      this.executeFieldHandlers.bind(this, 'afterActions', 'post', req, res),
+    ])
+      .then(() => next())
+      .catch(err => next(err));
+  }
+
+  get(req, res, next) {
+    this.callPromisesAsync([
+      this.executeSuper('get', req, res),
+      this.executeFieldHandlers.bind(this, 'afterActions', 'get', req, res),
+    ])
+      .then(() => next())
+      .catch(err => next(err));
+  }
 
   put(req, res, next) {
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
-      this.executeFieldHandlers.bind(this, 'before', req, res),
+      this.executeFieldHandlers.bind(this, 'beforeValidate', 'put', req, res),
       this.validateSubmission.bind(this, req, res),
-      this.executeFieldHandlers.bind(this, 'before', req, res),
+      this.executeFieldHandlers.bind(this, 'afterValidate', 'put', req, res),
       this.executeActions.bind(this, 'before', 'update', req, res),
       this.executeSuper.bind(this, 'put', req, res),
       this.executeActions.bind(this, 'after', 'update', req, res),
-      this.executeFieldHandlers.bind(this, 'after', req, res),
+      this.executeFieldHandlers.bind(this, 'afterActions', 'put', req, res),
     ])
       .then(() => next())
       .catch(err => next(err));
@@ -73,25 +75,26 @@ module.exports = class Submission extends Resource {
   patch(req, res, next) {
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
-      this.executeFieldHandlers.bind(this, 'before', req, res),
+      this.executeFieldHandlers.bind(this, 'beforeValidate', 'patch', req, res),
       this.validateSubmission.bind(this, req, res),
-      this.executeFieldHandlers.bind(this, 'before', req, res),
+      this.executeFieldHandlers.bind(this, 'afterValidate', 'patch', req, res),
       this.executeActions.bind(this, 'before', 'update', req, res),
       this.executeSuper.bind(this, 'put', req, res),
       this.executeActions.bind(this, 'after', 'update', req, res),
-      this.executeFieldHandlers.bind(this, 'after', req, res),
+      this.executeFieldHandlers.bind(this, 'afterActions', 'patch', req, res),
     ])
       .then(() => next())
       .catch(err => next(err));
   }
 
-  // delete(req, res, next) {
-  //   Promise.all([
-  //     this.executeSuper('delete', req, res)
-  //   ])
-  //     .then(() => next())
-  //     .catch(err => next(err));
-  // }
+  delete(req, res, next) {
+    this.callPromisesAsync([
+      this.executeSuper('delete', req, res),
+      this.executeFieldHandlers.bind(this, 'afterActions', 'delete', req, res),
+    ])
+      .then(() => next())
+      .catch(err => next(err));
+  }
 
   getBody(req) {
     const {data, owner, access, metadata} = req.body;
@@ -126,11 +129,6 @@ module.exports = class Submission extends Resource {
       item: req.body
     };
 
-    return Promise.resolve();
-  }
-
-  executeFieldHandlers(handler, req, res) {
-    console.log('executeFieldHandlers', handler);
     return Promise.resolve();
   }
 
@@ -172,8 +170,8 @@ module.exports = class Submission extends Resource {
             })
               .then(event => {
                 // If action exists on this server, execute immediately.
-                if (this.actions.hasOwnProperty(action.name)) {
-                  const instance = new this.actions[action.name](this.app, action.settings);
+                if (this.actions.submission.hasOwnProperty(action.name)) {
+                  const instance = new this.actions.submission[action.name](this.app, action.settings);
                   return instance.resolve(handler, method, req, res, event)
                     .then(() => {
                       event.state = 'executed';
@@ -238,6 +236,121 @@ module.exports = class Submission extends Resource {
       return (eq === 'equals') ===
         ((Array.isArray(value) && value.map(String).includes(compare)) || (value === compare));
     }
+  }
+
+  executeFieldHandlers(handler, action, req, res) {
+    const form = req.context.resources.form;
+    let submissions = [];
+    if (res.resource.items) {
+      submissions = req.resource.items;
+    }
+    else {
+      submissions = [res.resource.item || req.body]
+    }
+
+    return Promise.all(submissions.map((submission) => {
+      return this.eachValue(form.components, submission.data, (context) => {
+        const promises = [];
+
+        const { component, data, handler, action } = context;
+
+        // Execute field actions
+        if (this.actions.field.hasOwnProperty(component.type)) {
+          promises.push(this.actions.field[component.type](component, data, handler, action));
+        }
+
+        // Execute property actions.
+        Object.keys(this.actions.property).forEach((property) => {
+          if (component.hasOwnProperty(property) && component[property]) {
+            promises.push(this.actions.property[property](component, data, handler, action));
+          }
+        });
+
+        Promise.all(promises);
+      }, {handler, action, req, res});
+    }));
+  }
+
+  /**
+   * This function will iterate over each value for each component. This means that for each row of a datagrid it will
+   * call the callback once for each row's component.
+   *
+   * @param components
+   * @param data
+   * @param fn
+   * @param context
+   * @param path
+   * @returns {Promise<any[]>}
+   */
+  eachValue(components, data, fn, context, path = '') {
+    const promises = [];
+
+    components.forEach(component => {
+      if (component.hasOwnProperty('components') && Array.isArray(component.components)) {
+        // If tree type is an array of objects like datagrid and editgrid.
+        if (['datagrid', 'editgrid'].includes(component.type) || component.arrayTree) {
+          _.get(data, component.key, []).forEach((row, index) => {
+            promises.push(this.eachValue(
+              component.components,
+              row,
+              fn,
+              context,
+              path ? `${path}.` : '' + `${component.key}[${index}]`
+            ));
+          })
+        }
+        // If it is a form
+        else if (['form'].includes(component.type)) {
+          promises.push(this.eachValue(
+            component.components,
+            _.get(data, `${component.key}.data`, {}),
+            fn,
+            context,
+            path ? `${path}.` : '' + `${component.key}.data`
+          ));
+
+        }
+        // If tree type is an object like container.
+        else if (
+          ['container'].includes(component.type) ||
+          (component.tree && !['panel', 'table', 'well', 'columns', 'fieldset', 'tabs', 'form'].includes(component.type))
+        ) {
+          promises.push(this.eachValue(
+            component.components,
+            _.get(data, component.key),
+            fn,
+            context,
+            path ? `${path}.` : '' + `${component.key}`
+          ));
+        }
+        // If this is just a layout component.
+        else {
+          promises.push(this.eachValue(component.components, data, fn, context, path));
+        }
+      }
+      else if (component.hasOwnProperty('columns') && Array.isArray(component.columns)) {
+        // Handle column like layout components.
+        component.columns.forEach((column) => {
+          promises.push(this.eachValue(column.components, data, fn, context, path));
+        });
+      }
+      else if (component.hasOwnProperty('rows') && Array.isArray(component.rows)) {
+        // Handle table like layout components.
+        component.rows.forEach((row) => {
+          if (Array.isArray(row)) {
+            row.forEach((column) => {
+              promises.push(this.eachValue(column.components, data, fn, context, path));
+            });
+          }
+        });
+      }
+      else {
+        // If this is just a regular component, call the callback.
+        promises.push(fn({...context, data, component, path}));
+      }
+    });
+
+    return Promise.all(promises);
   }
 
   executeSuper(name, req, res) {

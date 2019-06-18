@@ -1,7 +1,9 @@
-const Login = require('./Login');
-const SaveSubmission = require('./SaveSubmission');
+const field = require('./field');
+const property = require('./property');
+const submission = require('./submission');
 
 module.exports = {
-  login: Login,
-  save: SaveSubmission,
-};
+  field,
+  property,
+  submission,
+}
