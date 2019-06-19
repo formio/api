@@ -33,12 +33,13 @@ module.exports = class Resource {
    */
   callPromisesAsync(promises) {
     return promises.reduce((p, f) => p
-        .then(() => f)
+        .then(f)
         .catch((err) => Promise.reject(err))
       , Promise.resolve());
   }
 
   rest() {
+    log('debug', `registering rest endpoings for ${this.name}`);
     this.register('get', this.route, 'index');
     this.register('post', this.route, 'post');
     this.register('get', this.route + '/:' + this.name + 'Id', 'get');
@@ -172,6 +173,7 @@ module.exports = class Resource {
   }
 
   index(req, res, next) {
+    log('debug', `resource index called for ${this.name}`);
     const query = this.getQuery(req);
     const options = this.getOptions(req);
     Promise.all([
@@ -183,23 +185,27 @@ module.exports = class Resource {
           count,
           items: docs
         };
+        log('debug', `resource index done for ${this.name}`);
         next();
       })
       .catch(next);
   }
 
   post(req, res, next) {
+    log('debug', `resource post called for ${this.name}`);
     this.model.create(req.body)
       .then((doc) => {
         res.resource = {
           item: doc
         };
+        log('debug', `resource post done for ${this.name}`);
         next();
       })
       .catch(next);
   }
 
   get(req, res, next) {
+    log('debug', `resource get called for ${this.name}`);
     this.model.read({
       _id: this.model.toID(req.params[this.name + 'Id'])
     })
@@ -207,24 +213,28 @@ module.exports = class Resource {
         res.resource = {
           item: doc
         };
+        log('debug', `resource get done for ${this.name}`);
         next();
       })
       .catch(next);
   }
 
   put(req, res, next) {
+    log('debug', `resource put called for ${this.name}`);
     req.body._id = req.params[this.name + 'Id'];
     this.model.update(req.body)
       .then((doc) => {
         res.resource = {
           item: doc
         };
+        log('debug', `resource put done for ${this.name}`);
         next();
       })
       .catch(next);
   }
 
   patch(req, res, next) {
+    log('debug', `resource patch called for ${this.name}`);
     this.model.read(req.params[this.name + 'Id'])
       .then(doc => {
         const patched = jsonpatch.applyPatch(doc, req.body);
@@ -237,6 +247,7 @@ module.exports = class Resource {
             res.resource = {
               item: doc
             };
+            log('debug', `resource patch done for ${this.name}`);
             next();
           });
       })
@@ -244,11 +255,13 @@ module.exports = class Resource {
   }
 
   delete(req, res, next) {
+    log('debug', `resource delete called for ${this.name}`);
     this.model.delete(req.params[this.name + 'Id'])
       .then((doc) => {
         res.resource = {
           item: doc
         };
+        log('debug', `resource delete done for ${this.name}`);
         next();
       })
       .catch(next);

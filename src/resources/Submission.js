@@ -5,6 +5,7 @@ const _ = require('lodash');
 const vm = require('vm');
 const Validator = require('../libraries/Validator');
 const Resource = require('../libraries/Resource');
+const log = require('../log');
 
 module.exports = class Submission extends Resource {
   constructor(model, router, app) {
@@ -25,15 +26,20 @@ module.exports = class Submission extends Resource {
   }
 
   index(req, res, next) {
+    log('debug', 'submission index called');
     this.callPromisesAsync([
-      this.executeSuper('index', req, res),
+      this.executeSuper.bind(this, 'index', req, res),
       this.executeFieldHandlers.bind(this, 'afterActions', 'index', req, res),
     ])
-      .then(() => next())
+      .then(() => {
+        log('debug', 'submission index done');
+        return next();
+      })
       .catch(err => next(err));
   }
 
   post(req, res, next) {
+    log('debug', 'submission post called');
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
       this.executeFieldHandlers.bind(this, 'beforeValidate', 'post', req, res),
@@ -44,20 +50,28 @@ module.exports = class Submission extends Resource {
       this.executeActions.bind(this, 'after', 'create', req, res),
       this.executeFieldHandlers.bind(this, 'afterActions', 'post', req, res),
     ])
-      .then(() => next())
+      .then(() => {
+        log('debug', 'submission post done');
+        return next();
+      })
       .catch(err => next(err));
   }
 
   get(req, res, next) {
+    log('debug', 'submission get called');
     this.callPromisesAsync([
-      this.executeSuper('get', req, res),
+      this.executeSuper.bind(this, 'get', req, res),
       this.executeFieldHandlers.bind(this, 'afterActions', 'get', req, res),
     ])
-      .then(() => next())
+      .then(() => {
+        log('debug', 'submission get done');
+        return next();
+      })
       .catch(err => next(err));
   }
 
   put(req, res, next) {
+    log('debug', 'submission put called');
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
       this.executeFieldHandlers.bind(this, 'beforeValidate', 'put', req, res),
@@ -68,11 +82,15 @@ module.exports = class Submission extends Resource {
       this.executeActions.bind(this, 'after', 'update', req, res),
       this.executeFieldHandlers.bind(this, 'afterActions', 'put', req, res),
     ])
-      .then(() => next())
+      .then(() => {
+        log('debug', 'submission put done');
+        return next();
+      })
       .catch(err => next(err));
   }
 
   patch(req, res, next) {
+    log('debug', 'submission patch called');
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
       this.executeFieldHandlers.bind(this, 'beforeValidate', 'patch', req, res),
@@ -83,16 +101,23 @@ module.exports = class Submission extends Resource {
       this.executeActions.bind(this, 'after', 'update', req, res),
       this.executeFieldHandlers.bind(this, 'afterActions', 'patch', req, res),
     ])
-      .then(() => next())
+      .then(() => {
+        log('debug', 'submission patch done');
+        return next();
+      })
       .catch(err => next(err));
   }
 
   delete(req, res, next) {
+    log('debug', 'submission delete called');
     this.callPromisesAsync([
-      this.executeSuper('delete', req, res),
+      this.executeSuper.bind(this, 'delete', req, res),
       this.executeFieldHandlers.bind(this, 'afterActions', 'delete', req, res),
     ])
-      .then(() => next())
+      .then(() => {
+        log('debug', 'submission delete done');
+        return next();
+      })
       .catch(err => next(err));
   }
 
@@ -133,6 +158,7 @@ module.exports = class Submission extends Resource {
   }
 
   validateSubmission(req, res) {
+    log('debug', 'validateSubmission');
     return new Promise((resolve, reject) => {
       const validator = new Validator(req.context.resources.form, this.app.models.Submission, req.token);
       validator.validate(req.body, (err, data) => {
@@ -141,12 +167,14 @@ module.exports = class Submission extends Resource {
         }
 
         req.body.data = data;
+        log('debug', 'validateSubmission done');
         resolve();
       });
     });
   }
 
   executeActions(handler, method, req, res) {
+    log('debug', 'executeActions', handler, method);
     const actions = [];
     req.context.actions.forEach(action => {
       if (action.method.includes(method) && action.handler.includes(handler)) {
@@ -239,6 +267,7 @@ module.exports = class Submission extends Resource {
   }
 
   executeFieldHandlers(handler, action, req, res) {
+    log('debug', 'executeFieldHandlers', handler, action);
     const form = req.context.resources.form;
     let submissions = [];
     if (res.resource && res.resource.items) {
@@ -357,14 +386,17 @@ module.exports = class Submission extends Resource {
   }
 
   executeSuper(name, req, res) {
+    log('debug', 'executeSuper', name);
     // If we are supposed to skip resource, do so.
     if (req.skipResource) {
+      log('debug', 'skipResource');
       return Promise.resolve();
     }
 
     // Call the Resource method.
     return new Promise((resolve, reject) => {
       super[name](req, res, (err) => {
+        log('debug', 'executeSuper done');
         if (err) {
           return reject(err);
         }
