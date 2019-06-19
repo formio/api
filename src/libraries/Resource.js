@@ -32,7 +32,10 @@ module.exports = class Resource {
    * @param next
    */
   callPromisesAsync(promises) {
-    return promises.reduce((p, f) => p.catch(err => Promise.reject(err)).then(f), Promise.resolve())
+    return promises.reduce((p, f) => p
+        .then(() => f)
+        .catch((err) => Promise.reject(err))
+      , Promise.resolve());
   }
 
   rest() {

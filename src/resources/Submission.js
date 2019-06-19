@@ -241,11 +241,14 @@ module.exports = class Submission extends Resource {
   executeFieldHandlers(handler, action, req, res) {
     const form = req.context.resources.form;
     let submissions = [];
-    if (res.resource.items) {
-      submissions = req.resource.items;
+    if (res.resource && res.resource.items) {
+      submissions = res.resource.items;
+    }
+    else if (res.resource && res.resource.item) {
+      submissions = [res.resource.item];
     }
     else {
-      submissions = [res.resource.item || req.body]
+      submissions = [req.body];
     }
 
     return Promise.all(submissions.map((submission) => {
