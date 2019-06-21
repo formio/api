@@ -65,7 +65,7 @@ module.exports = class Role extends Action {
     ]);
   }
 
-  resolve(handler, method, req, res, event) {
+  resolve(handler, method, req, res, setActionInfoMessage) {
     return Promise.resolve();
   }
 };

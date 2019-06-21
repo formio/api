@@ -1,12 +1,12 @@
 const Action = require('./Action');
-const Event = require('./Event');
+const ActionItem = require('./ActionItem');
 const Form = require('./Form');
 const Role = require('./Role');
 const Submission = require('./Submission');
 
 module.exports = {
   Action,
-  Event,
+  ActionItem,
   Form,
   Role,
   Submission,

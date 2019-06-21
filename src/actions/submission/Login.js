@@ -105,18 +105,20 @@ module.exports = class Login extends Action {
     ]);
   }
 
-  resolve(handler, method, req, res, event) {
+  resolve(handler, method, req, res, setActionInfoMessage) {
     if (!req.body || !req.body.hasOwnProperty('data')) {
       return res.status(401).send('User or password was incorrect.');
     }
 
     // They must provide a username.
     if (!has(req.body.data, this.settings.username)) {
+      setActionInfoMessage('Username not set or not found');
       return res.status(401).send('User or password was incorrect.');
     }
 
     // They must provide a password.
     if (!has(req.body.data, this.settings.password)) {
+      setActionInfoMessage('Password not set or not found');
       return res.status(401).send('User or password was incorrect.');
     }
 
@@ -128,18 +130,22 @@ module.exports = class Login extends Action {
     return this.app.models.Submission.read(query)
       .then(user => {
         if (!user) {
+          setActionInfoMessage('User not found');
           return Promise.reject('User or password was incorrect.');
         }
 
         if (!get(user.data, this.settings.password)) {
-          return Promise.reject('Your account does not have a password. You must reset your password to login.');
+          setActionInfoMessage('Password not set');
+          return Promise.reject('User account does not have a password. You must reset your password to login.');
         }
 
         return bcrypt.compare(get(req.body.data, this.settings.password), get(user.data, this.settings.password))
           .then(value => {
             if (!value) {
+              setActionInfoMessage('Password did not match');
               return Promise.reject('User or password was incorrect.');
             }
+            setActionInfoMessage('Password matched. Setting response data');
             return this.app.models.Form.read({
               _id: this.app.db.ID(user.form),
             })

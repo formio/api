@@ -33,7 +33,7 @@ module.exports = class SaveSubmission extends Action {
     ]);
   }
 
-  resolve(handler, method, req, res, event) {
+  resolve(handler, method, req, res, setActionInfoMessage) {
     req.skipResource = false;
     return Promise.resolve();
   }

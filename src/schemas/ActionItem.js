@@ -39,12 +39,8 @@ module.exports = {
       default: 'new',
       description: 'The current status of this event.',
     },
-    messages: {
-      type: []
-    },
-    data: {
-      type: formio.mongoose.Schema.Types.Mixed
-    },
+    messages: {},
+    data: {},
     ...Timestamps,
   }
 };

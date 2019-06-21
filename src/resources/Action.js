@@ -85,17 +85,6 @@ module.exports = class Action extends Resource {
     return item;
   }
 
-  post(req, res, next) {
-    this.callPromisesAsync([
-      this.initializeAction.bind(this, req, res),
-      this.executeSuper.bind(this, 'post', req, res),
-    ])
-      .then(() => {
-        return next();
-      })
-      .catch(err => next(err));
-  }
-
   executeSuper(name, req, res) {
     // If we are supposed to skip resource, do so.
     if (req.skipResource) {
