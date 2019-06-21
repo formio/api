@@ -165,7 +165,7 @@ module.exports = class FormApi {
   userRoles(req) {
     if (!req.user) {
       return [
-        req.context.roles.default._id,
+        ...req.context.roles.default.map(role => role._id),
         EVERYONE,
       ];
     }
@@ -184,10 +184,10 @@ module.exports = class FormApi {
    * @param query
    * @returns {*|PromiseLike<T>|Promise<T>}
    */
-  loadContextRole(req, roleName, query) {
-    return this.models.Role.read(query)
-      .then(role => {
-        req.context.roles[roleName] = role;
+  loadRoles(req, type, query) {
+    return this.models.Role.find(query)
+      .then(roles => {
+        req.context.roles[type] = roles;
       });
   }
 
@@ -297,9 +297,10 @@ module.exports = class FormApi {
       }
     });
 
-    // Load admin and default roles.
-    loads.push(this.loadContextRole(req, 'admin', {admin: true}));
-    loads.push(this.loadContextRole(req, 'default', {default: true}));
+    // Load all, admin, and default roles.
+    loads.push(this.loadRoles(req, 'all', {}));
+    loads.push(this.loadRoles(req, 'admin', {admin: true}));
+    loads.push(this.loadRoles(req, 'default', {default: true}));
 
     // Load actions associated with a form if we have a submission.
     if (req.context.params.hasOwnProperty('form')) {

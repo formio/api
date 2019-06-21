@@ -133,7 +133,7 @@ module.exports = class Submission extends Resource {
   }
 
   initializeSubmission(req, res) {
-    console.log('initializeSubmission');
+    log('initializeSubmission');
     req.skipResource = true;
 
     req.body = this.getBody(req);
@@ -190,25 +190,35 @@ module.exports = class Submission extends Resource {
 
         if (this.shouldExecute(action, context)) {
           actions.push(() => {
-            return this.app.models.Event.create({
+            return this.app.models.ActionItem.create({
               title: action.title,
-              name: action.name,
               form: req.params.formId,
-              submission: req.params.submissionId
+              submission: req.params.submissionId || req.body._id,
+              action: action.name,
+              handler,
+              method,
+              state: 'inprogress',
+              messages: [
+                {
+                  datetime: new Date(),
+                  info: 'Starting Action',
+                  data: {}
+                }
+              ]
             })
-              .then(event => {
+              .then(actionItem => {
                 // If action exists on this server, execute immediately.
                 if (this.actions.submission.hasOwnProperty(action.name)) {
                   const instance = new this.actions.submission[action.name](this.app, action.settings);
                   return instance.resolve(handler, method, req, res, event)
                     .then(() => {
-                      event.state = 'executed';
-                      this.app.models.Event.update(event);
+                      actionItem.state = 'complete';
+                      this.app.models.ActionItem.update(actionItem);
                     })
                     .catch(error => {
-                      event.state = 'error';
-                      event.errors = [error];
-                      this.app.models.Event.update(event);
+                      actionItem.state = 'error';
+                      actionItem.messages.push(error);
+                      this.app.models.ActionItem.update(actionItem);
                     });
                 }
               });

@@ -21,8 +21,8 @@ module.exports = class Action extends Resource {
 
   actionsIndex(req, res, next) {
     const actions = [];
-    for (const key in this.app.actions) {
-      actions.push(this.getActionInfo(this.app.actions[key]));
+    for (const key in this.app.actions.submission) {
+      actions.push(this.getActionInfo(this.app.actions.submission[key]));
     }
     res.send(actions);
   }
@@ -51,19 +51,65 @@ module.exports = class Action extends Resource {
     const options = {
       baseUrl: this.path('/form'),
       components,
+      roles: Object.values(req.context.roles.all),
       componentsUrl: this.path(`/form/${req.params.formId}/components`)
     };
-    if (action && this.app.actions[action]) {
-      const info = this.getActionInfo(this.app.actions[action]);
+    if (action && this.app.actions.submission[action]) {
+      const info = this.getActionInfo(this.app.actions.submission[action]);
       options.info = info;
       info.settingsForm = {
         action: this.path(`/form/${req.params.formId}/action`),
-        components: this.app.actions[action].settingsForm(options)
+        components: this.app.actions.submission [action].settingsForm(options)
       };
       res.json(info);
     }
     else {
       next(new Error('Action not found'));
     }
+  }
+
+  prepare(item, req) {
+    // Some renderers will submit submission data instead of an action. Fix it here.
+    if (item.hasOwnProperty('data')) {
+      item = item.data;
+    }
+
+    // Ensure they cannot reset the submission id.
+    if (req.context.params.hasOwnProperty('action')) {
+      item._id = req.context.params['action'];
+    }
+
+    // Always make sure form is set correctly.
+    item.form = req.context.params['form'];
+
+    return item;
+  }
+
+  post(req, res, next) {
+    this.callPromisesAsync([
+      this.initializeAction.bind(this, req, res),
+      this.executeSuper.bind(this, 'post', req, res),
+    ])
+      .then(() => {
+        return next();
+      })
+      .catch(err => next(err));
+  }
+
+  executeSuper(name, req, res) {
+    // If we are supposed to skip resource, do so.
+    if (req.skipResource) {
+      return Promise.resolve();
+    }
+
+    // Call the Resource method.
+    return new Promise((resolve, reject) => {
+      super[name](req, res, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve();
+      });
+    });
   }
 };

@@ -193,7 +193,7 @@ module.exports = class Resource {
 
   post(req, res, next) {
     log('debug', `resource post called for ${this.name}`);
-    this.model.create(req.body)
+    this.model.create(this.prepare(req.body, req))
       .then((doc) => {
         res.resource = {
           item: doc
@@ -221,8 +221,7 @@ module.exports = class Resource {
 
   put(req, res, next) {
     log('debug', `resource put called for ${this.name}`);
-    req.body._id = req.params[this.name + 'Id'];
-    this.model.update(req.body)
+    this.model.update(this.prepare(req.body, req))
       .then((doc) => {
         res.resource = {
           item: doc
@@ -238,11 +237,7 @@ module.exports = class Resource {
     this.model.read(req.params[this.name + 'Id'])
       .then(doc => {
         const patched = jsonpatch.applyPatch(doc, req.body);
-
-        // Ensure _id remains the same.
-        patched.newDocument._id = req.params[this.name + 'Id'];
-
-        this.model.update(patched.newDocument)
+        this.model.update(this.prepare(patched.newDocument, req))
           .then((doc) => {
             res.resource = {
               item: doc
@@ -265,6 +260,15 @@ module.exports = class Resource {
         next();
       })
       .catch(next);
+  }
+
+  prepare(item, req) {
+    // Ensure they can't change the id.
+    if (req.params[`${this.name}Id`]) {
+      item._id = req.params[this.name + 'Id'];
+    }
+
+    return item;
   }
 
   exists(req, res, next) {

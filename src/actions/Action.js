@@ -4,6 +4,20 @@ module.exports = class Action {
     this.settings = settings;
   }
 
+  static info() {
+    return {
+      name: 'name',
+      title: 'Action Title',
+      group: 'default',
+      description: 'Description of the action.',
+      priority: 0,
+      defaults: {
+        handler: ['before'],
+        method: ['create', 'update']
+      }
+    };
+  }
+
   static settingsForm(options, actionSettings) {
     return [
       {
@@ -63,7 +77,7 @@ module.exports = class Action {
               ])},
             template: '<span>{{ item.title }}</span>',
             valueProperty: 'name',
-            multiple: true
+            multiple: (options.info.access && options.info.access.handler === false) ? false : true
           },
           {
             type: (options.info.access && options.info.access.method === false) ? 'hidden' : 'select',
@@ -96,7 +110,7 @@ module.exports = class Action {
               ])},
             template: '<span>{{ item.title }}</span>',
             valueProperty: 'name',
-            multiple: true
+            multiple: (options.info.access && options.info.access.method === false) ? false : true
           }
         ]
       },
@@ -231,5 +245,9 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`
         theme: 'primary'
       }
     ];
+  }
+
+  resolve(handler, method, req, res, event) {
+    return Promise.resolve();
   }
 };

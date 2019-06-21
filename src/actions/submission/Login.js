@@ -8,6 +8,7 @@ module.exports = class Login extends Action {
     return {
       name: 'login',
       title: 'Login',
+      group: 'default',
       description: 'Provides a way to login to the application.',
       priority: 2,
       defaults: {

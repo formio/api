@@ -5,6 +5,7 @@ module.exports = class SaveSubmission extends Action {
     return {
       name: 'save',
       title: 'Save Submission',
+      group: 'default',
       description: 'Saves the submission into the database.',
       priority: 10,
       defaults: {
