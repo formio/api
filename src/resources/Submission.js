@@ -197,28 +197,39 @@ module.exports = class Submission extends Resource {
               action: action.name,
               handler,
               method,
-              state: 'inprogress',
+              state: 'new',
               messages: [
                 {
                   datetime: new Date(),
-                  info: 'Starting Action',
+                  info: 'New Action Triggered',
                   data: {}
                 }
               ]
             })
               .then(actionItem => {
+                const setActionItemMessage = (message, data = {}, state = null) => {
+                  actionItem.messages.push({
+                    datetime: new Date(),
+                    info: message,
+                    data
+                  });
+
+                  if (state) {
+                    actionItem.state = state;
+                  }
+
+                  this.app.models.ActionItem.update(actionItem);
+                };
                 // If action exists on this server, execute immediately.
                 if (this.actions.submission.hasOwnProperty(action.name)) {
+                  setActionItemMessage('Starting Action', {}, 'inprogress');
                   const instance = new this.actions.submission[action.name](this.app, action.settings);
-                  return instance.resolve(handler, method, req, res, event)
+                  return instance.resolve(handler, method, req, res, setActionItemMessage)
                     .then(() => {
-                      actionItem.state = 'complete';
-                      this.app.models.ActionItem.update(actionItem);
+                      setActionItemMessage('Action Resolved (no longer blocking)', {}, 'complete');
                     })
                     .catch(error => {
-                      actionItem.state = 'error';
-                      actionItem.messages.push(error);
-                      this.app.models.ActionItem.update(actionItem);
+                      setActionItemMessage('Error Occurred', error, 'error');
                     });
                 }
               });
