@@ -289,7 +289,7 @@ module.exports = class FormApi {
       if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
         req.context.params[part] = parts[index + 1];
         loads.push(this.db.read(part + 's', {
-          _id: new this.db.ID(parts[index + 1])
+          _id: this.db.ID(parts[index + 1])
         })
           .then(doc => {
             req.context.resources[part] = doc;
@@ -305,7 +305,7 @@ module.exports = class FormApi {
     // Load actions associated with a form if we have a submission.
     if (req.context.params.hasOwnProperty('form')) {
       loads.push(this.loadActions(req, {
-        form: new this.db.ID(req.context.params['form']),
+        form: this.db.ID(req.context.params['form']),
       }))
     }
 

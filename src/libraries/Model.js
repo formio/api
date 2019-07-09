@@ -272,7 +272,7 @@ module.exports = class Model {
 
   toID(value) {
     try {
-      return new this.db.ID(value);
+      return this.db.ID(value);
     }
     catch (err) {
       return value;
