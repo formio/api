@@ -13,7 +13,7 @@
     "api"
   ],
   "author": "Randall Knutson <randall@form.io>",
-  "license": "ISC",
+  "license": "SSPL",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "composable-middleware": "^0.3.0",
