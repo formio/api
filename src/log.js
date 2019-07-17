@@ -8,5 +8,11 @@ module.exports = (type, ...args) => {
     error: debug('formio:error'),
   };
 
+  // If type is not passed in.
+  if (!types.hasOwnProperty(type)) {
+    args.unshift(type);
+    type = 'info';
+  }
+
   types[types.hasOwnProperty(type) ? type : 'error'](...args);
 };

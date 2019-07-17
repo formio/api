@@ -250,8 +250,7 @@ module.exports = class Submission extends Resource {
       let json = null;
       try {
         json = JSON.parse(action.condition.custom);
-      }
-      catch (e) {
+      } catch (e) {
         json = null;
       }
 
@@ -265,12 +264,10 @@ module.exports = class Submission extends Resource {
         });
 
         return sandbox.execute;
-      }
-      catch (err) {
+      } catch (err) {
         return false;
       }
-    }
-    else {
+    } else {
       if (_.isEmpty(condition.field) || _.isEmpty(condition.eq)) {
         return true;
       }
@@ -288,16 +285,13 @@ module.exports = class Submission extends Resource {
   }
 
   executeFieldHandlers(handler, action, req, res) {
-    log('debug', 'executeFieldHandlers', handler, action);
     const form = req.context.resources.form;
     let submissions = [];
     if (res.resource && res.resource.items) {
       submissions = res.resource.items;
-    }
-    else if (res.resource && res.resource.item) {
+    } else if (res.resource && res.resource.item) {
       submissions = [res.resource.item];
-    }
-    else {
+    } else {
       submissions = [req.body];
     }
 
@@ -305,21 +299,26 @@ module.exports = class Submission extends Resource {
       return this.eachValue(form.components, submission.data, (context) => {
         const promises = [];
 
-        const { component, data, handler, action } = context;
+        const {component, data, handler, action, path} = context;
 
         // Execute field actions
         if (this.actions.field.hasOwnProperty(component.type)) {
-          promises.push(this.actions.field[component.type](component, data, handler, action));
+          promises.push(this.actions.field[component.type](component, data, handler, action, {
+            path,
+            req,
+            res,
+            app: this
+          }));
         }
 
         // Execute property actions.
         Object.keys(this.actions.property).forEach((property) => {
           if (component.hasOwnProperty(property) && component[property]) {
-            promises.push(this.actions.property[property](component, data, handler, action));
+            promises.push(this.actions.property[property](component, data, handler, action, {req, res, app: this}));
           }
         });
 
-        Promise.all(promises);
+        return Promise.all(promises);
       }, {handler, action, req, res});
     }));
   }
@@ -380,14 +379,12 @@ module.exports = class Submission extends Resource {
         else {
           promises.push(this.eachValue(component.components, data, fn, context, path));
         }
-      }
-      else if (component.hasOwnProperty('columns') && Array.isArray(component.columns)) {
+      } else if (component.hasOwnProperty('columns') && Array.isArray(component.columns)) {
         // Handle column like layout components.
         component.columns.forEach((column) => {
           promises.push(this.eachValue(column.components, data, fn, context, path));
         });
-      }
-      else if (component.hasOwnProperty('rows') && Array.isArray(component.rows)) {
+      } else if (component.hasOwnProperty('rows') && Array.isArray(component.rows)) {
         // Handle table like layout components.
         component.rows.forEach((row) => {
           if (Array.isArray(row)) {
@@ -396,8 +393,7 @@ module.exports = class Submission extends Resource {
             });
           }
         });
-      }
-      else {
+      } else {
         // If this is just a regular component, call the callback.
         promises.push(fn({...context, data, component, path}));
       }
@@ -407,6 +403,7 @@ module.exports = class Submission extends Resource {
   }
 
   executeSuper(name, req, res) {
+    console.log('saving submission', req.body);
     log('debug', 'executeSuper', name);
     // If we are supposed to skip resource, do so.
     if (req.skipResource) {

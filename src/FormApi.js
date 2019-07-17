@@ -97,6 +97,10 @@ module.exports = class FormApi {
     return actions;
   }
 
+  get util() {
+    return util;
+  }
+
   /**
    * Determine the primary entity for a request. This should go from least to greatest. For example, if a submission id
    * exists, it should be a submission, not a form.
@@ -461,7 +465,56 @@ module.exports = class FormApi {
     res.status(404).send('Not found');
   }
 
-  get util() {
-    return util;
+  /**
+   * If you need to mimic a request to a new server you can use this function.
+   *
+   * @param req
+   * @param res
+   * @param url
+   * @param body
+   */
+  makeSubRequest({req, res, url, body, method, options = {}}) {
+    const childRes = router.formio.util.createSubResponse((err) => {
+      if (childRes.statusCode > 299) {
+        // Add the parent path to the details path.
+        if (err && err.details && err.details.length) {
+          _.each(err.details, (details) => {
+            if (details.path) {
+              details.path = `${path}.data.${details.path}`;
+            }
+          });
+        }
+
+        return res.headersSent ? next() : res.status(childRes.statusCode).json(err);
+      }
+    });
+    const childReq = router.formio.util.createSubRequest(req);
+    if (!childReq) {
+      return res.headersSent ? next() : res.status(400).json('Too many recursive requests.');
+    }
+    childReq.body = subSubmission;
+
+    // Make sure to pass along the submission state to the subforms.
+    if (req.body.state) {
+      childReq.body.state = req.body.state;
+    }
+
+    childReq.params.formId = component.form;
+    if (subSubmission._id) {
+      childReq.params.submissionId = subSubmission._id;
+    }
+
+    // Make the child request.
+    router.resourcejs[url][method](childReq, childRes, function(err) {
+      if (err) {
+        return next(err);
+      }
+
+      if (childRes.resource && childRes.resource.item) {
+        _.set(req.body, `data.${path}`, childRes.resource.item);
+      }
+      next();
+    });
+
   }
 };

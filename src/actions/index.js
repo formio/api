@@ -6,4 +6,4 @@ module.exports = {
   field,
   property,
   submission,
-}
+};

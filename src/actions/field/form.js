@@ -1,72 +1,38 @@
-module.exports = (component, data, handler, action) => {
-  /*
+module.exports = (component, data, handler, action, {req, res, app}) => {
   if (['afterValidation'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
     // Get the submission object.
-    const subSubmission = _.get(req.body, `data.${path}`, {});
+    const body = _.get(data, component.key);
 
     // if there isn't a sub-submission or the sub-submission has an _id, don't submit.
     // Should be submitted from the frontend.
     if (
-      (req.method === 'POST' && subSubmission._id) ||
-      (req.method === 'PUT' && !subSubmission._id)
+      (req.method === 'POST' && body._id) ||
+      (req.method === 'PATCH' && !body._id) ||
+      (req.method === 'PUT' && !body._id)
     ) {
-      return next();
+      return Promise.resolve();
     }
 
     // Only execute if the component should save reference and conditions do not apply.
     if (
       (component.hasOwnProperty('reference') && !component.reference) ||
-      !utils.checkCondition(component, {}, req.body.data)
+      !utils.checkCondition(component, data, req.body.data)
     ) {
-      return next();
+      return Promise.resolve();
     }
 
     let url = '/form/:formId/submission';
-    if (req.method === 'PUT') {
+    if (action === 'put' || action === 'patch') {
       url += '/:submissionId';
     }
-    const childRes = router.formio.util.createSubResponse((err) => {
-      if (childRes.statusCode > 299) {
-        // Add the parent path to the details path.
-        if (err && err.details && err.details.length) {
-          _.each(err.details, (details) => {
-            if (details.path) {
-              details.path = `${path}.data.${details.path}`;
-            }
-          });
-        }
 
-        return res.headersSent ? next() : res.status(childRes.statusCode).json(err);
-      }
-    });
-    const childReq = router.formio.util.createSubRequest(req);
-    if (!childReq) {
-      return res.headersSent ? next() : res.status(400).json('Too many recursive requests.');
-    }
-    childReq.body = subSubmission;
+    // Patch at this point should be a subrequest put.
+    const method = (action === 'post') ? 'post' : 'put';
 
-    // Make sure to pass along the submission state to the subforms.
-    if (req.body.state) {
-      childReq.body.state = req.body.state;
-    }
-
-    childReq.params.formId = component.form;
-    if (subSubmission._id) {
-      childReq.params.submissionId = subSubmission._id;
-    }
-
-    // Make the child request.
-    const method = (req.method === 'POST') ? 'post' : 'put';
-    router.resourcejs[url][method](childReq, childRes, function(err) {
-      if (err) {
-        return next(err);
-      }
-
-      if (childRes.resource && childRes.resource.item) {
-        _.set(req.body, `data.${path}`, childRes.resource.item);
-      }
-      next();
-    });
+    return app.makeChildRequest({ url, method, body, req, res })
+      .then(childRes => {
+        _.set(data, component.key, childRes.resource.item);
+      });
   }
 
   if (['afterActions'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
@@ -77,47 +43,41 @@ module.exports = (component, data, handler, action) => {
       (!component.hasOwnProperty('reference') || component.reference)
     ) {
       // Get child form component's value
-      const compValue = _.get(res.resource.item.data, path);
+      const compValue = _.get(data, component.key);
 
       // Fetch the child form's submission
       if (compValue && compValue._id) {
-        const submissionModel = req.submissionModel || router.formio.resources.submission.model;
-        submissionModel.findOne(
-          {_id: compValue._id, deleted: {$eq: null}}
-        ).exec(function(err, submission) {
-          if (err) {
-            return router.formio.util.log(err);
-          }
-
-          if (!submission) {
-            return router.formio.util.log('No subform found to update external ids.');
-          }
-
-          // Update the submission's externalIds.
-          let found = false;
-          submission.externalIds = submission.externalIds || [];
-          _.each(submission.externalIds, function(externalId) {
-            if (externalId.type === 'parent') {
-              found = true;
-            }
-          });
-          if (!found) {
-            submission.externalIds.push({
-              type: 'parent',
-              id: res.resource.item._id
-            });
-            submission.save(function(err, submission) {
-              if (err) {
-                return router.formio.util.log(err);
+        return app.models.Submission.findOne({
+          _id: compValue._id,
+          deleted: { $eq: null }
+        })
+          .catch(err => app.log('info', err))
+          .then(submission => {
+            let found = false;
+            submission.externalIds = submission.externalIds || [];
+            _.each(submission.externalIds, function(externalId) {
+              if (externalId.type === 'parent') {
+                found = true;
               }
             });
-          }
-        });
+            if (found) {
+              // externalId already set.
+              return Promise.resolve();
+            }
+            else {
+              // Set new externalId and save.
+              submission.externalIds.push({
+                type: 'parent',
+                id: res.resource.item._id
+              });
+              return app.models.Submission.save(submission);
+            }
+          });
       }
     }
-  }*/
+  }
 
-  // May want to also implement delete action to delete sub forms.
+  // TODO: May want to also implement delete action to delete sub forms.
 
   return Promise.resolve();
 };
