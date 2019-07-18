@@ -72,21 +72,23 @@ describe('Resource.js', () => {
   });
 
   describe('Handles Index Get', () => {
-    sandbox.spy(model, 'find');
+    it('Calls find from index', done => {
+      sandbox.spy(model, 'find');
 
-    const resource = new Resource(model, app);
+      const resource = new Resource(model, app);
 
-    resource.index({
-      params: { testId: 1 },
-      query: {
-        'data.name': 'joe',
-        'data.age__gt': 20,
-        'sort': 'created'
-      }
-    }, {}, err => {
-      assert(model.find.calledOnce, 'Should call index');
-      // assert.deepEqual(model.read.args[0][0], {_id: 1});
-      done(err);
+      resource.index({
+        params: { testId: 1 },
+        query: {
+          'data.name': 'joe',
+          'data.age__gt': 20,
+          'sort': 'created'
+        }
+      }, {}, err => {
+        assert(model.find.calledOnce, 'Should call index');
+        // assert.deepEqual(model.read.args[0][0], {_id: 1});
+        done(err);
+      });
     });
   });
 

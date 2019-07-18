@@ -1,7 +1,7 @@
 # Remaining Dev tasks:
 
 ## General
- - fix makeChildRequest function to work.
+ - get makeChildRequest function to work.
 
 ## Actions
 
