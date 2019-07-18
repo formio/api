@@ -92,10 +92,10 @@ const getRules = (type) => [
 
           // Create the sandbox.
           const sandbox = vm.createContext({
-            input: _.isObject(_row) ? util.getValue({data: _row}, component.key) : _row,
+            input: _.isObject(_row) ? util.getValue({ data: _row }, component.key) : _row,
             data,
             row: _row,
-            scope: {data},
+            scope: { data },
             component: component,
             valid: valid
           });
@@ -114,7 +114,7 @@ const getRules = (type) => [
 
         // If there is an error, then set the error object and break from iterations.
         if (valid !== true) {
-          return this.createError(`${type}.custom`, {message: valid}, state, options);
+          return this.createError(`${type}.custom`, { message: valid }, state, options);
         }
       }
 
@@ -153,7 +153,7 @@ const getRules = (type) => [
 
         // If there is an error, then set the error object and break from iterations.
         if (valid !== true) {
-          return this.createError(`${type}.json`, {message: valid}, state, options);
+          return this.createError(`${type}.json`, { message: valid }, state, options);
         }
       }
 
@@ -181,7 +181,7 @@ const getRules = (type) => [
         return value;
       }
 
-      return this.createError(`${type}.hidden`, {message: 'hidden with value'}, state, options);
+      return this.createError(`${type}.hidden`, { message: 'hidden with value' }, state, options);
     }
   },
   {
@@ -194,7 +194,7 @@ const getRules = (type) => [
         return value;
       }
 
-      return this.createError(`${type}.maxWords`, {message: 'exceeded maximum words.'}, state, options);
+      return this.createError(`${type}.maxWords`, { message: 'exceeded maximum words.' }, state, options);
     }
   },
   {
@@ -207,7 +207,7 @@ const getRules = (type) => [
         return value;
       }
 
-      return this.createError(`${type}.minWords`, {message: 'does not have enough words.'}, state, options);
+      return this.createError(`${type}.minWords`, { message: 'does not have enough words.' }, state, options);
     }
   },
   {
@@ -373,9 +373,9 @@ const getRules = (type) => [
       }
 
       // Get the query.
-      const query = {form: util.idToBson(submission.form)};
+      const query = { form: util.idToBson(submission.form) };
       if (_.isString(value)) {
-        query[path] = {$regex: new RegExp(`^${util.escapeRegExp(value)}$`), $options: 'i'};
+        query[path] = { $regex: new RegExp(`^${util.escapeRegExp(value)}$`), $options: 'i' };
       }
       // FOR-213 - Pluck the unique location id
       else if (
@@ -383,19 +383,19 @@ const getRules = (type) => [
         value.hasOwnProperty('address_components') &&
         value.hasOwnProperty('place_id')
       ) {
-        query[`${path}.place_id`] = {$regex: new RegExp(`^${util.escapeRegExp(value.place_id)}$`), $options: 'i'};
+        query[`${path}.place_id`] = { $regex: new RegExp(`^${util.escapeRegExp(value.place_id)}$`), $options: 'i' };
       }
       // Compare the contents of arrays vs the order.
       else if (_.isArray(value)) {
-        query[path] = {$all: value};
+        query[path] = { $all: value };
       }
       else if (_.isObject(value)) {
-        query[path] = {$eq: value};
+        query[path] = { $eq: value };
       }
 
       // Only search for non-deleted items.
       if (!query.hasOwnProperty('deleted')) {
-        query['deleted'] = {$eq: null};
+        query['deleted'] = { $eq: null };
       }
 
       async.push(new Promise((resolve, reject) => {

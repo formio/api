@@ -4,4 +4,4 @@ module.exports = (component, data, handler, action) => {
     _.set(data, component.key, (!value || (value.length < 25)) ? '' : 'YES');
   }
   return Promise.resolve();
-}
+};

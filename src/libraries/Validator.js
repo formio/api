@@ -90,7 +90,7 @@ class Validator {
             submission
           );
 
-          fieldValidator = JoiX.array().items(JoiX.object().keys(objectSchema)).options({stripUnknown: false});
+          fieldValidator = JoiX.array().items(JoiX.object().keys(objectSchema)).options({ stripUnknown: false });
           break;
         case 'container':
           objectSchema = this.buildSchema(
@@ -263,7 +263,7 @@ class Validator {
       if (component.multiple) {
         // Allow(null) was added since some text fields have empty strings converted to null when multiple which then
         // throws an error on re-validation. Allowing null fixes the issue.
-        fieldValidator = JoiX.array().sparse().items(fieldValidator.allow(null)).options({stripUnknown: false});
+        fieldValidator = JoiX.array().sparse().items(fieldValidator.allow(null)).options({ stripUnknown: false });
         // If a multi-value is required, make sure there is at least one.
         if (component.validate && component.validate.required) {
           fieldValidator = fieldValidator.min(1).required();
@@ -384,7 +384,7 @@ class Validator {
     // Build the JoiX validation schema.
     let schema = {
       // Start off with the _id key.
-      _id: JoiX.string().meta({primaryKey: true})
+      _id: JoiX.string().meta({ primaryKey: true })
     };
 
     // Create the validator schema.
@@ -398,7 +398,7 @@ class Validator {
       }
     }, true, '', true);
 
-    JoiX.validate(submission.data, schema, {stripUnknown: true, abortEarly: false}, (validateErr, value) => {
+    JoiX.validate(submission.data, schema, { stripUnknown: true, abortEarly: false }, (validateErr, value) => {
       // Wait for all async validators to complete and add any errors.
       Promise.all(this.async).then(errors => {
         errors = errors.filter(item => item);
@@ -458,7 +458,7 @@ class Validator {
                 }
 
                 return result;
-              }, {path: [], hidden: false, submission: value});
+              }, { path: [], hidden: false, submission: value });
             }
 
             return !result.hidden;

@@ -38,7 +38,7 @@ module.exports = class Login extends Action {
         key: 'resources',
         placeholder: 'Select the resources we should login against.',
         dataSrc: 'url',
-        data: {url: `${options.baseUrl}?type=resource`},
+        data: { url: `${options.baseUrl}?type=resource` },
         valueProperty: '_id',
         template: '<span>{{ item.title }}</span>',
         multiple: true,
@@ -54,7 +54,7 @@ module.exports = class Login extends Action {
         placeholder: 'Select the username field',
         template: '<span>{{ item.label || item.key }} ({{item.key}})</span>',
         dataSrc: 'json',
-        data: {json: JSON.stringify(options.components)},
+        data: { json: JSON.stringify(options.components) },
         valueProperty: 'key',
         multiple: false,
         validate: {
@@ -69,7 +69,7 @@ module.exports = class Login extends Action {
         placeholder: 'Select the password field',
         template: '<span>{{ item.label || item.key }} ({{item.key}})</span>',
         dataSrc: 'json',
-        data: {json: JSON.stringify(options.components)},
+        data: { json: JSON.stringify(options.components) },
         valueProperty: 'key',
         multiple: false,
         validate: {
@@ -123,7 +123,7 @@ module.exports = class Login extends Action {
     }
 
     const query = {
-      form: {'$in': this.settings.resources.map(this.app.db.ID)},
+      form: { '$in': this.settings.resources.map(this.app.db.ID) },
       [`data.${this.settings.username}`]: get(req.body.data, this.settings.username),
     };
 
@@ -153,7 +153,7 @@ module.exports = class Login extends Action {
                 req.user = user;
                 res.token = this.app.generateToken(this.app.tokenPayload(user, form));
               });
-          })
+          });
       });
   }
 };

@@ -14,7 +14,7 @@ describe('PreserveModel.js', () => {
 
   describe('Read Tests', () => {
     it('Reads an existing record', () => {
-      sandbox.stub(db, 'read').resolves({_id: 'foo', bar: 'baz', deleted: null});
+      sandbox.stub(db, 'read').resolves({ _id: 'foo', bar: 'baz', deleted: null });
 
       const model = new Model({
         name: 'test',
@@ -25,10 +25,10 @@ describe('PreserveModel.js', () => {
         },
       }, db);
 
-      return model.read({_id: 'foo'}).then(doc => {
+      return model.read({ _id: 'foo' }).then(doc => {
         assert(db.read.calledOnce, 'Should call read');
-        assert.deepEqual(db.read.args[0][1], {_id: 'foo', deleted: {$eq: null}});
-        assert.deepEqual(doc, {_id: 'foo', bar: 'baz'});
+        assert.deepEqual(db.read.args[0][1], { _id: 'foo', deleted: { $eq: null } });
+        assert.deepEqual(doc, { _id: 'foo', bar: 'baz' });
       });
     });
   });
@@ -37,7 +37,7 @@ describe('PreserveModel.js', () => {
     it('Marks a record as deleted', () => {
       sandbox.spy(db, 'delete');
       sandbox.spy(db, 'update');
-      sandbox.stub(db, 'read').resolves({_id: 'foo', fiz: 'buz'});
+      sandbox.stub(db, 'read').resolves({ _id: 'foo', fiz: 'buz' });
       sandbox.stub(Date, 'now').returns(3);
 
       const model = new Model({
@@ -52,7 +52,7 @@ describe('PreserveModel.js', () => {
       return model.delete('foo').then(doc => {
         assert(db.delete.notCalled, 'Should not call delete');
         assert(db.update.calledOnce, 'Should call update');
-        assert.deepEqual(db.update.args[0][1], {_id: 'foo', fiz: 'buz', deleted: 3});
+        assert.deepEqual(db.update.args[0][1], { _id: 'foo', fiz: 'buz', deleted: 3 });
       });
     });
   });
@@ -70,10 +70,10 @@ describe('PreserveModel.js', () => {
         },
       }, db);
 
-      const query = {foo: 'bar'};
+      const query = { foo: 'bar' };
       return model.count(query).then(result => {
         assert(db.count.calledOnce, 'Should call count');
-        assert.deepEqual(db.count.args[0][1], {foo: 'bar', deleted: {$eq: null}});
+        assert.deepEqual(db.count.args[0][1], { foo: 'bar', deleted: { $eq: null } });
         assert.equal(result, 4);
       });
     });
@@ -82,9 +82,9 @@ describe('PreserveModel.js', () => {
   describe('Find Tests', () => {
     it('Finds results', () => {
       sandbox.stub(db, 'find').resolves([
-        {_id: 1, foo: 'bar', deleted: null},
-        {_id: 2, foo: 'bar', deleted: null},
-        {_id: 3, foo: 'bar', deleted: null}
+        { _id: 1, foo: 'bar', deleted: null },
+        { _id: 2, foo: 'bar', deleted: null },
+        { _id: 3, foo: 'bar', deleted: null }
         ]);
 
       const model = new Model({
@@ -96,19 +96,19 @@ describe('PreserveModel.js', () => {
         },
       }, db);
 
-      const query = {foo: 'bar'};
-      const options = {sort: 1, limit: 10};
+      const query = { foo: 'bar' };
+      const options = { sort: 1, limit: 10 };
       return model.find(query, options).then(result => {
         assert(db.find.calledOnce, 'Should call find');
-        assert.deepEqual(db.find.args[0][1], {foo: 'bar', deleted: {$eq: null}});
+        assert.deepEqual(db.find.args[0][1], { foo: 'bar', deleted: { $eq: null } });
         assert.deepEqual(db.find.args[0][2], options);
         assert.equal(result.length, 3);
         assert.isString(result[0]._id);
-        assert.deepEqual(result[0], {_id: '1', foo: 'bar'});
+        assert.deepEqual(result[0], { _id: '1', foo: 'bar' });
         assert.isString(result[1]._id);
-        assert.deepEqual(result[1], {_id: '2', foo: 'bar'});
+        assert.deepEqual(result[1], { _id: '2', foo: 'bar' });
         assert.isString(result[2]._id);
-        assert.deepEqual(result[2], {_id: '3', foo: 'bar'});
+        assert.deepEqual(result[2], { _id: '3', foo: 'bar' });
       });
     });
   });

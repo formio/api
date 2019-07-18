@@ -31,11 +31,11 @@ module.exports = class Import {
           $or: [
             {
               machineName: document.machineName,
-              deleted: {$eq: null}
+              deleted: { $eq: null }
             },
             {
               title: document.title,
-              deleted: {$eq: null}
+              deleted: { $eq: null }
             }
           ]
         };
@@ -99,15 +99,15 @@ module.exports = class Import {
           $or: [
             {
               machineName: document.machineName,
-              deleted: {$eq: null}
+              deleted: { $eq: null }
             },
             {
               name: document.name,
-              deleted: {$eq: null}
+              deleted: { $eq: null }
             },
             {
               path: document.path,
-              deleted: {$eq: null}
+              deleted: { $eq: null }
             }
           ]
         };
@@ -165,15 +165,15 @@ module.exports = class Import {
           $or: [
             {
               machineName: document.machineName,
-              deleted: {$eq: null}
+              deleted: { $eq: null }
             },
             {
               name: document.name,
-              deleted: {$eq: null}
+              deleted: { $eq: null }
             },
             {
               path: document.path,
-              deleted: {$eq: null}
+              deleted: { $eq: null }
             }
           ]
         };
@@ -260,20 +260,20 @@ module.exports = class Import {
     let changed = false;
     this.app.util.eachComponent(components, (component) => {
       // Update resource machineNames for resource components.
-      if ((component.type === `resource`) && this.mapEntityProperty(component, 'resources', this.template.resources)) {
+      if ((component.type === 'resource') && this.mapEntityProperty(component, 'resources', this.template.resources)) {
         changed = true;
       }
 
       // Update the form property on the form component.
-      if ((component.type === 'form') && this.mapEntityProperty(component, 'form', {...this.template.resources, ...this.template.forms})) {
+      if ((component.type === 'form') && this.mapEntityProperty(component, 'form', { ...this.template.resources, ...this.template.forms })) {
         changed = true;
       }
 
       // Update resource machineNames for select components with the resource data type.
       if (
-        (component.type === `select`) &&
-        (component.dataSrc === `resource`) &&
-        this.mapEntityProperty(component.data, 'resources', {...this.template.resources, ...this.template.forms})
+        (component.type === 'select') &&
+        (component.dataSrc === 'resource') &&
+        this.mapEntityProperty(component.data, 'resources', { ...this.template.resources, ...this.template.forms })
       ) {
         changed = true;
       }
@@ -312,7 +312,7 @@ module.exports = class Import {
                     return Promise.resolve();
                   });
                 }
-              )
+              );
           });
       });
     }, Promise.resolve());

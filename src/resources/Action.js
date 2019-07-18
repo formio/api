@@ -1,7 +1,7 @@
-'use strict'
+'use strict';
 
 const Resource = require('../libraries/Resource');
-const {eachComponent} = require('../libraries/Util');
+const { eachComponent } = require('../libraries/Util');
 
 module.exports = class Action extends Resource {
   constructor(model, router, app) {
@@ -11,7 +11,7 @@ module.exports = class Action extends Resource {
   }
 
   get route() {
-    return this.path('/form/:formId/' + this.name);
+    return this.path(`/form/:formId/${  this.name}`);
   }
 
   getQuery(req, query = {}) {
@@ -46,7 +46,7 @@ module.exports = class Action extends Resource {
       components.push({
         key: component.key,
         label: component.label || component.title || component.legend
-      })
+      });
     });
     const options = {
       baseUrl: this.path('/form'),

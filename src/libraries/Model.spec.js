@@ -92,7 +92,7 @@ describe('Model.js', () => {
 
       const result = model.toID('test');
       assert(db.ID.calledOnce, 'Should call db id');
-      assert.deepEqual(result, {id: 'test'});
+      assert.deepEqual(result, { id: 'test' });
       done();
     });
   });
@@ -110,7 +110,7 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).then(doc => {
+      return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.isString(db.create.args[0][1].foo);
         assert.isString(doc.foo);
@@ -135,7 +135,7 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).catch(error => {
+      return model.create({ foo: 'bar' }).catch(error => {
         assert.equal(error, '\'foo\' invalid type');
       });
     });
@@ -147,7 +147,7 @@ describe('Model.js', () => {
         constructor(id) {
           throw 'id is bad';
         }
-      };
+      }
 
       const model = new Model({
         name: 'test',
@@ -159,7 +159,7 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).then(doc => {
+      return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.isString(db.create.args[0][1].foo);
         assert.isString(doc.foo);
@@ -271,7 +271,7 @@ describe('Model.js', () => {
       }, db);
 
       return model.create({
-        foo: { bar: 3}
+        foo: { bar: 3 }
       }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.equal(db.create.args[0][1].foo.bar, '3');
@@ -298,7 +298,7 @@ describe('Model.js', () => {
       }, db);
 
       return model.create({
-        foo: [{ bar: 3}, {bar: 4}]
+        foo: [{ bar: 3 }, { bar: 4 }]
       }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.equal(db.create.args[0][1].foo[0].bar, '3');
@@ -370,10 +370,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).then(doc => {
+      return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'bar'});
-        assert.deepEqual(doc, {foo: 'bar'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
+        assert.deepEqual(doc, { foo: 'bar' });
       });
     });
 
@@ -389,10 +389,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar', baz: 'blah'}).then(doc => {
+      return model.create({ foo: 'bar', baz: 'blah' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'bar'});
-        assert.deepEqual(doc, {foo: 'bar'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
+        assert.deepEqual(doc, { foo: 'bar' });
       });
     });
 
@@ -411,8 +411,8 @@ describe('Model.js', () => {
 
       return model.create({}).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'bar'});
-        assert.deepEqual(doc, {foo: 'bar'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
+        assert.deepEqual(doc, { foo: 'bar' });
       });
     });
 
@@ -428,10 +428,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'baz'}).then(doc => {
+      return model.create({ foo: 'baz' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'baz'});
-        assert.deepEqual(doc, {foo: 'baz'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'baz' });
+        assert.deepEqual(doc, { foo: 'baz' });
       });
     });
 
@@ -449,8 +449,8 @@ describe('Model.js', () => {
 
       return model.create({}).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'bar'});
-        assert.deepEqual(doc, {foo: 'bar'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
+        assert.deepEqual(doc, { foo: 'bar' });
       });
     });
 
@@ -466,10 +466,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'baz'}).then(doc => {
+      return model.create({ foo: 'baz' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'baz'});
-        assert.deepEqual(doc, {foo: 'baz'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'baz' });
+        assert.deepEqual(doc, { foo: 'baz' });
       });
     });
 
@@ -486,10 +486,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'BAR'}).then(doc => {
+      return model.create({ foo: 'BAR' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'bar'});
-        assert.deepEqual(doc, {foo: 'bar'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
+        assert.deepEqual(doc, { foo: 'bar' });
       });
     });
 
@@ -507,10 +507,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: ' BAR '}).then(doc => {
+      return model.create({ foo: ' BAR ' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'bar'});
-        assert.deepEqual(doc, {foo: 'bar'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
+        assert.deepEqual(doc, { foo: 'bar' });
       });
     });
 
@@ -526,10 +526,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).then(doc => {
+      return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'baz'});
-        assert.deepEqual(doc, {foo: 'baz'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'baz' });
+        assert.deepEqual(doc, { foo: 'baz' });
       });
     });
 
@@ -546,10 +546,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).then(doc => {
+      return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'bar'});
-        assert.deepEqual(doc, {foo: 'bar'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
+        assert.deepEqual(doc, { foo: 'bar' });
       });
     });
 
@@ -566,7 +566,7 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bal'}).catch(error => {
+      return model.create({ foo: 'bal' }).catch(error => {
         assert(db.create.notCalled, 'Should not call db create');
         assert.equal(error, 'Invalid enumerated option in \'foo\'');
       });
@@ -592,10 +592,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).then(doc => {
+      return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'bar'});
-        assert.deepEqual(doc, {foo: 'bar'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
+        assert.deepEqual(doc, { foo: 'bar' });
       });
     });
 
@@ -619,7 +619,7 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).catch(error => {
+      return model.create({ foo: 'bar' }).catch(error => {
         assert(db.create.notCalled, 'Should not call db create');
         assert.equal(error, 'must pass sync validator');
       });
@@ -648,10 +648,10 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).then(doc => {
+      return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
-        assert.deepEqual(db.create.args[0][1], {foo: 'bar'});
-        assert.deepEqual(doc, {foo: 'bar'});
+        assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
+        assert.deepEqual(doc, { foo: 'bar' });
       });
     });
 
@@ -678,7 +678,7 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({foo: 'bar'}).catch(error => {
+      return model.create({ foo: 'bar' }).catch(error => {
         assert(db.create.notCalled, 'Should not call db create');
         assert.equal(error, 'must pass sync validator');
       });
@@ -697,18 +697,17 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.create({_id: '3', foo: 'baz'}).then(doc => {
+      return model.create({ _id: '3', foo: 'baz' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db update');
         assert.equal(db.create.args[0][1].foo, 'baz');
         assert.equal(doc.foo, 'baz');
       });
-    })
-
+    });
   });
 
   describe('Read Tests', () => {
     it('Reads an existing record', () => {
-      sandbox.stub(db, 'read').resolves({_id: 'foo', bar: 'baz'});
+      sandbox.stub(db, 'read').resolves({ _id: 'foo', bar: 'baz' });
 
       const model = new Model({
         name: 'test',
@@ -719,15 +718,15 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.read({_id: 'foo'}).then(doc => {
+      return model.read({ _id: 'foo' }).then(doc => {
         assert(db.read.calledOnce, 'Should call read');
-        assert.deepEqual(db.read.args[0][1], {_id: 'foo'});
-        assert.deepEqual(doc, {_id: 'foo', bar: 'baz'});
+        assert.deepEqual(db.read.args[0][1], { _id: 'foo' });
+        assert.deepEqual(doc, { _id: 'foo', bar: 'baz' });
       });
     });
 
     it('Converts ids to strings', () => {
-      sandbox.stub(db, 'read').resolves({_id: 3, bar: 'baz'});
+      sandbox.stub(db, 'read').resolves({ _id: 3, bar: 'baz' });
 
       const model = new Model({
         name: 'test',
@@ -738,9 +737,9 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.read({_id: 3}).then(doc => {
+      return model.read({ _id: 3 }).then(doc => {
         assert.isString(doc._id);
-        assert.deepEqual(doc, {_id: '3', bar: 'baz'});
+        assert.deepEqual(doc, { _id: '3', bar: 'baz' });
       });
     });
 
@@ -764,7 +763,7 @@ describe('Model.js', () => {
 
   describe('Update Tests', () => {
     it('Updates a record', () => {
-      sandbox.stub(db, 'read').resolves({_id: 3, foo: 'bar'});
+      sandbox.stub(db, 'read').resolves({ _id: 3, foo: 'bar' });
       sandbox.spy(db, 'update');
 
       const model = new Model({
@@ -776,7 +775,7 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.update({_id: '3', foo: 'baz'}).then(doc => {
+      return model.update({ _id: '3', foo: 'baz' }).then(doc => {
         assert(db.update.calledOnce, 'Should call db update');
         assert.equal(db.update.args[0][1].foo, 'baz');
         assert.equal(doc.foo, 'baz');
@@ -784,7 +783,7 @@ describe('Model.js', () => {
     });
 
     it('Enforces read only', () => {
-      sandbox.stub(db, 'read').resolves({_id: 3, foo: 'bar'});
+      sandbox.stub(db, 'read').resolves({ _id: 3, foo: 'bar' });
       sandbox.spy(db, 'update');
 
       const model = new Model({
@@ -797,12 +796,12 @@ describe('Model.js', () => {
         },
       }, db);
 
-      return model.update({_id: '3', foo: 'baz'}).then(doc => {
+      return model.update({ _id: '3', foo: 'baz' }).then(doc => {
         assert(db.update.calledOnce, 'Should call db update');
         assert.equal(db.update.args[0][1].foo, 'bar');
         assert.equal(doc.foo, 'bar');
       });
-    })
+    });
   });
 
   describe('Delete Tests', () => {
@@ -855,7 +854,7 @@ describe('Model.js', () => {
         },
       }, db);
 
-      const query = {foo: 'bar'};
+      const query = { foo: 'bar' };
       return model.count(query).then(result => {
         assert(db.count.calledOnce, 'Should call count');
         assert.deepEqual(db.count.args[0][1], query);
@@ -866,7 +865,7 @@ describe('Model.js', () => {
 
   describe('Find Tests', () => {
     it('Finds results', () => {
-      sandbox.stub(db, 'find').resolves([{_id: 1, foo: 'bar'}, {_id: 2, foo: 'bar'}, {_id: 3, foo: 'bar'}]);
+      sandbox.stub(db, 'find').resolves([{ _id: 1, foo: 'bar' }, { _id: 2, foo: 'bar' }, { _id: 3, foo: 'bar' }]);
 
       const model = new Model({
         name: 'test',
@@ -877,8 +876,8 @@ describe('Model.js', () => {
         },
       }, db);
 
-      const query = {foo: 'bar'};
-      const options = {sort: 1, limit: 10};
+      const query = { foo: 'bar' };
+      const options = { sort: 1, limit: 10 };
       return model.find(query, options).then(result => {
         assert(db.find.calledOnce, 'Should call find');
         assert.deepEqual(db.find.args[0][1], query);

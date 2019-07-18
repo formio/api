@@ -6,4 +6,4 @@ module.exports = (component, data, handler, action) => {
     }
   }
   return Promise.resolve();
-}
+};

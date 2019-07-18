@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const FormioUtils = require('formiojs/utils');
 const _ = require('lodash');
@@ -13,7 +13,7 @@ module.exports = class Submission extends Resource {
   }
 
   get route() {
-    return this.path('/form/:formId/' + this.name);
+    return this.path(`/form/:formId/${  this.name}`);
   }
 
   get actions() {
@@ -122,14 +122,14 @@ module.exports = class Submission extends Resource {
   }
 
   getBody(req) {
-    const {data, owner, access, metadata} = req.body;
+    const { data, owner, access, metadata } = req.body;
 
     return {
       data,
       owner,
       access,
       metadata,
-    }
+    };
   }
 
   initializeSubmission(req, res) {
@@ -242,7 +242,7 @@ module.exports = class Submission extends Resource {
                     });
                 }
               });
-          })
+          });
         }
       }
     });
@@ -259,7 +259,8 @@ module.exports = class Submission extends Resource {
       let json = null;
       try {
         json = JSON.parse(action.condition.custom);
-      } catch (e) {
+      }
+ catch (e) {
         json = null;
       }
 
@@ -273,10 +274,12 @@ module.exports = class Submission extends Resource {
         });
 
         return sandbox.execute;
-      } catch (err) {
+      }
+ catch (err) {
         return false;
       }
-    } else {
+    }
+ else {
       if (_.isEmpty(condition.field) || _.isEmpty(condition.eq)) {
         return true;
       }
@@ -298,9 +301,11 @@ module.exports = class Submission extends Resource {
     let submissions = [];
     if (res.resource && res.resource.items) {
       submissions = res.resource.items;
-    } else if (res.resource && res.resource.item) {
+    }
+ else if (res.resource && res.resource.item) {
       submissions = [res.resource.item];
-    } else {
+    }
+ else {
       submissions = [req.body];
     }
 
@@ -308,7 +313,7 @@ module.exports = class Submission extends Resource {
       return this.eachValue(form.components, submission.data, (context) => {
         const promises = [];
 
-        const {component, data, handler, action, path} = context;
+        const { component, data, handler, action, path } = context;
 
         // Execute field actions
         if (this.actions.field.hasOwnProperty(component.type)) {
@@ -323,12 +328,12 @@ module.exports = class Submission extends Resource {
         // Execute property actions.
         Object.keys(this.actions.property).forEach((property) => {
           if (component.hasOwnProperty(property) && component[property]) {
-            promises.push(this.actions.property[property](component, data, handler, action, {req, res, app: this}));
+            promises.push(this.actions.property[property](component, data, handler, action, { req, res, app: this }));
           }
         });
 
         return Promise.all(promises);
-      }, {handler, action, req, res});
+      }, { handler, action, req, res });
     }));
   }
 
@@ -358,7 +363,7 @@ module.exports = class Submission extends Resource {
               context,
               path ? `${path}.` : '' + `${component.key}[${index}]`
             ));
-          })
+          });
         }
         // If it is a form
         else if (['form'].includes(component.type)) {
@@ -369,7 +374,6 @@ module.exports = class Submission extends Resource {
             context,
             path ? `${path}.` : '' + `${component.key}.data`
           ));
-
         }
         // If tree type is an object like container.
         else if (
@@ -388,12 +392,14 @@ module.exports = class Submission extends Resource {
         else {
           promises.push(this.eachValue(component.components, data, fn, context, path));
         }
-      } else if (component.hasOwnProperty('columns') && Array.isArray(component.columns)) {
+      }
+ else if (component.hasOwnProperty('columns') && Array.isArray(component.columns)) {
         // Handle column like layout components.
         component.columns.forEach((column) => {
           promises.push(this.eachValue(column.components, data, fn, context, path));
         });
-      } else if (component.hasOwnProperty('rows') && Array.isArray(component.rows)) {
+      }
+ else if (component.hasOwnProperty('rows') && Array.isArray(component.rows)) {
         // Handle table like layout components.
         component.rows.forEach((row) => {
           if (Array.isArray(row)) {
@@ -402,9 +408,10 @@ module.exports = class Submission extends Resource {
             });
           }
         });
-      } else {
+      }
+ else {
         // If this is just a regular component, call the callback.
-        promises.push(fn({...context, data, component, path}));
+        promises.push(fn({ ...context, data, component, path }));
       }
     });
 

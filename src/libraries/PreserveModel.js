@@ -21,27 +21,27 @@ module.exports = class PreserveModel extends Model {
           delete doc.deleted;
         }
         return doc;
-      })
+      });
   }
 
   find(query = {}, options = {}) {
-    query.deleted = {$eq: null};
+    query.deleted = { $eq: null };
     return super.find(query, options);
   }
 
   count(query = {}) {
-    query.deleted = {$eq: null};
+    query.deleted = { $eq: null };
     return super.count(query);
   }
 
   read(query = {}) {
-    query.deleted = {$eq: null};
+    query.deleted = { $eq: null };
     return super.read(query);
   }
 
   delete(_id) {
     return this.initialized.then(() => {
-      return this.read({_id}).then(doc => {
+      return this.read({ _id }).then(doc => {
         doc.deleted = Date.now();
         return this.db.update(this.collectionName, doc);
       });

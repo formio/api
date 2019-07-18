@@ -26,16 +26,16 @@ describe('Resource.js', () => {
       const resource = new Resource(model, app);
 
       assert(app.get.calledTwice, 'Should call get twice');
-      assert.equal(app.get.args[0][0], '/' + model.name);
-      assert.equal(app.get.args[1][0], '/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.get.args[0][0], `/${  model.name}`);
+      assert.equal(app.get.args[1][0], `/${  model.name  }/:${  model.name  }Id`);
       assert(app.put.calledOnce, 'Should call put once');
-      assert.equal(app.put.args[0][0], '/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.put.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
       assert(app.post.calledOnce, 'Should call post once');
-      assert.equal(app.post.args[0][0], '/' + model.name);
+      assert.equal(app.post.args[0][0], `/${  model.name}`);
       assert(app.patch.calledOnce, 'Should call patch once');
-      assert.equal(app.patch.args[0][0], '/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.patch.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
       assert(app.delete.calledOnce, 'Should call delete once');
-      assert.equal(app.delete.args[0][0], '/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.delete.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
       assert(app.use.notCalled, 'Should not call use');
 
       done();
@@ -52,18 +52,18 @@ describe('Resource.js', () => {
       const resource = new ChildResource(model, app);
 
       assert(app.get.calledTwice, 'Should call get twice');
-      assert.equal(app.get.args[0][0], '/foo/' + model.name);
-      assert.equal(app.get.args[1][0], '/foo/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.get.args[0][0], `/foo/${  model.name}`);
+      assert.equal(app.get.args[1][0], `/foo/${  model.name  }/:${  model.name  }Id`);
       assert(app.put.calledOnce, 'Should call put once');
-      assert.equal(app.put.args[0][0], '/foo/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.put.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
       assert(app.post.calledOnce, 'Should call post once');
-      assert.equal(app.post.args[0][0], '/foo/' + model.name);
+      assert.equal(app.post.args[0][0], `/foo/${  model.name}`);
       assert(app.patch.calledOnce, 'Should call patch once');
-      assert.equal(app.patch.args[0][0], '/foo/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.patch.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
       assert(app.delete.calledOnce, 'Should call delete once');
-      assert.equal(app.delete.args[0][0], '/foo/' + model.name + '/:' + model.name + 'Id');
+      assert.equal(app.delete.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
       assert(app.use.calledOnce, 'Should call use once');
-      assert.equal(app.use.args[0][0], '/foo/' + model.name + '/test');
+      assert.equal(app.use.args[0][0], `/foo/${  model.name  }/test`);
 
       done();
     });
@@ -75,7 +75,7 @@ describe('Resource.js', () => {
     const resource = new Resource(model, app);
 
     resource.index({
-      params: {testId: 1},
+      params: { testId: 1 },
       query: {
         'data.name': 'joe',
         'data.age__gt': 20,
@@ -94,9 +94,9 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, app);
 
-      resource.get({params: {testId: 1}}, {}, err => {
+      resource.get({ params: { testId: 1 } }, {}, err => {
         assert(model.read.calledOnce, 'Should call read');
-        assert.deepEqual(model.read.args[0][0], {_id: 1});
+        assert.deepEqual(model.read.args[0][0], { _id: 1 });
         done(err);
       });
     });
@@ -106,9 +106,9 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, app);
 
-      resource.get({params: {testId: 1}}, {}, err => {
+      resource.get({ params: { testId: 1 } }, {}, err => {
         assert(model.read.calledOnce, 'Should call read');
-        assert.deepEqual(model.read.args[0][0], {_id: 1});
+        assert.deepEqual(model.read.args[0][0], { _id: 1 });
         assert.equal(err, 'Not found');
         done();
       });
@@ -125,7 +125,7 @@ describe('Resource.js', () => {
         foo: 'bar'
       };
 
-      resource.post({body}, {}, err => {
+      resource.post({ body }, {}, err => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
         done(err);
@@ -141,7 +141,7 @@ describe('Resource.js', () => {
         foo: 'bar'
       };
 
-      resource.post({body}, {}, err => {
+      resource.post({ body }, {}, err => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
         assert.equal(err, 'Not found');
@@ -161,7 +161,7 @@ describe('Resource.js', () => {
         foo: 'bar'
       };
 
-      resource.post({body}, {}, err => {
+      resource.post({ body }, {}, err => {
         sinon.assert.callOrder(ChildResource.prototype.post, ChildResource.prototype.before, Resource.prototype.post, ChildResource.prototype.after);
         done(err);
       });
@@ -174,9 +174,9 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, app);
 
-      resource.put({params: {testId: 1}, body: {baz: 'bur'}}, {}, err => {
+      resource.put({ params: { testId: 1 }, body: { baz: 'bur' } }, {}, err => {
         assert(model.update.calledOnce, 'Should call update');
-        assert.deepEqual(model.update.args[0][0], {baz: 'bur', _id: 1});
+        assert.deepEqual(model.update.args[0][0], { baz: 'bur', _id: 1 });
         done(err);
       });
     });
@@ -186,7 +186,7 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, app);
 
-      resource.put({params: {testId: 1}, body: {baz: 'bur'}}, {}, err => {
+      resource.put({ params: { testId: 1 }, body: { baz: 'bur' } }, {}, err => {
         assert(model.update.calledOnce, 'Should call update');
         assert.equal(err, 'Not found');
         done();
@@ -196,7 +196,7 @@ describe('Resource.js', () => {
 
   describe('Handles Patch', done => {
     it('Calls patch', done => {
-      sandbox.stub(model, 'read').resolves({foo: 'bar', fiz: 'buz', _id: 1});
+      sandbox.stub(model, 'read').resolves({ foo: 'bar', fiz: 'buz', _id: 1 });
       sandbox.spy(model, 'update');
 
       const resource = new Resource(model, app);
@@ -215,9 +215,9 @@ describe('Resource.js', () => {
             op: 'remove',
             path: '/fiz',
           }
-        ]}, {}, err => {
+        ] }, {}, err => {
         assert(model.update.calledOnce, 'Should call patch');
-        assert.deepEqual(model.update.args[0][0], {foo: 'bar', bing: 'bong', _id: 1});
+        assert.deepEqual(model.update.args[0][0], { foo: 'bar', bing: 'bong', _id: 1 });
         done(err);
       });
     });
@@ -243,7 +243,7 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, app);
 
-      resource.delete({params: {testId: 1}}, {}, err => {
+      resource.delete({ params: { testId: 1 } }, {}, err => {
         assert(model.delete.calledOnce, 'Should call delete');
         assert.deepEqual(model.delete.args[0][0], 1);
         done(err);
@@ -255,7 +255,7 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, app);
 
-      resource.delete({params: {testId: 1}}, {}, err => {
+      resource.delete({ params: { testId: 1 } }, {}, err => {
         assert(model.delete.calledOnce, 'Should call delete');
         assert.deepEqual(model.delete.args[0][0], 1);
         assert.equal(err, 'Not found');

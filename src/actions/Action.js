@@ -52,11 +52,11 @@ module.exports = class Action {
         ]
       },
       {
-        type: "fieldset",
+        type: 'fieldset',
         input: false,
         tree: false,
-        key: "conditions",
-        legend: "Action Execution",
+        key: 'conditions',
+        legend: 'Action Execution',
         components: [
           {
             type: (options.info.access && options.info.access.handler === false) ? 'hidden' : 'select',
@@ -65,7 +65,7 @@ module.exports = class Action {
             label: 'Handler',
             placeholder: 'Select which handler(s) you would like to trigger',
             dataSrc: 'json',
-            data: {json: JSON.stringify([
+            data: { json: JSON.stringify([
                 {
                   name: 'before',
                   title: 'Before'
@@ -74,7 +74,7 @@ module.exports = class Action {
                   name: 'after',
                   title: 'After'
                 }
-              ])},
+              ]) },
             template: '<span>{{ item.title }}</span>',
             valueProperty: 'name',
             multiple: (options.info.access && options.info.access.handler === false) ? false : true
@@ -86,7 +86,7 @@ module.exports = class Action {
             key: 'method',
             placeholder: 'Trigger action on method(s)',
             dataSrc: 'json',
-            data: {json: JSON.stringify([
+            data: { json: JSON.stringify([
                 {
                   name: 'create',
                   title: 'Create'
@@ -107,7 +107,7 @@ module.exports = class Action {
                   name: 'index',
                   title: 'Index'
                 }
-              ])},
+              ]) },
             template: '<span>{{ item.title }}</span>',
             valueProperty: 'name',
             multiple: (options.info.access && options.info.access.method === false) ? false : true
@@ -142,7 +142,7 @@ module.exports = class Action {
                         placeholder: 'Select the conditional field',
                         template: '<span>{{ item.label || item.key }} ({{item.key}})</span>',
                         dataSrc: 'json',
-                        data: {json: JSON.stringify(options.components)},
+                        data: { json: JSON.stringify(options.components) },
                         valueProperty: 'key',
                         multiple: false
                       },

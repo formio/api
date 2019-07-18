@@ -39,7 +39,7 @@ module.exports = class FormApi {
       'access',
       'token',
       'recaptcha',
-    ]
+    ];
   }
 
   get beforePhases() {
@@ -50,18 +50,18 @@ module.exports = class FormApi {
       this.authorize.bind(this),
       this.beforeExecute.bind(this),
     ];
-  };
+  }
 
   get afterPhases() {
     return [
       this.afterExecute.bind(this),
       this.respond.bind(this),
-    ]
+    ];
   }
 
   get schemas() {
     return require('./schemas');
-  };
+  }
 
   get resourceClasses() {
     return resources;
@@ -75,7 +75,7 @@ module.exports = class FormApi {
       'form',
       'role',
       'action',
-    ]
+    ];
   }
 
   /**
@@ -85,12 +85,12 @@ module.exports = class FormApi {
    */
   get methodPermissions() {
     return {
-      'POST': {all: 'create_all', own: 'create_own'},
-      'GET': {all: 'read_all', own: 'read_own'},
-      'PUT': {all: 'update_all', own: 'update_own'},
-      'PATCH': {all: 'update_all', own: 'update_own'},
-      'DELETE': {all: 'delete_all', own: 'delete_own'}
-    }
+      'POST': { all: 'create_all', own: 'create_own' },
+      'GET': { all: 'read_all', own: 'read_own' },
+      'PUT': { all: 'update_all', own: 'update_own' },
+      'PATCH': { all: 'update_all', own: 'update_own' },
+      'DELETE': { all: 'delete_all', own: 'delete_own' }
+    };
   }
 
   /**
@@ -125,7 +125,7 @@ module.exports = class FormApi {
         entity = {
           type,
           id: req.context.resources[type]._id,
-        }
+        };
       }
     });
     return entity;
@@ -265,7 +265,7 @@ module.exports = class FormApi {
     log('info', 'Adding models');
     const schemas = this.schemas;
     for (const schema in schemas) {
-      log('debug', 'Adding model ' + schema);
+      log('debug', `Adding model ${  schema}`);
       this.models[schema] = new (this.getModelClass(schemas[schema]))(schemas[schema], this.db);
     }
   }
@@ -273,7 +273,7 @@ module.exports = class FormApi {
   addResources() {
     log('info', 'Adding resources');
     for (const resourceName in this.resourceClasses) {
-      log('debug', 'Adding resource ' + resourceName);
+      log('debug', `Adding resource ${  resourceName}`);
       this.resources[resourceName] = new this.resourceClasses[resourceName](this.models[resourceName], this.router, this);
     }
   }
@@ -302,7 +302,7 @@ module.exports = class FormApi {
     parts.forEach((part, index) => {
       if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
         req.context.params[part] = parts[index + 1];
-        loads.push(this.db.read(part + 's', {
+        loads.push(this.db.read(`${part  }s`, {
           _id: this.db.ID(parts[index + 1])
         })
           .then(doc => {
@@ -313,14 +313,14 @@ module.exports = class FormApi {
 
     // Load all, admin, and default roles.
     loads.push(this.loadRoles(req, 'all', {}));
-    loads.push(this.loadRoles(req, 'admin', {admin: true}));
-    loads.push(this.loadRoles(req, 'default', {default: true}));
+    loads.push(this.loadRoles(req, 'admin', { admin: true }));
+    loads.push(this.loadRoles(req, 'default', { default: true }));
 
     // Load actions associated with a form if we have a submission.
     if (req.context.params.hasOwnProperty('form')) {
       loads.push(this.loadActions(req, {
         form: this.db.ID(req.context.params['form']),
-      }))
+      }));
     }
 
     Promise.all(loads)
@@ -388,7 +388,7 @@ module.exports = class FormApi {
               title: role.title,
               admin: role.admin,
               default: role.default,
-            }
+            };
             return result;
           }, {}),
           forms: results[1].reduce((result, form) => {
@@ -399,7 +399,7 @@ module.exports = class FormApi {
               path: form.path,
               access: form.access,
               submissionAccess: form.submissionAccess,
-            }
+            };
             return result;
           }, {}),
         });
@@ -416,12 +416,12 @@ module.exports = class FormApi {
       .then(() => {
         res.status(200).send('Ok');
       })
-      .catch(next)
+      .catch(next);
   }
 
   get ImportClass() {
-    return ImportClass
-  };
+    return ImportClass;
+  }
 
   importTemplate(template) {
     const importer = new this.ImportClass(this, template);
@@ -435,7 +435,7 @@ module.exports = class FormApi {
     res.send(req.user);
   }
 
-  getStatus (status = {}) {
+  getStatus(status = {}) {
     status.formApiVersion = info.version;
     return status;
   }
@@ -483,7 +483,7 @@ module.exports = class FormApi {
    * @param url
    * @param body
    */
-  makeSubRequest({req, res, url, body, method, options = {}}) {
+  makeChildRequest({ req, res, url, body, method, options = {} }) {
     const childRes = router.formio.util.createSubResponse((err) => {
       if (childRes.statusCode > 299) {
         // Add the parent path to the details path.
@@ -525,6 +525,5 @@ module.exports = class FormApi {
       }
       next();
     });
-
   }
 };

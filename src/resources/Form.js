@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const _ = require('lodash');
 const Resource = require('../libraries/Resource');
@@ -43,7 +43,7 @@ module.exports = class Form extends Resource {
             return reject(err);
           }
           return resolve();
-        })
+        });
       }),
       this.createDefaultAction.bind(this, req, res)
     ])
@@ -60,7 +60,7 @@ module.exports = class Form extends Resource {
             return reject(err);
           }
           return resolve();
-        })
+        });
       }),
     ])
       .then(() => next())

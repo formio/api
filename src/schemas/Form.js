@@ -8,12 +8,12 @@ const uniqueMessage = 'may only contain letters, numbers, hyphens, and forward s
   '(but cannot start or end with a hyphen or forward slash)';
 const uniqueValidator = property => function(value, model, done) {
   // TODO: Have a way to alter to add projectId.
-  const query = {deleted: {$eq: null}};
+  const query = { deleted: { $eq: null } };
   query[property] = value;
 
   // Ignore the id if this is an update.
   if (this._id) {
-    query._id = {$ne: model.db.ID(this._id)};
+    query._id = { $ne: model.db.ID(this._id) };
   }
 
   model.find(query)

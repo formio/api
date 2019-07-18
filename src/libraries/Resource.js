@@ -18,7 +18,7 @@ module.exports = class Resource {
   }
 
   get route() {
-    return this.path('/' + this.name);
+    return this.path(`/${  this.name}`);
   }
 
   path(route) {
@@ -42,27 +42,27 @@ module.exports = class Resource {
     log('debug', `registering rest endpoings for ${this.name}`);
     this.register('get', this.route, 'index');
     this.register('post', this.route, 'post');
-    this.register('get', this.route + '/:' + this.name + 'Id', 'get');
-    this.register('put', this.route + '/:' + this.name + 'Id', 'put');
-    this.register('patch', this.route + '/:' + this.name + 'Id', 'patch');
-    this.register('delete', this.route + '/:' + this.name + 'Id', 'delete');
-    this.register('use', this.route + '/exists', 'exists');
+    this.register('get', `${this.route  }/:${  this.name  }Id`, 'get');
+    this.register('put', `${this.route  }/:${  this.name  }Id`, 'put');
+    this.register('patch', `${this.route  }/:${  this.name  }Id`, 'patch');
+    this.register('delete', `${this.route  }/:${  this.name  }Id`, 'delete');
+    this.register('use', `${this.route  }/exists`, 'exists');
 
     return this;
   }
 
   register(method, route, callback) {
-    log('debug', 'Registering route ' + method.toUpperCase() + ': ' + route);
+    log('debug', `Registering route ${  method.toUpperCase()  }: ${  route}`);
     this.router[method](route, (req, res, next) => {
       this[callback](req, res, next);
     });
   }
 
   getQuery(req, query = {}) {
-    const {limit, skip, select, sort, populate, ...filters} = req.query || {};
+    const { limit, skip, select, sort, populate, ...filters } = req.query || {};
 
     // Iterate through each filter.
-    for (let key in filters) {
+    for (const key in filters) {
       let value = filters[key];
       const [name, selector] = key.split('__');
 
@@ -89,7 +89,7 @@ module.exports = class Resource {
               value = ((value === 'false') || (value === '0')) ? false : value;
               value = !!value;
               query[name] = query[name] || {};
-              query[name]['$' + selector] = value;
+              query[name][`$${  selector}`] = value;
               break;
             case 'in':
             case 'nin':
@@ -98,12 +98,12 @@ module.exports = class Resource {
                 return this.getQueryValue(name, item, param);
               });
               query[name] = query[name] || {};
-              query[name]['$' + selector] = value;
+              query[name][`$${  selector}`] = value;
               break;
             default:
               value = this.getQueryValue(name, value, param);
               query[name] = query[name] || {};
-              query[name]['$' + selector] = value;
+              query[name][`$${  selector}`] = value;
               break;
           }
         }
@@ -150,7 +150,7 @@ module.exports = class Resource {
 
     optionKeys.forEach(key => {
       if (req.query.hasOwnProperty(key)) {
-        switch(key) {
+        switch (key) {
           case 'limit':
           case 'skip':
             options[key] = parseInt(req.query[key]);
@@ -207,7 +207,7 @@ module.exports = class Resource {
   get(req, res, next) {
     log('debug', `resource get called for ${this.name}`);
     this.model.read({
-      _id: this.model.toID(req.params[this.name + 'Id'])
+      _id: this.model.toID(req.params[`${this.name  }Id`])
     })
       .then((doc) => {
         res.resource = {
@@ -234,7 +234,7 @@ module.exports = class Resource {
 
   patch(req, res, next) {
     log('debug', `resource patch called for ${this.name}`);
-    this.model.read(req.params[this.name + 'Id'])
+    this.model.read(req.params[`${this.name  }Id`])
       .then(doc => {
         const patched = jsonpatch.applyPatch(doc, req.body);
         this.model.update(this.prepare(patched.newDocument, req))
@@ -251,7 +251,7 @@ module.exports = class Resource {
 
   delete(req, res, next) {
     log('debug', `resource delete called for ${this.name}`);
-    this.model.delete(req.params[this.name + 'Id'])
+    this.model.delete(req.params[`${this.name  }Id`])
       .then((doc) => {
         res.resource = {
           item: doc
@@ -265,7 +265,7 @@ module.exports = class Resource {
   prepare(item, req) {
     // Ensure they can't change the id.
     if (req.params[`${this.name}Id`]) {
-      item._id = req.params[this.name + 'Id'];
+      item._id = req.params[`${this.name  }Id`];
     }
 
     return item;

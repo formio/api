@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const Resource = require('../libraries/Resource');
 

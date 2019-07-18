@@ -55,7 +55,7 @@ module.exports = class Role extends Action {
         placeholder: 'Select the Role that this action will Add or Remove.',
         template: '<span>{{ item.title }}</span>',
         dataSrc: 'json',
-        data: {json: options.roles},
+        data: { json: options.roles },
         valueProperty: '_id',
         multiple: false,
         validate: {
@@ -96,7 +96,7 @@ module.exports = class Role extends Action {
       resource = resource._id;
     }
 
-    return this.app.models.Submission.read({_id: this.app.db.ID(resource)})
+    return this.app.models.Submission.read({ _id: this.app.db.ID(resource) })
       .then(submission => {
         // Ensure roles is set and an array.
         submission.roles = submission.roles || [];

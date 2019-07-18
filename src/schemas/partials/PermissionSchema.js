@@ -1,7 +1,7 @@
-'use strict'
+'use strict';
 
 // Define the available permissions for a form.
-let available = [
+const available = [
   'create_all',
   'read_all',
   'update_all',

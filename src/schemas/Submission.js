@@ -55,7 +55,7 @@ module.exports = {
         deleted: 1
       },
       options: {
-        partialFilterExpression: {deleted: {$eq: null}}
+        partialFilterExpression: { deleted: { $eq: null } }
       }
     },
     {

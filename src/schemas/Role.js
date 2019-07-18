@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const Timestamps = require('./partials/Timestamps');
 const MachineName = require('./partials/MachineName');
@@ -18,7 +18,7 @@ module.exports = {
             // TODO: Find way to alter and add projectId.
             const search = {
               title: value,
-              deleted: {$eq: null}
+              deleted: { $eq: null }
             };
 
             // Ignore the id of the role, if this is an update.
@@ -30,7 +30,7 @@ module.exports = {
 
             // Search for roles that exist, with the given parameters.
             model.find(search)
-              .then(result => done(result.length === 0))
+              .then(result => done(result.length === 0));
           }
         }
       ]

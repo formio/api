@@ -28,7 +28,7 @@ module.exports = class Model {
   }
 
   get collectionName() {
-    return this.name + 's';
+    return `${this.name  }s`;
   }
 
   /* Private Functions */
@@ -52,7 +52,7 @@ module.exports = class Model {
         for (const name in this.schema.schema) {
           const field = this.schema.schema[name];
           if (field.index) {
-            log('debug', `Ensuring index for ${this.collectionName}.${name}`)
+            log('debug', `Ensuring index for ${this.collectionName}.${name}`);
             // promises.push(this.db.createIndex(this.collectionName, name));
           }
         }
@@ -73,7 +73,7 @@ module.exports = class Model {
       values.forEach((value, index) => {
         if (typeof schema.type[0] === 'object') {
           for (const name in schema.type[0]) {
-            promises.push(this.iterateFields(path + '[' + index + '].' + name, schema.type[0][name], input, doc, execute));
+            promises.push(this.iterateFields(`${path  }[${  index  }].${  name}`, schema.type[0][name], input, doc, execute));
           }
         }
         else {
@@ -81,13 +81,13 @@ module.exports = class Model {
             ...schema,
             type: schema.type[0]
           };
-          promises.push(this.iterateFields(path + '[' + index + ']', field, input, doc, execute));
+          promises.push(this.iterateFields(`${path  }[${  index  }]`, field, input, doc, execute));
         }
       });
     }
     else if (typeof schema.type === 'object') {
       for (const name in schema.type) {
-        promises.push(this.iterateFields(path + '.' + name, schema.type[name], input, doc, execute));
+        promises.push(this.iterateFields(`${path  }.${  name}`, schema.type[name], input, doc, execute));
       }
     }
     else {
@@ -103,7 +103,7 @@ module.exports = class Model {
 
     for (const path in this.schema.schema) {
       if (path !== '_id') {
-        promises.push(this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this)))
+        promises.push(this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this)));
       }
     }
     return Promise.all(promises)
@@ -136,7 +136,7 @@ module.exports = class Model {
       // Check type
       if (value !== null && value !== undefined) {
         if (field.hasOwnProperty('type')) {
-          switch(field.type) {
+          switch (field.type) {
             case 'string':
               if (typeof value !== 'string') {
                 value = value.toString();
@@ -223,7 +223,7 @@ module.exports = class Model {
           else {
             if (!item.validator.call(doc, value, this)) {
               return reject(item.message);
-            };
+            }
           }
         });
       }
@@ -235,7 +235,7 @@ module.exports = class Model {
           return reject(result[0]);
         }
         return resolve(doc);
-      })
+      });
     });
   }
 
@@ -245,7 +245,7 @@ module.exports = class Model {
     }
     const promises = [];
     for (const path in this.schema.schema) {
-      promises.push(this.iterateFields(path, this.schema.schema[path], doc, doc, this.getField.bind(this)))
+      promises.push(this.iterateFields(path, this.schema.schema[path], doc, doc, this.getField.bind(this)));
     }
     return Promise.all(promises)
       .then(result => doc);
@@ -318,7 +318,7 @@ module.exports = class Model {
 
   update(input) {
     return this.initialized.then(() => {
-      return this.read({_id: this.toID(input._id)}).then(previous => {
+      return this.read({ _id: this.toID(input._id) }).then(previous => {
         return this.beforeSave(input, previous)
           .then(doc => {
             return this.db.update(this.collectionName, doc)

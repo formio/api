@@ -2,7 +2,7 @@ const _get = require('lodash/get');
 const _set = require('lodash/set');
 const _each = require('lodash/each');
 
-module.exports = (component, data, handler, action, {req, res, app}) => {
+module.exports = (component, data, handler, action, { req, res, app }) => {
   if (['afterValidation'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
     // Get the submission object.
     const body = _get(data, component.key);
