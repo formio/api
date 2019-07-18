@@ -149,6 +149,11 @@ module.exports = class Submission extends Resource {
     // Always make sure form is set correctly.
     req.body.form = req.context.params['form'];
 
+    // Copy roles from existing submissions so they arent lost.
+    if (req.context.resources.submission) {
+      req.body.roles = req.context.resources.submission.roles;
+    }
+
     // Ensure response is set.
     res.resource = {
       item: req.body
