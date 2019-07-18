@@ -1,7 +1,7 @@
-const protected = require('./protected');
+const protectedAction = require('./protected');
 const reference = require('./reference');
 
 module.exports = {
-  protected,
+  protected: protectedAction,
   reference,
 };

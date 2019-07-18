@@ -4,7 +4,8 @@
   "description": "A form API library that creates rest endpoints and database integrations for forms.",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=text mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'"
+    "test": "nyc --reporter=text mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'",
+    "lint": "eslint src"
   },
   "keywords": [
     "Form.io",

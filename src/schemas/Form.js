@@ -25,9 +25,11 @@ const uniqueValidator = property => function(value, model, done) {
     });
 };
 
+/* eslint-disable no-useless-escape */
 const invalidRegex = /[^0-9a-zA-Z\-\/]|^\-|\-$|^\/|\/$/;
 const validKeyRegex = /^[A-Za-z_]+[A-Za-z0-9\-._]*$/g;
 const validShortcutRegex = /^([A-Z]|Enter|Esc)$/i;
+/* eslint-enable no-useless-escape */
 
 const componentKeys = (components) => {
   const keys = [];

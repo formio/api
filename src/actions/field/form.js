@@ -1,6 +1,7 @@
 const _get = require('lodash/get');
 const _set = require('lodash/set');
 const _each = require('lodash/each');
+const utils = require('formiojs/utils');
 
 module.exports = (component, data, handler, action, { req, res, app }) => {
   if (['afterValidation'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
