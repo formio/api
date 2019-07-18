@@ -2,7 +2,9 @@ const uuid = require('uuid/v1');
 const info = require('../package.json');
 const log = require('./log');
 const util = require('./util');
-const ImportClass = require('./libraries/Import');
+const ImportClass = require('./portation/Import');
+const ExportClass = require('./portation/Export');
+const porters = require('./portation/porters');
 const actions = require('./actions');
 const config = require('../config');
 const resources = require('./resources');
@@ -22,7 +24,8 @@ module.exports = class FormApi {
     this.addResources();
     this.router.get('/access', this.access.bind(this));
     this.router.get('/current', this.current.bind(this));
-    this.router.get('/import', this.import.bind(this));
+    this.router.post('/import', this.import.bind(this));
+    this.router.get('/export', this.export.bind(this));
     this.router.get('/status', this.status.bind(this));
     this.router.use(this.afterPhases);
   }
@@ -109,6 +112,18 @@ module.exports = class FormApi {
 
   get util() {
     return util;
+  }
+
+  get ImportClass() {
+    return ImportClass;
+  }
+
+  get ExportClass() {
+    return ExportClass;
+  }
+
+  get porters() {
+    return porters;
   }
 
   /**
@@ -416,21 +431,31 @@ module.exports = class FormApi {
       template = JSON.parse(template);
     }
 
-    this.importClass(template)
+    this.importTemplate(template)
       .then(() => {
         res.status(200).send('Ok');
       })
       .catch(next);
   }
 
-  get ImportClass() {
-    return ImportClass;
-  }
-
   importTemplate(template) {
     const importer = new this.ImportClass(this, template);
 
     return importer.import();
+  }
+
+  export(req, res, next) {
+    this.exportTemplate()
+      .then((result) => {
+        res.status(200).send(result);
+      })
+      .catch(next);
+  }
+
+  exportTemplate() {
+    const exporter = new this.ExportClass(this);
+
+    return exporter.export();
   }
 
   current(req, res) {
