@@ -219,7 +219,7 @@ const getRules = (type) => [
       async: Joi.any(),
       requests: Joi.any()
     },
-    validate(params, value, state, options) {
+    validate(params, value, state) {
       // Empty values are fine.
       if (!value) {
         return value;
@@ -295,7 +295,7 @@ const getRules = (type) => [
         requestOptions.headers['x-jwt-token'] = token;
       }
 
-      async.push(new Promise((resolve, reject) => {
+      async.push(new Promise((resolve) => {
         /* eslint-disable prefer-template */
         const cacheKey = `${requestOptions.method}:${requestOptions.url}?` +
           Object.keys(requestOptions.qs).map(key => key + '=' + requestOptions.qs[key]).join('&');
@@ -305,7 +305,6 @@ const getRules = (type) => [
         // Check if this request was cached
         const result = cache.get(cacheKey);
         if (result !== null) {
-          debug.validator(cacheKey, 'hit!');
           // Null means no cache hit but is also used as a success callback which we are faking with true here.
           if (result === true) {
             return resolve(null);
@@ -314,7 +313,6 @@ const getRules = (type) => [
             return resolve(result);
           }
         }
-        debug.validator(cacheKey, 'miss');
 
         // Us an existing promise or create a new one.
         requests[cacheKey] = requests[cacheKey] || request(requestOptions);
@@ -356,7 +354,7 @@ const getRules = (type) => [
       model: Joi.any(),
       async: Joi.any()
     },
-    validate(params, value, state, options) {
+    validate(params, value, state) {
       const component = params.component;
       const submission = params.submission;
       const model = params.model;
@@ -398,7 +396,7 @@ const getRules = (type) => [
         query['deleted'] = { $eq: null };
       }
 
-      async.push(new Promise((resolve, reject) => {
+      async.push(new Promise((resolve) => {
         // Try to find an existing value within the form.
         model.findOne(query, (err, result) => {
           if (err) {

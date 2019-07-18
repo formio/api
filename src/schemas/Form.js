@@ -1,5 +1,5 @@
 const Timestamps = require('./partials/Timestamps');
-const MachineName = require('./partials/MachineName');
+// const MachineName = require('./partials/MachineName');
 const PermissionSchema = require('./partials/PermissionSchema');
 const eachComponent = require('formiojs/utils/formUtils').eachComponent;
 const _ = require('lodash');
@@ -13,14 +13,14 @@ const uniqueValidator = property => function(value, model, done) {
 
   // Ignore the id if this is an update.
   if (this._id) {
-    query._id = { $ne: model.db.ID(this._id) };
+    query._id = { $ne: model.db.toID(this._id) };
   }
 
   model.find(query)
     .then((result) => {
       done(!result.length);
     })
-    .catch(err => {
+    .catch(() => {
       done(false);
     });
 };
@@ -53,7 +53,7 @@ const componentPaths = (components) => {
 
 const componentShortcuts = (components) => {
   const shortcuts = [];
-  eachComponent(components, (component, path) => {
+  eachComponent(components, (component) => {
     if (component.shortcut) {
       shortcuts.push(_.capitalize(component.shortcut));
     }

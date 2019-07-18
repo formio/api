@@ -221,7 +221,9 @@ module.exports = class FormApi {
    * @returns {*}
    */
   alias(req, baseUrl = '', next) {
+    /* eslint-disable no-useless-escape */
     const formsRegEx = new RegExp(`\/(${this.reservedForms.join('|')})($|\/.*)`, 'i');
+    /* eslint-enable no-useless-escape */
 
     // Get the alias from the request.
     const alias = req.url.split('?')[0].substr(baseUrl.length).replace(formsRegEx, '').substr(1);
@@ -257,9 +259,11 @@ module.exports = class FormApi {
       .catch(next);
   }
 
+  /* eslint-disable no-unused-vars */
   getModelClass(schema) {
     return require('./libraries/PreserveModel');
   }
+  /* eslint-enable no-unused-vars */
 
   addModels() {
     log('info', 'Adding models');
@@ -303,7 +307,7 @@ module.exports = class FormApi {
       if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
         req.context.params[part] = parts[index + 1];
         loads.push(this.db.read(`${part  }s`, {
-          _id: this.db.ID(parts[index + 1])
+          _id: this.db.toID(parts[index + 1])
         })
           .then(doc => {
             req.context.resources[part] = doc;
@@ -319,7 +323,7 @@ module.exports = class FormApi {
     // Load actions associated with a form if we have a submission.
     if (req.context.params.hasOwnProperty('form')) {
       loads.push(this.loadActions(req, {
-        form: this.db.ID(req.context.params['form']),
+        form: this.db.toID(req.context.params['form']),
       }));
     }
 
@@ -373,7 +377,7 @@ module.exports = class FormApi {
     return res.status(401).send();
   }
 
-  access(req, res, next) {
+  access(req, res) {
     log('info', req.uuid, req.method, req.path, 'access');
 
     Promise.all([
@@ -454,7 +458,7 @@ module.exports = class FormApi {
     next();
   }
 
-  respond(req, res, next) {
+  respond(req, res) {
     log('info', req.uuid, req.method, req.path, 'response');
 
     if (res.token) {
@@ -483,47 +487,50 @@ module.exports = class FormApi {
    * @param url
    * @param body
    */
+  /* eslint-disable no-unused-vars */
   makeChildRequest({ req, res, url, body, method, options = {} }) {
-    const childRes = router.formio.util.createSubResponse((err) => {
-      if (childRes.statusCode > 299) {
-        // Add the parent path to the details path.
-        if (err && err.details && err.details.length) {
-          _.each(err.details, (details) => {
-            if (details.path) {
-              details.path = `${path}.data.${details.path}`;
-            }
-          });
-        }
-
-        return res.headersSent ? next() : res.status(childRes.statusCode).json(err);
-      }
-    });
-    const childReq = router.formio.util.createSubRequest(req);
-    if (!childReq) {
-      return res.headersSent ? next() : res.status(400).json('Too many recursive requests.');
-    }
-    childReq.body = subSubmission;
-
-    // Make sure to pass along the submission state to the subforms.
-    if (req.body.state) {
-      childReq.body.state = req.body.state;
-    }
-
-    childReq.params.formId = component.form;
-    if (subSubmission._id) {
-      childReq.params.submissionId = subSubmission._id;
-    }
-
-    // Make the child request.
-    router.resourcejs[url][method](childReq, childRes, function(err) {
-      if (err) {
-        return next(err);
-      }
-
-      if (childRes.resource && childRes.resource.item) {
-        _.set(req.body, `data.${path}`, childRes.resource.item);
-      }
-      next();
-    });
+    /* eslint-enable no-unused-vars */
+    // const childRes = router.formio.util.createSubResponse((err) => {
+    //   if (childRes.statusCode > 299) {
+    //     // Add the parent path to the details path.
+    //     if (err && err.details && err.details.length) {
+    //       _.each(err.details, (details) => {
+    //         if (details.path) {
+    //           details.path = `${path}.data.${details.path}`;
+    //         }
+    //       });
+    //     }
+    //
+    //     return res.headersSent ? next() : res.status(childRes.statusCode).json(err);
+    //   }
+    // });
+    // const childReq = router.formio.util.createSubRequest(req);
+    // if (!childReq) {
+    //   return res.headersSent ? next() : res.status(400).json('Too many recursive requests.');
+    // }
+    // childReq.body = subSubmission;
+    //
+    // // Make sure to pass along the submission state to the subforms.
+    // if (req.body.state) {
+    //   childReq.body.state = req.body.state;
+    // }
+    //
+    // childReq.params.formId = component.form;
+    // if (subSubmission._id) {
+    //   childReq.params.submissionId = subSubmission._id;
+    // }
+    //
+    // // Make the child request.
+    // router.resourcejs[url][method](childReq, childRes, function(err) {
+    //   if (err) {
+    //     return next(err);
+    //   }
+    //
+    //   if (childRes.resource && childRes.resource.item) {
+    //     _.set(req.body, `data.${path}`, childRes.resource.item);
+    //   }
+    //   next();
+    // });
+    return Promise.resolve({});
   }
 };

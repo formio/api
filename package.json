@@ -4,7 +4,8 @@
   "description": "A form API library that creates rest endpoints and database integrations for forms.",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=text mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'",
+    "test:coverage": "nyc --reporter=text mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'",
+    "test": "mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'",
     "lint": "eslint src"
   },
   "keywords": [
@@ -37,6 +38,11 @@
     "eslint-config-formio": "^1.1.4",
     "mocha": "^5.1.1",
     "nyc": "^11.7.3",
+    "pre-commit": "^1.2.2",
     "sinon": "^5.0.2"
-  }
+  },
+  "pre-commit": [
+    "lint",
+    "test"
+  ]
 }

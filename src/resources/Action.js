@@ -19,7 +19,7 @@ module.exports = class Action extends Resource {
     return super.getQuery(req, query);
   }
 
-  actionsIndex(req, res, next) {
+  actionsIndex(req, res) {
     const actions = [];
     for (const key in this.app.actions.submission) {
       actions.push(this.getActionInfo(this.app.actions.submission[key]));
@@ -61,10 +61,10 @@ module.exports = class Action extends Resource {
         action: this.path(`/form/${req.params.formId}/action`),
         components: this.app.actions.submission [action].settingsForm(options)
       };
-      res.json(info);
+      return res.json(info);
     }
     else {
-      next(new Error('Action not found'));
+      return next(new Error('Action not found'));
     }
   }
 

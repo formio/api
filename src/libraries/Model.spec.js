@@ -83,7 +83,7 @@ describe('Model.js', () => {
     });
 
     it('Provides a way to transform IDs', done => {
-      sandbox.spy(db, 'ID');
+      sandbox.spy(db, 'toID');
 
       const model = new Model({
         name: 'test',
@@ -91,7 +91,7 @@ describe('Model.js', () => {
       }, db);
 
       const result = model.toID('test');
-      assert(db.ID.calledOnce, 'Should call db id');
+      assert(db.toID.calledOnce, 'Should call db id');
       assert.deepEqual(result, { id: 'test' });
       done();
     });

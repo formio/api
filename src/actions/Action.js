@@ -247,7 +247,9 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`
     ];
   }
 
+  /* eslint-disable no-unused-vars */
   resolve(handler, method, req, res, event) {
+    /* eslint-enable no-unused-vars */
     return Promise.resolve();
   }
 };

@@ -53,7 +53,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
       // Fetch the child form's submission
       if (compValue && compValue._id) {
         return app.models.Submission.findOne({
-          _id: app.db.ID(compValue._id),
+          _id: app.db.toID(compValue._id),
           deleted: { $eq: null }
         })
           .catch(err => app.log('info', err))

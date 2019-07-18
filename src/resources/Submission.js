@@ -168,7 +168,7 @@ module.exports = class Submission extends Resource {
 
   validateSubmission(req, res) {
     log('debug', 'validateSubmission');
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const validator = new Validator(req.context.resources.form, this.app.models.Submission, req.token);
       validator.validate(req.body, (err, data) => {
         if (err) {
@@ -273,7 +273,7 @@ module.exports = class Submission extends Resource {
           timeout: 500
         });
 
-        return sandbox.execute;
+        return script.execute;
       }
  catch (err) {
         return false;

@@ -1,6 +1,5 @@
 'use strict';
 
-const Joi = require('joi');
 const _ = require('lodash');
 const log = require('../log');
 
@@ -107,7 +106,7 @@ module.exports = class Model {
       }
     }
     return Promise.all(promises)
-      .then(result => doc);
+      .then(() => doc);
   }
 
   setField(path, field, value, doc) {
@@ -159,7 +158,7 @@ module.exports = class Model {
               }
               break;
             case 'id':
-              if (!(value instanceof this.db.ID)) {
+              if (!(value instanceof this.db.toID)) {
                 try {
                   value = this.toID(value);
                 }
@@ -173,7 +172,9 @@ module.exports = class Model {
             default:
               if (!(value instanceof field.type)) {
                 try {
+                  /* eslint-disable new-cap */
                   value = new field.type(value);
+                  /* eslint-enable new-cap */
                 }
                 catch (err) {
                   if (!field.looseType) {
@@ -248,7 +249,7 @@ module.exports = class Model {
       promises.push(this.iterateFields(path, this.schema.schema[path], doc, doc, this.getField.bind(this)));
     }
     return Promise.all(promises)
-      .then(result => doc);
+      .then(() => doc);
   }
 
   getField(path, field, value, doc) {
@@ -272,7 +273,7 @@ module.exports = class Model {
 
   toID(value) {
     try {
-      return this.db.ID(value);
+      return this.db.toID(value);
     }
     catch (err) {
       return value;

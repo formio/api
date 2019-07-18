@@ -59,12 +59,15 @@ module.exports = class Resource {
   }
 
   getQuery(req, query = {}) {
+    /* eslint-disable no-unused-vars */
     const { limit, skip, select, sort, populate, ...filters } = req.query || {};
+    /* eslint-enable no-unused-vars */
 
     // Iterate through each filter.
     for (const key in filters) {
       let value = filters[key];
       const [name, selector] = key.split('__');
+      let parts;
 
       // See if this parameter is defined in our model.
       const param = this.model.schema[name.split('.')[0]];
@@ -74,7 +77,7 @@ module.exports = class Resource {
           switch (selector) {
             case 'regex':
               // Set the regular expression for the filter.
-              const parts = value.match(/\/?([^/]+)\/?([^/]+)?/);
+              parts = value.match(/\/?([^/]+)\/?([^/]+)?/);
 
               try {
                 value = new RegExp(parts[1], (parts[2] || 'i'));

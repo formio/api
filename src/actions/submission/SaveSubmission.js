@@ -35,6 +35,11 @@ module.exports = class SaveSubmission extends Action {
 
   resolve(handler, method, req, res, setActionInfoMessage) {
     req.skipResource = false;
+
+    if (this.settings.resource) {
+      setActionInfoMessage('Could not Save to resource. Not implemented yet.');
+    }
+
     return Promise.resolve();
   }
 };

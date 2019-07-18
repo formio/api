@@ -123,7 +123,7 @@ module.exports = class Login extends Action {
     }
 
     const query = {
-      form: { '$in': this.settings.resources.map(this.app.db.ID) },
+      form: { '$in': this.settings.resources.map(this.app.db.toID) },
       [`data.${this.settings.username}`]: get(req.body.data, this.settings.username),
     };
 
@@ -147,7 +147,7 @@ module.exports = class Login extends Action {
             }
             setActionInfoMessage('Password matched. Setting response data');
             return this.app.models.Form.read({
-              _id: this.app.db.ID(user.form),
+              _id: this.app.db.toID(user.form),
             })
               .then(form => {
                 req.user = user;
