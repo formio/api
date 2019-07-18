@@ -154,6 +154,9 @@ module.exports = class Submission extends Resource {
       item: req.body
     };
 
+    // Save off original submission.
+    req.submission = _.cloneDeep(req.body);
+
     return Promise.resolve();
   }
 
@@ -403,7 +406,6 @@ module.exports = class Submission extends Resource {
   }
 
   executeSuper(name, req, res) {
-    console.log('saving submission', req.body);
     log('debug', 'executeSuper', name);
     // If we are supposed to skip resource, do so.
     if (req.skipResource) {

@@ -66,6 +66,57 @@ module.exports = class Role extends Action {
   }
 
   resolve(handler, method, req, res, setActionInfoMessage) {
-    return Promise.resolve();
+    // Error if operation type is not valid.
+    if (!this.settings.type || (this.settings.type !== 'add' && this.settings.type !== 'remove')) {
+      return Promise.reject('Invalid setting `type` for the RoleAction; expecting `add` or `remove`.');
+    }
+
+    // Error if association is existing and valid data was not provided.
+    if (!(this.settings.role || req.submission.data.role)) {
+      return Promise.reject('Missing role for RoleAction association. Must specify role to assign in action settings ' +
+        'or a form component named `role`');
+    }
+
+    let resource = req.submission.data.submission || res.resource.item;
+
+    const roleId = this.settings.role
+      ? this.settings.role
+      : req.submission.data.role;
+
+    const availableRoles = this.app.getRoles(req);
+    if (!availableRoles.reduce((found, role) => found || role._id === roleId), false) {
+      console.log('error invalid role', availableRoles, role);
+      return Promise.reject('Invalid role given for Role action');
+    }
+
+    /**
+     * Prepare to load existing resource
+     */
+    if (typeof resource === 'object' && resource.hasOwnProperty('_id')) {
+      resource = resource._id;
+    }
+
+    return this.app.models.Submission.read({_id: this.app.db.ID(resource)})
+      .then(submission => {
+        // Ensure roles is set and an array.
+        submission.roles = submission.roles || [];
+
+        let changed = false;
+        const index = submission.roles.indexOf(roleId);
+
+        if (this.settings.type === 'remove' && index !== -1) {
+          submission.roles.splice(index, 1);
+          changed = true;
+        }
+
+        if (this.settings.type === 'add' && index === -1) {
+          submission.roles.push(roleId);
+          changed = true;
+        }
+
+        if (changed) {
+          this.app.models.Submission.update(submission);
+        }
+      });
   }
 };

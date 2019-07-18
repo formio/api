@@ -139,7 +139,7 @@ module.exports = class Login extends Action {
           return Promise.reject('User account does not have a password. You must reset your password to login.');
         }
 
-        return bcrypt.compare(get(req.body.data, this.settings.password), get(user.data, this.settings.password))
+        return bcrypt.compare(get(req.submission.data, this.settings.password), get(user.data, this.settings.password))
           .then(value => {
             if (!value) {
               setActionInfoMessage('Password did not match');

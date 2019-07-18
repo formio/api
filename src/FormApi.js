@@ -93,6 +93,16 @@ module.exports = class FormApi {
     }
   }
 
+  /**
+   * Allow overriding available roles in a request.
+   *
+   * @param req
+   * @returns {*}
+   */
+  getRoles(req = null) {
+    return req.context.roles.all;
+  }
+
   get actions() {
     return actions;
   }
