@@ -149,9 +149,10 @@ module.exports = class Submission extends Resource {
     // Always make sure form is set correctly.
     req.body.form = req.context.params['form'];
 
-    // Copy roles from existing submissions so they arent lost.
+    // Copy roles and externalIds from existing submissions so they arent lost.
     if (req.context.resources.submission) {
       req.body.roles = req.context.resources.submission.roles;
+      req.body.externalIds = req.context.resources.submission.externalIds;
     }
 
     // Ensure response is set.
@@ -315,7 +316,7 @@ module.exports = class Submission extends Resource {
             path,
             req,
             res,
-            app: this
+            app: this.app
           }));
         }
 

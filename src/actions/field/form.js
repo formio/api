@@ -1,7 +1,11 @@
+const _get = require('lodash/get');
+const _set = require('lodash/set');
+const _each = require('lodash/each');
+
 module.exports = (component, data, handler, action, {req, res, app}) => {
   if (['afterValidation'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
     // Get the submission object.
-    const body = _.get(data, component.key);
+    const body = _get(data, component.key);
 
     // if there isn't a sub-submission or the sub-submission has an _id, don't submit.
     // Should be submitted from the frontend.
@@ -31,7 +35,7 @@ module.exports = (component, data, handler, action, {req, res, app}) => {
 
     return app.makeChildRequest({ url, method, body, req, res })
       .then(childRes => {
-        _.set(data, component.key, childRes.resource.item);
+        _set(data, component.key, childRes.resource.item);
       });
   }
 
@@ -43,19 +47,19 @@ module.exports = (component, data, handler, action, {req, res, app}) => {
       (!component.hasOwnProperty('reference') || component.reference)
     ) {
       // Get child form component's value
-      const compValue = _.get(data, component.key);
+      const compValue = _get(data, component.key);
 
       // Fetch the child form's submission
       if (compValue && compValue._id) {
         return app.models.Submission.findOne({
-          _id: compValue._id,
+          _id: app.db.ID(compValue._id),
           deleted: { $eq: null }
         })
           .catch(err => app.log('info', err))
           .then(submission => {
             let found = false;
             submission.externalIds = submission.externalIds || [];
-            _.each(submission.externalIds, function(externalId) {
+            _each(submission.externalIds, function(externalId) {
               if (externalId.type === 'parent') {
                 found = true;
               }
@@ -70,7 +74,7 @@ module.exports = (component, data, handler, action, {req, res, app}) => {
                 type: 'parent',
                 id: res.resource.item._id
               });
-              return app.models.Submission.save(submission);
+              return app.models.Submission.update(submission);
             }
           });
       }
