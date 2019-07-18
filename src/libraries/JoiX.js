@@ -219,7 +219,9 @@ const getRules = (type) => [
       async: Joi.any(),
       requests: Joi.any()
     },
-    validate(params, value, state) {
+    /* eslint-disable no-unused-vars */
+    validate(params, value, state, options) {
+      /* eslint-enable no-unused-vars */
       // Empty values are fine.
       if (!value) {
         return value;
@@ -354,7 +356,9 @@ const getRules = (type) => [
       model: Joi.any(),
       async: Joi.any()
     },
-    validate(params, value, state) {
+    /* eslint-disable no-unused-vars */
+    validate(params, value, state, options) {
+      /* eslint-enable no-unused-vars */
       const component = params.component;
       const submission = params.submission;
       const model = params.model;

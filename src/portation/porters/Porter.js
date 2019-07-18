@@ -29,7 +29,9 @@ module.exports = class Porter {
     };
   }
 
+  /* eslint-disable no-unused-vars */
   cleanup(documents) {
+    /* eslint-enable no-unused-vars */
     return Promise.resolve();
   }
 
