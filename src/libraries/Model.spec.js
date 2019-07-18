@@ -92,7 +92,7 @@ describe('Model.js', () => {
 
       const result = model.toID('test');
       assert(db.toID.calledOnce, 'Should call db id');
-      assert.deepEqual(result, { id: 'test' });
+      assert.deepEqual(result, 'test');
       done();
     });
   });

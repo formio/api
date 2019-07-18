@@ -52,7 +52,7 @@ module.exports = class Model {
           const field = this.schema.schema[name];
           if (field.index) {
             log('debug', `Ensuring index for ${this.collectionName}.${name}`);
-            // promises.push(this.db.createIndex(this.collectionName, name));
+            promises.push(this.db.createIndex(this.collectionName, name));
           }
         }
         if (this.schema.indexes) {

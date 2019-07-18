@@ -36,7 +36,8 @@ describe('Resource.js', () => {
       assert.equal(app.patch.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
       assert(app.delete.calledOnce, 'Should call delete once');
       assert.equal(app.delete.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
-      assert(app.use.notCalled, 'Should not call use');
+      assert(app.use.calledOnce, 'Should call use once');
+      assert.equal(app.use.args[0][0], `/${  model.name  }/exists`);
 
       done();
     });
@@ -62,8 +63,9 @@ describe('Resource.js', () => {
       assert.equal(app.patch.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
       assert(app.delete.calledOnce, 'Should call delete once');
       assert.equal(app.delete.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
-      assert(app.use.calledOnce, 'Should call use once');
-      assert.equal(app.use.args[0][0], `/foo/${  model.name  }/test`);
+      assert(app.use.calledTwice, 'Should call use once');
+      assert.equal(app.use.args[0][0], `/foo/${  model.name  }/exists`);
+      assert.equal(app.use.args[1][0], `/foo/${  model.name  }/test`);
 
       done();
     });
@@ -125,7 +127,7 @@ describe('Resource.js', () => {
         foo: 'bar'
       };
 
-      resource.post({ body }, {}, err => {
+      resource.post({ body, params: { 'testId': 1 } }, {}, err => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
         done(err);
@@ -141,7 +143,7 @@ describe('Resource.js', () => {
         foo: 'bar'
       };
 
-      resource.post({ body }, {}, err => {
+      resource.post({ body, params: { 'testId': 1 } }, {}, err => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
         assert.equal(err, 'Not found');
@@ -161,7 +163,7 @@ describe('Resource.js', () => {
         foo: 'bar'
       };
 
-      resource.post({ body }, {}, err => {
+      resource.post({ body, params: { 'testId': 1 } }, {}, err => {
         sinon.assert.callOrder(ChildResource.prototype.post, ChildResource.prototype.before, Resource.prototype.post, ChildResource.prototype.after);
         done(err);
       });

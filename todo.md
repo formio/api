@@ -20,3 +20,6 @@
  
 ## Recaptcha
  - implement recaptcha endpoint for requests.
+ 
+## Tests
+ - Finish tests

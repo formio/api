@@ -1,10 +1,5 @@
 module.exports = {
-  ID: class ID {
-    constructor(id) {
-      this.id = id;
-      return id;
-    }
-  },
+  toID: id => id,
   find: (collection, query, options) => Promise.resolve([]),
   count: (collection, query) => Promise.resolve(0),
   create: (collection, doc) => Promise.resolve(doc),
