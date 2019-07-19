@@ -26,7 +26,7 @@ module.exports = class Export {
                   return Promise.resolve(template);
                 }
                 template[entity.key] = template[entity.key] || {};
-                return entity.model.find(this.query({}))
+                return entity.model.find(this.query(entity.key, {}))
                   .then(documents => {
                     documents.forEach(document => {
                       template[entity.key][entity.machineName(document)] = entity.export(document);
@@ -53,6 +53,12 @@ module.exports = class Export {
   }
 
   query(type, query) {
+    if (type === 'forms') {
+      query.type = 'form';
+    }
+    if (type === 'resources') {
+      query.type = 'resource';
+    }
     return query;
   }
 };

@@ -88,7 +88,7 @@ module.exports = class Form extends Porter {
   //   }, done);
   // }
 
-  transform(form) {
+  import(form) {
     this.mapEntityProperty(form.submissionAccess, 'roles', this.maps.roles);
     this.mapEntityProperty(form.access, 'roles', this.maps.roles);
     this.componentMachineNameToId(form.components);

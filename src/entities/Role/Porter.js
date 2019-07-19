@@ -12,11 +12,11 @@ module.exports = class Role extends Porter {
   getMaps(port, query) {
     return super.getMaps(port, query)
       .then(maps => {
-        if (port === 'import') {
-          maps['everyone'] = '000000000000000000000000';
+        if (port === 'export') {
+          maps['000000000000000000000000'] = 'everyone';
         }
         else {
-          maps['000000000000000000000000'] = 'everyone';
+          maps['everyone'] = '000000000000000000000000';
         }
         return maps;
       });

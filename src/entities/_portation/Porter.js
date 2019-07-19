@@ -12,7 +12,7 @@ module.exports = class Porter {
   getMaps(port, query = {}) {
     return this.model.find(query)
       .then(documents => documents.reduce((map, document) => {
-        if (port === 'import') {
+        if (port === 'export') {
           map[document._id] = this.machineName(document);
         }
         else { // export
@@ -30,7 +30,11 @@ module.exports = class Porter {
     return false;
   }
 
-  transform(document) {
+  import(document) {
+    return document;
+  }
+
+  export(document) {
     return document;
   }
 
@@ -52,10 +56,6 @@ module.exports = class Porter {
 
   machineName(document) {
     return document.machineName || document.name;
-  }
-
-  export(document) {
-    return document;
   }
 
   mapEntityProperty(entities, property, items) {

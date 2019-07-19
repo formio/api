@@ -16,4 +16,14 @@ module.exports = class ActionItem extends Porter {
   getMaps() {
     return Promise.resolve({});
   }
+
+  import(submission) {
+    this.mapEntityProperty(submission, 'form', { ...this.maps.forms, ...this.maps.resources });
+    return submission;
+  }
+
+  export(submission) {
+    this.mapEntityProperty(submission, 'form', { ...this.maps.forms, ...this.maps.resources });
+    return submission;
+  }
 };

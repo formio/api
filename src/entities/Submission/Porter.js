@@ -16,4 +16,18 @@ module.exports = class Submission extends Porter {
   getMaps() {
     return Promise.resolve({});
   }
+
+  import(submission) {
+    this.mapEntityProperty(submission, 'form', { ...this.maps.forms, ...this.maps.resources });
+    this.mapEntityProperty(submission, 'roles', this.maps.roles);
+    this.mapEntityProperty(submission, 'access', this.maps.roles);
+    return submission;
+  }
+
+  export(submission) {
+    this.mapEntityProperty(submission, 'form', { ...this.maps.forms, ...this.maps.resources });
+    this.mapEntityProperty(submission, 'roles', this.maps.roles);
+    this.mapEntityProperty(submission, 'access', this.maps.roles);
+    return submission;
+  }
 };

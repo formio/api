@@ -2,7 +2,8 @@
 
 ## General
  - get makeChildRequest function to work.
- - convert /current to use makeChildRequest
+ - convert /current to use makeChildRequest.
+ - role machine names are not unique.
 
 ## Actions
 
