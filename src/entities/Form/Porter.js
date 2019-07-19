@@ -32,61 +32,25 @@ module.exports = class Form extends Porter {
     };
   }
 
-  // cleanUp(resources) {
-  //   const model = formio.resources.form.model;
-  //
-  //   async.forEachOf(resources, (resource, machineName, next) => {
-  //     if (!componentMachineNameToId(template, resource.components)) {
-  //       return next();
-  //     }
-  //
-  //     debug.cleanUp(`Need to update resource component _ids for`, machineName);
-  //     model.findOneAndUpdate(
-  //       {_id: resource._id, deleted: {$eq: null}},
-  //       {components: resource.components},
-  //       {new: true}
-  //     ).lean().exec((err, doc) => {
-  //       if (err) {
-  //         return next(err);
-  //       }
-  //       if (!doc) {
-  //         return next();
-  //       }
-  //
-  //       resources[machineName] = doc;
-  //       debug.cleanUp(`Updated resource component _ids for`, machineName);
-  //       next();
-  //     });
-  //   }, done);
-  // }
+  cleanUp(forms) {
+    const promises = [];
 
-  // cleanUp(forms) {
-  //   const model = formio.resources.form.model;
-  //
-  //   async.forEachOf(forms, (form, machineName, next) => {
-  //     if (!componentMachineNameToId(template, form.components)) {
-  //       return next();
-  //     }
-  //
-  //     debug.cleanUp(`Need to update form component _ids for`, machineName);
-  //     model.findOneAndUpdate(
-  //       {_id: form._id, deleted: {$eq: null}},
-  //       {components: form.components},
-  //       {new: true}
-  //     ).lean().exec((err, doc) => {
-  //       if (err) {
-  //         return next(err);
-  //       }
-  //       if (!doc) {
-  //         return next();
-  //       }
-  //
-  //       forms[machineName] = doc;
-  //       debug.cleanUp(`Updated form component _ids for`, machineName);
-  //       next();
-  //     });
-  //   }, done);
-  // }
+    // Any form/resource refs that referred to items below in the template need to be updated.
+    Object.keys(forms).forEach((key) => {
+      const form = forms[key];
+      if (!this.componentMachineNameToId(form.components)) {
+        return;
+      }
+
+      promises.push(this.model.read({ _id: this.app.db.toID(this.maps[this.key][key]) })
+        .then(doc => {
+          doc.components = form.components;
+          return this.model.update(doc);
+        }));
+    });
+
+    return Promise.all(promises);
+  }
 
   import(form) {
     this.mapEntityProperty(form.submissionAccess, 'roles', this.maps.roles);
