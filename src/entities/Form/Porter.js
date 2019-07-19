@@ -9,11 +9,8 @@ module.exports = class Form extends Porter {
     return this.app.models.Form;
   }
 
-  transform(resource) {
-    this.mapEntityProperty(resource.submissionAccess, 'roles', this.template.roles);
-    this.mapEntityProperty(resource.access, 'roles', this.template.roles);
-    this.componentMachineNameToId(resource.components);
-    return resource;
+  getMaps(port, query = { type: 'form' }) {
+    return super.getMaps(port, query);
   }
 
   query(document) {
@@ -91,9 +88,19 @@ module.exports = class Form extends Porter {
   //   }, done);
   // }
 
-  export(document) {
+  transform(form) {
+    this.mapEntityProperty(form.submissionAccess, 'roles', this.maps.roles);
+    this.mapEntityProperty(form.access, 'roles', this.maps.roles);
+    this.componentMachineNameToId(form.components);
+    return form;
+  }
+
+  export(form) {
+    this.mapEntityProperty(form.submissionAccess, 'roles', this.maps.roles);
+    this.mapEntityProperty(form.access, 'roles', this.maps.roles);
+    this.componentMachineNameToId(form.components);
     // Like _.pick()
-    const { title, type, name, path, display, action, tags, settings, components, access, submissionAccess } = document;
+    const { title, type, name, path, display, action, tags, settings, components, access, submissionAccess } = form;
     return { title, type, name, path, display, action, tags, settings, components, access, submissionAccess };
   }
 };

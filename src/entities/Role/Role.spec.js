@@ -8,7 +8,7 @@ const sandbox = sinon.createSandbox();
 const Model = require('../../libraries/Model');
 const Role = require('./schema');
 
-describe('Role Schema', () => {
+describe('Role Tests', () => {
   const model = new Model(Role, db);
 
   afterEach(() => {

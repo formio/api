@@ -2,6 +2,7 @@
 
 ## General
  - get makeChildRequest function to work.
+ - convert /current to use makeChildRequest
 
 ## Actions
 
@@ -13,7 +14,6 @@
  
 ## Import/Export
  - Implement import
- - Implement export
  
 ## DB Updates
  - implement update scripts system.

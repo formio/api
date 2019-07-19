@@ -1,10 +1,25 @@
 module.exports = class Porter {
-  constructor(app) {
+  constructor(app, maps) {
     this.app = app;
+    this.maps = maps;
   }
 
   get noExport() {
     return false;
+  }
+
+  // Load all documents from the database and create a map of them.
+  getMaps(port, query = {}) {
+    return this.model.find(query)
+      .then(documents => documents.reduce((map, document) => {
+        if (port === 'import') {
+          map[document._id] = this.machineName(document);
+        }
+        else { // export
+          map[this.machineName(document)] = document._id;
+        }
+        return map;
+      }, {}));
   }
 
   valid(documents) {
@@ -36,7 +51,7 @@ module.exports = class Porter {
   }
 
   machineName(document) {
-    return document.machineName;
+    return document.machineName || document.name;
   }
 
   export(document) {
@@ -58,7 +73,7 @@ module.exports = class Porter {
         if (Array.isArray(entity[property])) {
           entity[property] = entity[property].map((prop) =>{
             if (items.hasOwnProperty(prop)) {
-              return items[prop]._id;
+              return items[prop];
             }
             found = false;
           });
@@ -66,12 +81,12 @@ module.exports = class Porter {
         else {
           if (items[entity[property]]) {
             const key = entity[property];
-            entity[property] = items[key]._id;
+            entity[property] = items[key];
 
-            // Support resetting form revision on import.
-            if (items[key].hasOwnProperty._vid) {
-              entity[`${property}Revision`] = items[key]._vid;
-            }
+            // TODO: Support resetting form revision on import.
+            // if (items[key].hasOwnProperty._vid) {
+            //   entity[`${property}Revision`] = items[key];
+            // }
           }
           else {
             found = false;
@@ -87,12 +102,12 @@ module.exports = class Porter {
     let changed = false;
     this.app.util.eachComponent(components, (component) => {
       // Update resource machineNames for resource components.
-      if ((component.type === 'resource') && this.mapEntityProperty(component, 'resources', this.template.resources)) {
+      if ((component.type === 'resource') && this.mapEntityProperty(component, 'resources', this.maps.resources)) {
         changed = true;
       }
 
       // Update the form property on the form component.
-      if ((component.type === 'form') && this.mapEntityProperty(component, 'form', { ...this.template.resources, ...this.template.forms })) {
+      if ((component.type === 'form') && this.mapEntityProperty(component, 'form', { ...this.maps.resources, ...this.maps.forms })) {
         changed = true;
       }
 
@@ -100,7 +115,7 @@ module.exports = class Porter {
       if (
         (component.type === 'select') &&
         (component.dataSrc === 'resource') &&
-        this.mapEntityProperty(component.data, 'resources', { ...this.template.resources, ...this.template.forms })
+        this.mapEntityProperty(component.data, 'resources', { ...this.maps.resources, ...this.maps.forms })
       ) {
         changed = true;
       }

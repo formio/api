@@ -1,11 +1,11 @@
-const Action = require('../../entities/Porter/Action');
-const ActionItem = require('../../entities/Porter/ActionItem');
-const Form = require('../../entities/Porter/Form');
-const Resource = require('../../entities/Resource/Resource');
-const Role = require('./Role/schema');
+const Action = require('./Action/Porter');
+const ActionItem = require('./ActionItem/Porter');
+const Form = require('./Form/Porter');
+const Resource = require('./Resource/Porter');
+const Role = require('./Role/Porter');
 const Submission = require('./Submission/Porter');
 
-// These are in order or import order.
+// These are in import order.
 module.exports = [
   Role,
   Resource,

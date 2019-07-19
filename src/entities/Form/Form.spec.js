@@ -8,7 +8,7 @@ const sandbox = sinon.createSandbox();
 const Model = require('../../libraries/Model');
 const Form = require('./schema');
 
-describe('Form Schema', () => {
+describe('Form Tests', () => {
   const model = new Model(Form, db);
 
   afterEach(() => {

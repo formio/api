@@ -12,4 +12,8 @@ module.exports = class Submission extends Porter {
   get model() {
     return this.app.models.Submission;
   }
+
+  getMaps() {
+    return Promise.resolve({});
+  }
 };

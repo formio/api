@@ -12,4 +12,8 @@ module.exports = class ActionItem extends Porter {
   get model() {
     return this.app.models.ActionItem;
   }
+
+  getMaps() {
+    return Promise.resolve({});
+  }
 };

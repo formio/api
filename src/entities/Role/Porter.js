@@ -9,6 +9,19 @@ module.exports = class Role extends Porter {
     return this.app.models.Role;
   }
 
+  getMaps(port, query) {
+    return super.getMaps(port, query)
+      .then(maps => {
+        if (port === 'import') {
+          maps['everyone'] = '000000000000000000000000';
+        }
+        else {
+          maps['000000000000000000000000'] = 'everyone';
+        }
+        return maps;
+      });
+  }
+
   cleanUp(roles) {
     // Add everyone role for later reference.
     roles.everyone = {

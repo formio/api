@@ -10,15 +10,26 @@ module.exports = class Action extends Porter {
   }
 
   transform(action) {
-    this.mapEntityProperty(action.settings, 'resources', this.template.resources);
-    this.mapEntityProperty(action.settings, 'role', this.template.roles);
-    const formFound = this.mapEntityProperty(action, 'form', this.template.forms);
+    this.mapEntityProperty(action.settings, 'resource', this.maps.resources);
+    this.mapEntityProperty(action.settings, 'resources', this.maps.resources);
+    this.mapEntityProperty(action.settings, 'role', this.maps.roles);
+    const formFound = this.mapEntityProperty(action, 'form', { ...this.maps.forms, ...this.maps.resources });
 
     // If no changes were made, the form was invalid and we can't insert the action.
     if (!formFound) {
-    return undefined;
+      return undefined;
+    }
+
+    return action;
   }
 
-  return action;
-}
+  export(action) {
+    this.mapEntityProperty(action, 'form', { ...this.maps.forms, ...this.maps.resources });
+    this.mapEntityProperty(action.settings, 'role', this.maps.roles);
+    this.mapEntityProperty(action.settings, 'resource', this.maps.resources);
+    this.mapEntityProperty(action.settings, 'resources', this.maps.resources);
+    // Like _.pick()
+    const { title, name, form, condition, settings, priority, method, handler } = action;
+    return { title, name, form, condition, settings, priority, method, handler };
+  }
 };
