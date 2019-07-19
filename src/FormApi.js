@@ -13,6 +13,7 @@ const EVERYONE = '000000000000000000000000';
 
 module.exports = class FormApi {
   constructor(router, db) {
+    this.log = log;
     this.config = config;
     this.router = router;
     this.db = db;
@@ -427,7 +428,10 @@ module.exports = class FormApi {
   }
 
   import(req, res, next) {
-    let template = req.body.template;
+    let template = req.body;
+    if (typeof req.body === 'object' && req.body.hasOwnProperty('template')) {
+      template = req.body.template;
+    }
     if (typeof template === 'string') {
       template = JSON.parse(template);
     }

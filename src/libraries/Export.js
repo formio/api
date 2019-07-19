@@ -6,12 +6,15 @@ module.exports = class Export {
   }
 
   export() {
+    this.app.log('debug', 'Starting export');
     // First load in all maps of existing entities.
     const maps = {};
     return Promise.all(this.app.porters.map(Porter => {
       const entity = new Porter(this.app);
+      this.app.log('debug', `Build map of ${entity.key}`);
       return entity.getMaps('export').then(map => {
         maps[entity.key] = map;
+        this.app.log('debug', `Map of ${entity.key} found ${Object.keys(map).length}`);
       });
     }))
       .then(() => {
@@ -21,6 +24,7 @@ module.exports = class Export {
             // Reducing promises causes them to be called in order and wait for the previous promise to complete.
             return this.app.porters.reduce((prev, Porter) => {
               const entity = new Porter(this.app, maps);
+              this.app.log('debug', `Exporting ${entity.key}`);
               return prev.then(() => {
                 if (entity.noExport) {
                   return Promise.resolve(template);
@@ -29,12 +33,14 @@ module.exports = class Export {
                 return entity.model.find(this.query(entity.key, {}))
                   .then(documents => {
                     documents.forEach(document => {
+                      this.app.log('debug', `Exporting ${entity.key} - ${entity.machineName(document)}`);
                       template[entity.key][entity.machineName(document)] = entity.export(document);
                     });
+                    this.app.log('debug', `Exporting ${entity.key} complete`);
                     return Promise.resolve(template);
                   });
               });
-            }, Promise.resolve());
+            }, Promise.resolve()).then(() => this.app.log('debug', 'Export complete'));
           });
       });
   }

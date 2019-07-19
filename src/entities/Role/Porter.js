@@ -22,14 +22,6 @@ module.exports = class Role extends Porter {
       });
   }
 
-  cleanUp(roles) {
-    // Add everyone role for later reference.
-    roles.everyone = {
-      _id: '000000000000000000000000'
-    };
-    return Promise.resolve();
-  }
-
   query(document) {
     return {
       $or: [

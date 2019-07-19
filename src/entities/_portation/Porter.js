@@ -8,6 +8,10 @@ module.exports = class Porter {
     return false;
   }
 
+  get createOnly() {
+    return false;
+  }
+
   // Load all documents from the database and create a map of them.
   getMaps(port, query = {}) {
     return this.model.find(query)
@@ -48,9 +52,7 @@ module.exports = class Porter {
     };
   }
 
-  /* eslint-disable no-unused-vars */
-  cleanup(documents) {
-    /* eslint-enable no-unused-vars */
+  cleanUp() {
     return Promise.resolve();
   }
 

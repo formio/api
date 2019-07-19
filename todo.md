@@ -13,9 +13,6 @@
 ## Install
  - Ensure install works completely
  
-## Import/Export
- - Implement import
- 
 ## DB Updates
  - implement update scripts system.
  
@@ -23,4 +20,13 @@
  - implement recaptcha endpoint for requests.
  
 ## Tests
- - Finish tests
+ - Action tests
+ - ActionItem tests
+ - Form tests
+ - Resource tests
+ - Role tests
+ - Submission tests
+ - Variable tests
+ - Export tests
+ - Import tests
+ - FormApi tests
