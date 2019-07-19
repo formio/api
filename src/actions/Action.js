@@ -104,7 +104,7 @@ module.exports = class Action {
                   title: 'Delete'
                 },
                 {
-                  name: 'index',
+                  name: 'resources.js',
                   title: 'Index'
                 }
               ]) },

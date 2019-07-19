@@ -2,12 +2,13 @@ const uuid = require('uuid/v1');
 const info = require('../package.json');
 const log = require('./log');
 const util = require('./util');
-const ImportClass = require('./portation/Import');
-const ExportClass = require('./portation/Export');
-const porters = require('./portation/porters');
+const ImportClass = require('./libraries/Import');
+const ExportClass = require('./libraries/Export');
+const porters = require('./entities/porters');
+const resources = require('./entities/resources');
+const schemas = require('./entities/schemas');
 const actions = require('./actions');
 const config = require('../config');
-const resources = require('./resources');
 const EVERYONE = '000000000000000000000000';
 
 module.exports = class FormApi {
@@ -63,7 +64,11 @@ module.exports = class FormApi {
   }
 
   get schemas() {
-    return require('./schemas');
+    return schemas;
+  }
+
+  get porters() {
+    return porters;
   }
 
   get resourceClasses() {
@@ -120,10 +125,6 @@ module.exports = class FormApi {
 
   get ExportClass() {
     return ExportClass;
-  }
-
-  get porters() {
-    return porters;
   }
 
   /**
