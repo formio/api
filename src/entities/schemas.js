@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = {
-  Action: require('./Action/schema'),
-  ActionItem: require('./ActionItem/schema'),
-  Form: require('./Form/schema'),
-  Submission: require('./Submission/schema'),
-  Role: require('./Role/schema'),
-  Variable: require('./Variable/schema'),
+  Action: require('./Action/Schema'),
+  ActionItem: require('./ActionItem/Schema'),
+  Form: require('./Form/Schema'),
+  Submission: require('./Submission/Schema'),
+  Role: require('./Role/Schema'),
+  Variable: require('./Variable/Schema'),
 };

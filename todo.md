@@ -6,19 +6,9 @@
  - role machine names are not unique.
 
 ## Actions
-
  - Save Submission - allow saving to another form and map data
  - Save as reference - implement property action
- 
-## Install
- - Ensure install works completely
- 
-## DB Updates
- - implement update scripts system.
- 
-## Recaptcha
- - implement recaptcha endpoint for requests.
- 
+
 ## Tests
  - Action tests
  - ActionItem tests

@@ -1,4 +1,4 @@
-const Porter = require('../_portation/Porter');
+const Porter = require('../../Classes/Porter');
 
 module.exports = class Submission extends Porter {
   get key() {

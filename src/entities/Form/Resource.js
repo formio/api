@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const Resource = require('../../libraries/Resource');
+const Resource = require('../../Classes/Resource');
 
 module.exports = class Form extends Resource {
   constructor(model, router, app) {

@@ -4,7 +4,7 @@ const FormioUtils = require('formiojs/utils');
 const _ = require('lodash');
 const vm = require('vm');
 const Validator = require('../../libraries/Validator');
-const Resource = require('../../libraries/Resource');
+const Resource = require('../../Classes/Resource');
 const log = require('../../log');
 
 module.exports = class Submission extends Resource {

@@ -40,7 +40,10 @@ module.exports = class Export {
                     return Promise.resolve(template);
                   });
               });
-            }, Promise.resolve()).then(() => this.app.log('debug', 'Export complete'));
+            }, Promise.resolve()).then((template) => {
+              this.app.log('debug', 'Export complete');
+              return template;
+            });
           });
       });
   }

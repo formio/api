@@ -287,7 +287,7 @@ module.exports = class FormApi {
     const schemas = this.schemas;
     for (const schema in schemas) {
       log('debug', `Adding model ${  schema}`);
-      this.models[schema] = new (this.getModelClass(schemas[schema]))(schemas[schema], this.db);
+      this.models[schema] = new (this.getModelClass(schemas[schema]))(new schemas[schema](this), this.db);
     }
   }
 

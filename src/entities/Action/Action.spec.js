@@ -6,10 +6,10 @@ const db = require('../../../test/mocks/db');
 const sandbox = sinon.createSandbox();
 
 const Model = require('../../libraries/Model');
-const Action = require('./schema');
+const Schema = require('./Schema');
 
 describe('Action Tests', () => {
-  const model = new Model(Action, db);
+  const model = new Model(new Schema(), db);
 
   afterEach(() => {
     sandbox.restore();
