@@ -11,6 +11,7 @@ module.exports = class ActionItem extends Schema {
 
   get schema() {
     return {
+      _id: this.id,
       title: {
         type: 'string',
           require: true

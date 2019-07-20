@@ -1,4 +1,5 @@
 const Schema = require('../../Classes/Schema');
+const _camelCase = require('lodash/camelCase');
 
 module.exports = class Role extends Schema {
   get name() {
@@ -11,6 +12,7 @@ module.exports = class Role extends Schema {
 
   get schema() {
     return {
+      _id: this.id,
       title: {
         type: 'string',
         required: true,
@@ -53,5 +55,10 @@ module.exports = class Role extends Schema {
       },
       ...super.schema
     };
+  }
+
+  generateMachineName(document, model) {
+    document.machineName = _camelCase(document.title);
+    return this.uniqueMachineName(document, model);
   }
 };

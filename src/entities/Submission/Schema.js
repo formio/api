@@ -11,6 +11,7 @@ module.exports = class Submission extends Schema {
 
   get schema() {
     return {
+      _id: this.id,
       form: {
         type: 'id',
         index: true,

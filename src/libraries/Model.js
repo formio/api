@@ -7,11 +7,6 @@ module.exports = class Model {
   constructor(schema, db) {
     this.db = db;
 
-    // Ensure there is an entry for _id
-    schema.schema._id = schema.schema._id || {
-      type: 'id',
-    };
-
     // @TODO
     // populate (deprecate?)
     // description (what does this do?)
@@ -96,17 +91,21 @@ module.exports = class Model {
   }
 
   beforeSave(input, doc) {
-    const promises = [];
-    // Do _id first so it is available for unique checking.
-    promises.push(this.iterateFields('_id', this.schema.schema['_id'], input, doc, this.setField.bind(this)));
+    return this.schema.preSave(input, this)
+      .then(input => {
+        const promises = [];
 
-    for (const path in this.schema.schema) {
-      if (path !== '_id') {
-        promises.push(this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this)));
-      }
-    }
-    return Promise.all(promises)
-      .then(() => doc);
+        // Do _id first so it is available for unique checking.
+        promises.push(this.iterateFields('_id', this.schema.schema['_id'], input, doc, this.setField.bind(this)));
+
+        for (const path in this.schema.schema) {
+          if (path !== '_id') {
+            promises.push(this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this)));
+          }
+        }
+        return Promise.all(promises)
+          .then(() => doc);
+      });
   }
 
   setField(path, field, value, doc) {

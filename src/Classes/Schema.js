@@ -17,6 +17,12 @@ module.exports = class Schema {
     return false;
   }
 
+  get id() {
+    return {
+      type: 'id',
+    };
+  }
+
   get created() {
     return {
       type: 'date',
@@ -107,25 +113,50 @@ module.exports = class Schema {
       description: 'A unique, exportable name.',
       readonly: true,
       index: true,
-      preSave() {
-        // Do not alter an already established machine name.
-        // if (this._id && this.machineName) {
-        //   return next();
-        // }
-        // const model = formio.mongoose.model(modelName);
-        // if (typeof schema.machineName !== 'function') {
-        //   return util.uniqueMachineName(this, model, next);
-        // }
-        // schema.machineName(this, (err, machineName) => {
-        //   if (err) {
-        //     return next(err);
-        //   }
-        //
-        //   this.machineName = machineName;
-        //   util.uniqueMachineName(this, model, next);
-        // });
-        return Promise.resolve();
-      }
     };
+  }
+
+  preSave(item, model) {
+    // If there is no machine name or it is an existing item, don't set.
+    if (!this.schema.machineName || (item._id && item.machineName)) {
+      return Promise.resolve(item);
+    }
+
+    return this.generateMachineName(item, model);
+  }
+
+  generateMachineName(document, model) {
+    document.machineName = document.name;
+    return this.uniqueMachineName(document, model);
+  }
+
+  uniqueMachineName(document, model) {
+    console.log('unique', document.machineName, model.name);
+    const query = {
+      machineName: { $regex: `^${document.machineName}[0-9]*$` },
+      deleted: { $eq: null }
+    };
+    if (document._id) {
+      query._id = { $ne: this.app.db.toID(document._id) };
+    }
+
+    return model.find(query)
+      .then((records) => {
+        if (!records || !records.length) {
+          return document;
+        }
+
+        let i = 0;
+        records.forEach((record) => {
+          const parts = record.machineName.split(/(\d+)$/).filter(Boolean);
+          const number = parseInt(parts[1], 10) || 0;
+          if (number > i) {
+            i = number;
+          }
+        });
+        document.machineName += ++i;
+
+        return document;
+      });
   }
 };

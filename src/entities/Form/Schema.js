@@ -83,6 +83,7 @@ module.exports = class Form extends Schema {
 
   get schema() {
     return {
+      _id: this.id,
       title: {
         type: 'string',
         description: 'The title for the form.',
@@ -212,7 +213,7 @@ module.exports = class Form extends Schema {
         type: Object,
         description: 'Custom form properties.'
       },
-      ...super.Schema,
+      ...super.schema,
     };
   }
 };

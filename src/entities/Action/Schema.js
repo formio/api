@@ -11,6 +11,7 @@ module.exports = class Action extends Schema {
 
   get schema() {
     return {
+      _id: this.id,
       title: {
         type: 'string',
         required: true
@@ -46,5 +47,18 @@ module.exports = class Action extends Schema {
       },
       machineName: this.machineName
     };
+  }
+
+  generateMachineName(document, model) {
+    return this.app.models.Form.findOne({ _id: this.app.db.toID(document.form), deleted: { $eq: null } })
+      .then((form) => {
+        if (!form) {
+          document.machineName = `${document.form}:${document.name}`;
+          return this.uniqueMachineName(document, model);
+        }
+
+        document.machineName = `${form.name}:${document.name}`;
+        return this.uniqueMachineName(document, model);
+      });
   }
 };
