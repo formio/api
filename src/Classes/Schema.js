@@ -131,7 +131,6 @@ module.exports = class Schema {
   }
 
   uniqueMachineName(document, model) {
-    console.log('unique', document.machineName, model.name);
     const query = {
       machineName: { $regex: `^${document.machineName}[0-9]*$` },
       deleted: { $eq: null }

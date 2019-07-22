@@ -96,7 +96,9 @@ module.exports = class Model {
         const promises = [];
 
         // Do _id first so it is available for unique checking.
-        promises.push(this.iterateFields('_id', this.schema.schema['_id'], input, doc, this.setField.bind(this)));
+        if (this.schema.schema.hasOwnProperty('_id')) {
+          promises.push(this.iterateFields('_id', this.schema.schema['_id'], input, doc, this.setField.bind(this)));
+        }
 
         for (const path in this.schema.schema) {
           if (path !== '_id') {

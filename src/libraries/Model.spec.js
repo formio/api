@@ -6,6 +6,7 @@ const db = require('../../test/mocks/db');
 const sandbox = sinon.createSandbox();
 
 const Model = require('./Model');
+const Schema = require('../Classes/Schema');
 
 describe('Model.js', () => {
   afterEach(() => {
@@ -16,10 +17,17 @@ describe('Model.js', () => {
     it('Creates a collection if it doesnt exist', () => {
       sandbox.stub(db, 'createCollection').resolves();
 
-      const model = new Model({
-        name: 'test',
-        schema: {}
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {}
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.initialized.then(() => {
         assert(db.createCollection.calledOnce, 'Should call createCollection');
@@ -31,10 +39,17 @@ describe('Model.js', () => {
       sandbox.stub(db, 'getCollections').resolves(['tests']);
       sandbox.stub(db, 'createCollection').resolves();
 
-      const model = new Model({
-        name: 'test',
-        schema: {}
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {}
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.initialized.then(() => {
         assert(db.createCollection.notCalled, 'Should not call createCollection');
@@ -55,20 +70,30 @@ describe('Model.js', () => {
         }
       };
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          a: {
-            index: true
-          },
-          b: {
-            index: true
-          },
-          c: {},
-          d: {}
-        },
-        indexes: [testIndex]
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            a: {
+              index: true
+            },
+            b: {
+              index: true
+            },
+            c: {},
+            d: {}
+          }
+        }
+
+        get indexes() {
+          return [testIndex];
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.initialized.then(() => {
         assert(db.createIndex.calledThrice, 'Should call createIndex thrice');
@@ -85,10 +110,17 @@ describe('Model.js', () => {
     it('Provides a way to transform IDs', done => {
       sandbox.spy(db, 'toID');
 
-      const model = new Model({
-        name: 'test',
-        schema: {}
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {}
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       const result = model.toID('test');
       assert(db.toID.calledOnce, 'Should call db id');
@@ -101,14 +133,21 @@ describe('Model.js', () => {
     it('Creates ID type', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'id',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'id',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -126,14 +165,21 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: ErrorClass,
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: ErrorClass,
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).catch(error => {
         assert.equal(error, '\'foo\' invalid type');
@@ -149,15 +195,22 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: ErrorClass,
-            looseType: true,
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: ErrorClass,
+              looseType: true,
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -169,14 +222,21 @@ describe('Model.js', () => {
     it('Converts to string', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string'
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string'
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({
         foo: 3
@@ -192,14 +252,21 @@ describe('Model.js', () => {
     it('Converts to number', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'number'
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'number'
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({
         foo: '3'
@@ -215,14 +282,21 @@ describe('Model.js', () => {
     it('Converts to date', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'date'
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'date'
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({
         foo: '12-1-2018'
@@ -236,14 +310,21 @@ describe('Model.js', () => {
     it('Converts to boolean', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'boolean'
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'boolean'
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({
         foo: '1'
@@ -257,18 +338,25 @@ describe('Model.js', () => {
     it('Nests object types', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: {
-              bar: {
-                type: 'string'
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: {
+                bar: {
+                  type: 'string'
+                }
               }
-            }
-          },
-        },
-      }, db);
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({
         foo: { bar: 3 }
@@ -284,18 +372,25 @@ describe('Model.js', () => {
     it('Nests array object types', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: [{
-              bar: {
-                type: 'string'
-              }
-            }]
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: [{
+                bar: {
+                  type: 'string'
+                }
+              }]
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({
         foo: [{ bar: 3 }, { bar: 4 }]
@@ -315,14 +410,21 @@ describe('Model.js', () => {
     it('Nests array types', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: ['string']
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: ['string']
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({
         foo: [3, 4]
@@ -344,14 +446,21 @@ describe('Model.js', () => {
     it('Fails required field when missing', () => {
       sandbox.stub(db, 'create').resolves({});
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            required: true
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              required: true
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({}).catch(error => {
         assert.equal(error, '\'foo\' is required');
@@ -361,14 +470,21 @@ describe('Model.js', () => {
     it('Requires a field', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            required: true
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              required: true
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -380,14 +496,21 @@ describe('Model.js', () => {
     it('Removes extra values', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string'
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string'
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar', baz: 'blah' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -399,15 +522,22 @@ describe('Model.js', () => {
     it('Defaults a value', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            default: 'bar',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              default: 'bar',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({}).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -419,14 +549,21 @@ describe('Model.js', () => {
     it('Doesnt override with default with value', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            default: 'bar',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              default: 'bar',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'baz' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -438,14 +575,21 @@ describe('Model.js', () => {
     it('Defaults a function', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            default: () => 'bar',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              default: () => 'bar',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({}).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -457,14 +601,21 @@ describe('Model.js', () => {
     it('Doesnt override with default with function', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            default: () => 'bar',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              default: () => 'bar',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'baz' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -476,15 +627,22 @@ describe('Model.js', () => {
     it('Lowercases a string', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            lowercase: true
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              lowercase: true
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'BAR' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -496,16 +654,23 @@ describe('Model.js', () => {
     it('Trims a string', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            trim: true,
-            lowercase: true
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              trim: true,
+              lowercase: true
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: ' BAR ' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -517,14 +682,21 @@ describe('Model.js', () => {
     it('Sets a function', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            set: () => 'baz',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              set: () => 'baz',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -536,15 +708,22 @@ describe('Model.js', () => {
     it('Checks enum', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            enum: ['bar', 'baz'],
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              enum: ['bar', 'baz'],
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -556,15 +735,22 @@ describe('Model.js', () => {
     it('Fails enum', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            enum: ['bar', 'baz'],
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              enum: ['bar', 'baz'],
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bal' }).catch(error => {
         assert(db.create.notCalled, 'Should not call db create');
@@ -575,22 +761,29 @@ describe('Model.js', () => {
     it('Passes sync validation', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            validate: [
-              {
-                message: 'must pass sync validator',
-                validator: (val) => {
-                  return true;
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              validate: [
+                {
+                  message: 'must pass sync validator',
+                  validator: (val) => {
+                    return true;
+                  }
                 }
-              }
-            ],
-          },
-        },
-      }, db);
+              ],
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -602,22 +795,29 @@ describe('Model.js', () => {
     it('Fails sync validation', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            validate: [
-              {
-                message: 'must pass sync validator',
-                validator: (val) => {
-                  return false;
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              validate: [
+                {
+                  message: 'must pass sync validator',
+                  validator: (val) => {
+                    return false;
+                  }
                 }
-              }
-            ],
-          },
-        },
-      }, db);
+              ],
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).catch(error => {
         assert(db.create.notCalled, 'Should not call db create');
@@ -628,25 +828,32 @@ describe('Model.js', () => {
     it('Passes async validation', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            validate: [
-              {
-                isAsync: true,
-                message: 'must pass sync validator',
-                validator: (val, model, done) => {
-                  setTimeout(() => {
-                    done(true);
-                  }, 1);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              validate: [
+                {
+                  isAsync: true,
+                  message: 'must pass sync validator',
+                  validator: (val, model, done) => {
+                    setTimeout(() => {
+                      done(true);
+                    }, 1);
+                  }
                 }
-              }
-            ],
-          },
-        },
-      }, db);
+              ],
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -658,25 +865,32 @@ describe('Model.js', () => {
     it('Fails async validation', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            validate: [
-              {
-                isAsync: true,
-                message: 'must pass sync validator',
-                validator: (val, model, done) => {
-                  setTimeout(() => {
-                    done(false);
-                  }, 1);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              validate: [
+                {
+                  isAsync: true,
+                  message: 'must pass sync validator',
+                  validator: (val, model, done) => {
+                    setTimeout(() => {
+                      done(false);
+                    }, 1);
+                  }
                 }
-              }
-            ],
-          },
-        },
-      }, db);
+              ],
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ foo: 'bar' }).catch(error => {
         assert(db.create.notCalled, 'Should not call db create');
@@ -687,15 +901,22 @@ describe('Model.js', () => {
     it('Allows write on read only', () => {
       sandbox.spy(db, 'create');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            readOnly: true
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              readOnly: true
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.create({ _id: '3', foo: 'baz' }).then(doc => {
         assert(db.create.calledOnce, 'Should call db update');
@@ -709,14 +930,21 @@ describe('Model.js', () => {
     it('Reads an existing record', () => {
       sandbox.stub(db, 'read').resolves({ _id: 'foo', bar: 'baz' });
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          bar: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            bar: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.read({ _id: 'foo' }).then(doc => {
         assert(db.read.calledOnce, 'Should call read');
@@ -728,14 +956,24 @@ describe('Model.js', () => {
     it('Converts ids to strings', () => {
       sandbox.stub(db, 'read').resolves({ _id: 3, bar: 'baz' });
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          bar: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            id: {
+              type: 'id'
+            },
+            bar: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.read({ _id: 3 }).then(doc => {
         assert.isString(doc._id);
@@ -746,14 +984,21 @@ describe('Model.js', () => {
     it('Returns read errors', () => {
       sandbox.stub(db, 'read').rejects('Could not find entry');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          bar: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            bar: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.read(3).catch(error => {
         assert.equal(error, 'Could not find entry');
@@ -766,14 +1011,21 @@ describe('Model.js', () => {
       sandbox.stub(db, 'read').resolves({ _id: 3, foo: 'bar' });
       sandbox.spy(db, 'update');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string'
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.update({ _id: '3', foo: 'baz' }).then(doc => {
         assert(db.update.calledOnce, 'Should call db update');
@@ -786,15 +1038,22 @@ describe('Model.js', () => {
       sandbox.stub(db, 'read').resolves({ _id: 3, foo: 'bar' });
       sandbox.spy(db, 'update');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-            readOnly: true
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+              readOnly: true
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.update({ _id: '3', foo: 'baz' }).then(doc => {
         assert(db.update.calledOnce, 'Should call db update');
@@ -808,14 +1067,21 @@ describe('Model.js', () => {
     it('Deletes an existing record', () => {
       sandbox.spy(db, 'delete');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          bar: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            bar: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.delete('foo').then(doc => {
         assert(db.delete.calledOnce, 'Should call delete');
@@ -826,14 +1092,21 @@ describe('Model.js', () => {
     it('Returns delete errors', () => {
       sandbox.stub(db, 'delete').rejects('Could not delete entry');
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          bar: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            bar: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.delete('foo').catch(error => {
         assert.equal(error, 'Could not delete entry');
@@ -845,14 +1118,21 @@ describe('Model.js', () => {
     it('Counts records', () => {
       sandbox.stub(db, 'count').resolves(4);
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          bar: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            bar: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       const query = { foo: 'bar' };
       return model.count(query).then(result => {
@@ -867,14 +1147,21 @@ describe('Model.js', () => {
     it('Finds results', () => {
       sandbox.stub(db, 'find').resolves([{ _id: 1, foo: 'bar' }, { _id: 2, foo: 'bar' }, { _id: 3, foo: 'bar' }]);
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            foo: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       const query = { foo: 'bar' };
       const options = { sort: 1, limit: 10 };

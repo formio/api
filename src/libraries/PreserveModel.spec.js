@@ -5,6 +5,7 @@ const sinon = require('sinon');
 const db = require('../../test/mocks/db');
 const sandbox = sinon.createSandbox();
 
+const Schema = require('../Classes/Schema');
 const Model = require('./PreserveModel');
 
 describe('PreserveModel.js', () => {
@@ -16,14 +17,21 @@ describe('PreserveModel.js', () => {
     it('Reads an existing record', () => {
       sandbox.stub(db, 'read').resolves({ _id: 'foo', bar: 'baz', deleted: null });
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          bar: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            bar: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.read({ _id: 'foo' }).then(doc => {
         assert(db.read.calledOnce, 'Should call read');
@@ -40,14 +48,21 @@ describe('PreserveModel.js', () => {
       sandbox.stub(db, 'read').resolves({ _id: 'foo', fiz: 'buz' });
       sandbox.stub(Date, 'now').returns(3);
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          fiz: {
-            type: 'string',
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            fiz: {
+              type: 'string',
+            }
           }
-        },
-      }, db);
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       return model.delete('foo').then(doc => {
         assert(db.delete.notCalled, 'Should not call delete');
@@ -61,14 +76,21 @@ describe('PreserveModel.js', () => {
     it('Counts records', () => {
       sandbox.stub(db, 'count').resolves(4);
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          bar: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            bar: {
+              type: 'string',
+            }
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       const query = { foo: 'bar' };
       return model.count(query).then(result => {
@@ -87,14 +109,24 @@ describe('PreserveModel.js', () => {
         { _id: 3, foo: 'bar', deleted: null }
         ]);
 
-      const model = new Model({
-        name: 'test',
-        schema: {
-          foo: {
-            type: 'string',
-          },
-        },
-      }, db);
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            id: {
+              type: 'id'
+            },
+            foo: {
+              type: 'string',
+            },
+          }
+        }
+      }
+
+      const model = new Model(new TestSchema(), db);
 
       const query = { foo: 'bar' };
       const options = { sort: 1, limit: 10 };
