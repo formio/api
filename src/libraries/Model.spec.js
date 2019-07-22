@@ -963,7 +963,7 @@ describe('Model.js', () => {
 
         get schema() {
           return {
-            id: {
+            _id: {
               type: 'id'
             },
             bar: {
@@ -1154,6 +1154,9 @@ describe('Model.js', () => {
 
         get schema() {
           return {
+            _id: {
+              type: 'id'
+            },
             foo: {
               type: 'string',
             },

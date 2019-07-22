@@ -116,7 +116,7 @@ describe('PreserveModel.js', () => {
 
         get schema() {
           return {
-            id: {
+            _id: {
               type: 'id'
             },
             foo: {
