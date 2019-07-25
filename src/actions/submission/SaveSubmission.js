@@ -1,4 +1,4 @@
-const Action = require('../../Classes/Action');
+const Action = require('../../classes/Action');
 
 module.exports = class SaveSubmission extends Action {
   static info() {

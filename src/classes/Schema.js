@@ -49,18 +49,20 @@ module.exports = class Schema {
       'admin'
     ];
 
-    return {
-      _id: false,
-      type: {
-        type: 'string',
-        enum: available,
-        required: 'A permission type is required to associate an available permission with a Resource.'
-      },
-      resources: {
-        type: 'id',
-        ref: 'form'
+    return [
+      {
+        _id: false,
+        type: {
+          type: 'string',
+          enum: available,
+          required: 'A permission type is required to associate an available permission with a Resource.'
+        },
+        resources: {
+          type: 'id',
+          ref: 'form'
+        }
       }
-    };
+    ];
   }
 
   get externalIds() {

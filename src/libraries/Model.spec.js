@@ -6,7 +6,7 @@ const db = require('../../test/mocks/db');
 const sandbox = sinon.createSandbox();
 
 const Model = require('./Model');
-const Schema = require('../Classes/Schema');
+const Schema = require('../classes/Schema');
 
 describe('Model.js', () => {
   afterEach(() => {

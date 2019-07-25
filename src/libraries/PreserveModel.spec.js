@@ -5,7 +5,7 @@ const sinon = require('sinon');
 const db = require('../../test/mocks/db');
 const sandbox = sinon.createSandbox();
 
-const Schema = require('../Classes/Schema');
+const Schema = require('../classes/Schema');
 const Model = require('./PreserveModel');
 
 describe('PreserveModel.js', () => {

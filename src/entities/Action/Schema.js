@@ -1,4 +1,4 @@
-const Schema = require('../../Classes/Schema');
+const Schema = require('../../classes/Schema');
 
 module.exports = class Action extends Schema {
   get name() {

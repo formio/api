@@ -2,7 +2,7 @@
 
 const FormApi = require('./src/FormApi');
 const log = require('./src/log');
-const Action = require('./src/Classes/Action');
+const Action = require('./src/classes/Action');
 const actions = require('./src/actions');
 const dbs = require('./src/dbs');
 const resources = require('./src/entities/resources');

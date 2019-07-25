@@ -159,14 +159,12 @@ module.exports = class Model {
               }
               break;
             case 'id':
-              if (!(value instanceof this.db.toID)) {
-                try {
-                  value = this.toID(value);
-                }
-                catch (err) {
-                  if (!field.looseType) {
-                    return reject(`'${path}' invalid type`);
-                  }
+              try {
+                value = this.toID(value);
+              }
+              catch (err) {
+                if (!field.looseType) {
+                  return reject(`'${path}' invalid type`);
                 }
               }
               break;

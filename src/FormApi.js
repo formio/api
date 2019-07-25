@@ -7,6 +7,7 @@ const ExportClass = require('./libraries/Export');
 const porters = require('./entities/porters');
 const resources = require('./entities/resources');
 const schemas = require('./entities/schemas');
+const routes = require('./routes');
 const actions = require('./actions');
 const config = require('../config');
 const EVERYONE = '000000000000000000000000';
@@ -24,11 +25,7 @@ module.exports = class FormApi {
     this.addModels();
     this.router.use(this.beforePhases);
     this.addResources();
-    this.router.get('/access', this.access.bind(this));
-    this.router.get('/current', this.current.bind(this));
-    this.router.post('/import', this.import.bind(this));
-    this.router.get('/export', this.export.bind(this));
-    this.router.get('/status', this.status.bind(this));
+    this.addRoutes();
     this.router.use(this.afterPhases);
   }
 
@@ -114,6 +111,10 @@ module.exports = class FormApi {
 
   get actions() {
     return actions;
+  }
+
+  get routes() {
+    return routes;
   }
 
   get util() {
@@ -299,8 +300,17 @@ module.exports = class FormApi {
     }
   }
 
+  addRoutes() {
+    Object.values(this.routes).forEach(Route => {
+      this.router[Route.method](`/${Route.path}`, (req, res, next) => {
+        const route = new Route(this);
+        route.execute(req, res, next);
+      });
+    });
+  }
+
   init(req, res, next) {
-    req.uuid = uuid();
+    req.uuid = req.uuid || uuid();
     log('info', req.uuid, req.method, req.path, 'init');
 
     this.alias(req, '', next);
@@ -394,67 +404,10 @@ module.exports = class FormApi {
     return res.status(401).send();
   }
 
-  access(req, res) {
-    log('info', req.uuid, req.method, req.path, 'access');
-
-    Promise.all([
-      this.models.Role.find({}),
-      this.models.Form.find({}),
-    ])
-      .then(results => {
-        res.send({
-          roles: results[0].reduce((result, role) => {
-            result[role.title.replace(/\s/g, '').toLowerCase()] = {
-              _id: role._id,
-              title: role.title,
-              admin: role.admin,
-              default: role.default,
-            };
-            return result;
-          }, {}),
-          forms: results[1].reduce((result, form) => {
-            result[form.name] = {
-              _id: form._id,
-              title: form.title,
-              name: form.name,
-              path: form.path,
-              access: form.access,
-              submissionAccess: form.submissionAccess,
-            };
-            return result;
-          }, {}),
-        });
-      });
-  }
-
-  import(req, res, next) {
-    let template = req.body;
-    if (typeof req.body === 'object' && req.body.hasOwnProperty('template')) {
-      template = req.body.template;
-    }
-    if (typeof template === 'string') {
-      template = JSON.parse(template);
-    }
-
-    this.importTemplate(template)
-      .then(() => {
-        res.status(200).send('Ok');
-      })
-      .catch(next);
-  }
-
   importTemplate(template) {
     const importer = new this.ImportClass(this, template);
 
     return importer.import();
-  }
-
-  export(req, res, next) {
-    this.exportTemplate()
-      .then((result) => {
-        res.status(200).send(result);
-      })
-      .catch(next);
   }
 
   exportTemplate() {
@@ -463,19 +416,9 @@ module.exports = class FormApi {
     return exporter.export();
   }
 
-  current(req, res) {
-    log('info', req.uuid, req.method, req.path, 'current');
-    // TODO: convert this to subrequest? Need to protect password field.
-    res.send(req.user);
-  }
-
   getStatus(status = {}) {
     status.formApiVersion = info.version;
     return status;
-  }
-
-  status(req, res) {
-    res.send(this.getStatus());
   }
 
   beforeExecute(req, res, next) {
@@ -517,50 +460,84 @@ module.exports = class FormApi {
    * @param url
    * @param body
    */
-  /* eslint-disable no-unused-vars */
-  makeChildRequest({ req, res, url, body, method, options = {} }) {
-    /* eslint-enable no-unused-vars */
-    // const childRes = router.formio.util.createSubResponse((err) => {
-    //   if (childRes.statusCode > 299) {
-    //     // Add the parent path to the details path.
-    //     if (err && err.details && err.details.length) {
-    //       _.each(err.details, (details) => {
-    //         if (details.path) {
-    //           details.path = `${path}.data.${details.path}`;
-    //         }
-    //       });
-    //     }
-    //
-    //     return res.headersSent ? next() : res.status(childRes.statusCode).json(err);
-    //   }
-    // });
-    // const childReq = router.formio.util.createSubRequest(req);
-    // if (!childReq) {
-    //   return res.headersSent ? next() : res.status(400).json('Too many recursive requests.');
-    // }
-    // childReq.body = subSubmission;
-    //
-    // // Make sure to pass along the submission state to the subforms.
-    // if (req.body.state) {
-    //   childReq.body.state = req.body.state;
-    // }
-    //
-    // childReq.params.formId = component.form;
-    // if (subSubmission._id) {
-    //   childReq.params.submissionId = subSubmission._id;
-    // }
-    //
-    // // Make the child request.
-    // router.resourcejs[url][method](childReq, childRes, function(err) {
-    //   if (err) {
-    //     return next(err);
-    //   }
-    //
-    //   if (childRes.resource && childRes.resource.item) {
-    //     _.set(req.body, `data.${path}`, childRes.resource.item);
-    //   }
-    //   next();
-    // });
-    return Promise.resolve({});
+  makeChildRequest({ req, url, body, method, params, query, options = {} }) {
+    const childReq = this.createChildReq(req, options);
+
+    if (!childReq) {
+      return Promise.reject('Too many recursive requests');
+    }
+
+    childReq.body = body;
+    childReq.params = params;
+    childReq.query = query;
+    childReq.method = method.toUpperCase();
+    childReq.url = url;
+
+    const childRes = this.createChildRes(() =>{
+      if (childRes.statusCode > 299) {
+        // return reject(result);
+      }
+      // return resolve(result);
+    });
+
+    return this.executeMiddleware(childReq, childRes, [
+      ...this.beforePhases,
+      // TODO: do route call here
+      ...this.afterPhases,
+    ])
+      .then(() => {
+        // The call was a success.
+      })
+      .catch(() => {
+        // Middleware returned an error.
+      });
+  }
+
+  createChildReq(req) {
+    // Determine how many child requests have been made.
+    let childRequests = req.childRequests || 0;
+
+    // Break recursive child requests.
+    if (childRequests > 5) {
+      return null;
+    }
+
+    const childReq = { ...req };
+
+    childReq.childRequests = ++childRequests;
+
+    delete childReq.context;
+
+    return childReq;
+  }
+
+  createChildRes(response) {
+    response = response || (() => {});
+    const subResponse = {
+      statusCode: 200,
+      send: (err) => response(err),
+      json: (err) => response(err),
+      setHeader: () => {},
+      sendStatus: (status) => {
+        subResponse.statusCode = status;
+        response(status);
+      },
+      status: (status) => {
+        subResponse.statusCode = status;
+        return subResponse;
+      }
+    };
+    return subResponse;
+  }
+
+  // This mimics expressjs middleware.
+  executeMiddleware(req, res, middleware) {
+    return middleware.reduce((prev, func) => {
+      return prev.then(
+        () => new Promise((resolve, reject) => {
+          func(req, res, (err) => err ? reject(err) : resolve());
+        })
+      );
+}, Promise.resolve());
   }
 };

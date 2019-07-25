@@ -1,4 +1,4 @@
-const Schema = require('../../Classes/Schema');
+const Schema = require('../../classes/Schema');
 const _camelCase = require('lodash/camelCase');
 
 module.exports = class Role extends Schema {

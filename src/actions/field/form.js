@@ -8,6 +8,11 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
     // Get the submission object.
     const body = _get(data, component.key);
 
+    // Make sure to pass along the submission state to the subforms.
+    if (req.body.state) {
+      body.state = req.body.state;
+    }
+
     // if there isn't a sub-submission or the sub-submission has an _id, don't submit.
     // Should be submitted from the frontend.
     if (
@@ -34,7 +39,15 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
     // Patch at this point should be a subrequest put.
     const method = (action === 'post') ? 'post' : 'put';
 
-    return app.makeChildRequest({ url, method, body, req, res })
+    const params = {
+      formId: component.form
+    };
+
+    if (body._id) {
+      params.submissionId = body._id;
+    }
+
+    return app.makeChildRequest({ url, method, body, params, req, res })
       .then(childRes => {
         _set(data, component.key, childRes.resource.item);
       });
