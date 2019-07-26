@@ -4,6 +4,7 @@ const log = require('./log');
 const util = require('./util');
 const ImportClass = require('./libraries/Import');
 const ExportClass = require('./libraries/Export');
+const ModelClass = require('./libraries/Model');
 const porters = require('./entities/porters');
 const resources = require('./entities/resources');
 const schemas = require('./entities/schemas');
@@ -277,11 +278,9 @@ module.exports = class FormApi {
       .catch(next);
   }
 
-  /* eslint-disable no-unused-vars */
-  getModelClass(schema) {
-    return require('./libraries/PreserveModel');
+  getModelClass() {
+    return ModelClass;
   }
-  /* eslint-enable no-unused-vars */
 
   addModels() {
     log('info', 'Adding models');

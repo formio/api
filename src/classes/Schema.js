@@ -81,8 +81,8 @@ module.exports = class Schema {
     ];
   }
 
-  get permissions() {
-    const available = [
+  get enumPermissions() {
+    return [
       'create_all',
       'read_all',
       'update_all',
@@ -93,12 +93,14 @@ module.exports = class Schema {
       'delete_own',
       'self'
     ];
+  }
 
+  get permissions() {
     return [
       {
         type: {
           type: 'string',
-          enum: available,
+          enum: this.enumPermissions,
           required: 'A permission type is required to associate an available permission with a given role.'
         },
         roles: {
