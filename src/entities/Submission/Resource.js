@@ -142,12 +142,12 @@ module.exports = class Submission extends Resource {
     req.body.data = req.body.data || {};
 
     // Ensure they cannot reset the submission id.
-    if (req.context.params.hasOwnProperty('submission')) {
-      req.body._id = req.context.params['submission'];
+    if (req.params.hasOwnProperty('submissionId')) {
+      req.body._id = req.params.submissionId;
     }
 
     // Always make sure form is set correctly.
-    req.body.form = req.context.params['form'];
+    req.body.form = req.params.formId;
 
     // Copy roles and externalIds from existing submissions so they arent lost.
     if (req.context.resources.submission) {

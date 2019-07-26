@@ -75,12 +75,12 @@ module.exports = class Action extends Resource {
     }
 
     // Ensure they cannot reset the submission id.
-    if (req.context.params.hasOwnProperty('action')) {
-      item._id = req.context.params['action'];
+    if (req.params.hasOwnProperty('actionId')) {
+      item._id = req.params.actionId;
     }
 
     // Always make sure form is set correctly.
-    item.form = req.context.params['form'];
+    item.form = req.params.formId;
 
     return item;
   }
