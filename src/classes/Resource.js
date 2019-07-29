@@ -268,7 +268,7 @@ module.exports = class Resource {
   prepare(item, req) {
     // Ensure they can't change the id.
     if (req.params[`${this.name}Id`]) {
-      item._id = req.params[`${this.name  }Id`];
+      item._id = req.params[`${this.name}Id`];
     }
 
     return item;

@@ -1,9 +1,10 @@
 'use strict';
 
 module.exports = class Import {
-  constructor(app, template) {
+  constructor(app, template, req) {
     this.app = app;
     this.template = template;
+    this.req = req;
     this.maps = {};
   }
 
@@ -44,7 +45,7 @@ module.exports = class Import {
 
   importItem(machineName, item, entity) {
     this.app.log('debug', `Importing ${entity.key} - ${machineName}`);
-    const document = entity.import(item);
+    const document = entity.import(item, this.req);
 
     // If no document was returned by import, skip it.
     if (!document) {

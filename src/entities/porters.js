@@ -5,12 +5,11 @@ const Resource = require('./Resource/Porter');
 const Role = require('./Role/Porter');
 const Submission = require('./Submission/Porter');
 
-// These are in import order.
-module.exports = [
-  Role,
-  Resource,
-  Form,
+module.exports = {
   Action,
-  Submission,
   ActionItem,
-];
+  Form,
+  Resource,
+  Role,
+  Submission,
+};

@@ -18,7 +18,7 @@ module.exports = class Import extends Route {
       template = JSON.parse(template);
     }
 
-    this.app.importTemplate(template)
+    this.app.importTemplate(template, req)
       .then(() => {
         res.status(200).send('Ok');
       })

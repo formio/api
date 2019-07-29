@@ -1,8 +1,9 @@
 'use strict';
 
 module.exports = class Export {
-  constructor(app) {
+  constructor(app, req) {
     this.app = app;
+    this.req = req;
   }
 
   export() {
@@ -34,7 +35,7 @@ module.exports = class Export {
                   .then(documents => {
                     documents.forEach(document => {
                       this.app.log('debug', `Exporting ${entity.key} - ${entity.machineName(document)}`);
-                      template[entity.key][entity.machineName(document)] = entity.export(document);
+                      template[entity.key][entity.machineName(document)] = entity.export(document, this.req);
                     });
                     this.app.log('debug', `Exporting ${entity.key} complete`);
                     return Promise.resolve(template);

@@ -6,7 +6,7 @@ module.exports = class Export extends Route {
   }
 
   execute(req, res, next) {
-    this.app.exportTemplate()
+    this.app.exportTemplate(req)
       .then((result) => {
         res.status(200).send(result);
       })

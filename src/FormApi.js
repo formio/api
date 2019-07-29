@@ -67,7 +67,15 @@ module.exports = class FormApi {
   }
 
   get porters() {
-    return porters;
+    // These are in import order.
+    return [
+      porters.Role,
+      porters.Resource,
+      porters.Form,
+      porters.Action,
+      porters.Submission,
+      porters.ActionItem,
+    ];
   }
 
   get resourceClasses() {
@@ -403,14 +411,14 @@ module.exports = class FormApi {
     return res.status(401).send();
   }
 
-  importTemplate(template) {
-    const importer = new this.ImportClass(this, template);
+  importTemplate(template, req) {
+    const importer = new this.ImportClass(this, template, req);
 
     return importer.import();
   }
 
-  exportTemplate() {
-    const exporter = new this.ExportClass(this);
+  exportTemplate(req) {
+    const exporter = new this.ExportClass(this, req);
 
     return exporter.export();
   }
@@ -422,6 +430,7 @@ module.exports = class FormApi {
 
   beforeExecute(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'beforeExecute');
+
     next();
   }
 
