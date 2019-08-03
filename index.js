@@ -9,6 +9,7 @@ const resources = require('./src/entities/resources');
 const schemas = require('./src/entities/schemas');
 const porters = require('./src/entities/porters');
 const libraries = require('./src/libraries');
+const classes = require('./src/classes');
 
 module.exports = {
   Action,
@@ -20,4 +21,5 @@ module.exports = {
   schemas,
   porters,
   libraries,
+  classes,
 };

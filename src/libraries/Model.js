@@ -5,16 +5,28 @@ const log = require('../log');
 
 module.exports = class Model {
   constructor(schema, db) {
-    this.db = db;
-
     // @TODO
     // populate (deprecate?)
     // description (what does this do?)
 
     this.schema = schema;
+    this.db = db;
+  }
+
+  get db() {
+    return this._db;
+  }
+
+  set db(db) {
+    this._db = db;
 
     // Ensure the model is initialized before returning any calls.
-    this.initialized = this.initialize();
+    if (this._db) {
+      this.initialized = this.initialize();
+    }
+    else {
+      // this.initialized = Promise.reject('DB not initialized');
+    }
   }
 
   get name() {
@@ -67,7 +79,7 @@ module.exports = class Model {
       values.forEach((value, index) => {
         if (typeof schema.type[0] === 'object') {
           for (const name in schema.type[0]) {
-            promises.push(this.iterateFields(`${path  }[${  index  }].${  name}`, schema.type[0][name], input, doc, execute));
+            promises.push(this.iterateFields(`${path}[${index}].${name}`, schema.type[0][name], input, doc, execute));
           }
         }
         else {
@@ -75,13 +87,13 @@ module.exports = class Model {
             ...schema,
             type: schema.type[0]
           };
-          promises.push(this.iterateFields(`${path  }[${  index  }]`, field, input, doc, execute));
+          promises.push(this.iterateFields(`${path}[${index}]`, field, input, doc, execute));
         }
       });
     }
     else if (typeof schema.type === 'object') {
       for (const name in schema.type) {
-        promises.push(this.iterateFields(`${path  }.${  name}`, schema.type[name], input, doc, execute));
+        promises.push(this.iterateFields(`${path}.${name}`, schema.type[name], input, doc, execute));
       }
     }
     else {

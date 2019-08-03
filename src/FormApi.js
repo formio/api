@@ -18,7 +18,7 @@ module.exports = class FormApi {
     this.log = log;
     this.config = config;
     this.router = router;
-    this.db = db;
+    this._db = db;
     this.models = {};
     this.resources = {};
 
@@ -28,6 +28,17 @@ module.exports = class FormApi {
     this.addResources();
     this.addRoutes();
     this.router.use(this.afterPhases);
+  }
+
+  get db() {
+    return this._db;
+  }
+
+  set db(db) {
+    this._db = db;
+    Object.values(this.models).forEach(model => {
+      model.db = db;
+    });
   }
 
   get reservedForms() {

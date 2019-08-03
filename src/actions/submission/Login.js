@@ -152,6 +152,7 @@ module.exports = class Login extends Action {
               .then(form => {
                 req.user = user;
                 res.token = this.app.generateToken(this.app.tokenPayload(user, form));
+                res.resource.item = user;
               });
           });
       });

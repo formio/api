@@ -217,17 +217,19 @@ module.exports = class Submission extends Resource {
             })
               .then(actionItem => {
                 const setActionItemMessage = (message, data = {}, state = null) => {
-                  actionItem.messages.push({
-                    datetime: new Date(),
-                    info: message,
-                    data
-                  });
-
-                  if (state) {
-                    actionItem.state = state;
-                  }
-
-                  this.app.models.ActionItem.update(actionItem);
+                  // previous.then(() => {
+                  //   actionItem.messages.push({
+                  //     datetime: new Date(),
+                  //     info: message,
+                  //     data
+                  //   });
+                  //
+                  //   if (state) {
+                  //     actionItem.state = state;
+                  //   }
+                  //
+                  //   previous = this.app.models.ActionItem.update(actionItem);
+                  // });
                 };
                 // If action exists on this server, execute immediately.
                 if (this.actions.submission.hasOwnProperty(action.name)) {
