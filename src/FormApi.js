@@ -435,7 +435,7 @@ module.exports = class FormApi {
   }
 
   getStatus(status = {}) {
-    status.formApiVersion = info.version;
+    status.formApi = info.version;
     return status;
   }
 
