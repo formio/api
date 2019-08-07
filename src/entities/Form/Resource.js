@@ -9,15 +9,17 @@ module.exports = class Form extends Resource {
   }
 
   createDefaultAction(req, res) {
-    return this.app.models.Action.create({
-      name: 'save',
-      title: 'Save Submission',
-      form: res.resource.item._id,
-      priority: 10,
-      handler: ['before'],
-      method: ['create', 'update'],
-      settings: {}
-    });
+    return this.app.models.Action.create(
+      this.app.resources.Action.prepare({
+        name: 'save',
+        title: 'Save Submission',
+        form: res.resource.item._id,
+        priority: 10,
+        handler: ['before'],
+        method: ['create', 'update'],
+        settings: {}
+      }, req)
+    );
   }
 
   checkModifiedDate(req, res) {

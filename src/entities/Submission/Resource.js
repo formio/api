@@ -199,37 +199,40 @@ module.exports = class Submission extends Resource {
 
         if (this.shouldExecute(action, context)) {
           actions.push(() => {
-            return this.app.models.ActionItem.create({
-              title: action.title,
-              form: req.params.formId,
-              submission: req.params.submissionId || req.body._id,
-              action: action.name,
-              handler,
-              method,
-              state: 'new',
-              messages: [
-                {
-                  datetime: new Date(),
-                  info: 'New Action Triggered',
-                  data: {}
-                }
-              ]
-            })
+            return this.app.models.ActionItem.create(
+              this.app.resources.ActionItem.prepare({
+                title: action.title,
+                form: req.params.formId,
+                submission: req.params.submissionId || req.body._id,
+                action: action.name,
+                handler,
+                method,
+                state: 'new',
+                messages: [
+                  {
+                    datetime: new Date(),
+                    info: 'New Action Triggered',
+                    data: {}
+                  }
+                ]
+              }, req)
+            )
               .then(actionItem => {
+                let previous = Promise.resolve();
                 const setActionItemMessage = (message, data = {}, state = null) => {
-                  // previous.then(() => {
-                  //   actionItem.messages.push({
-                  //     datetime: new Date(),
-                  //     info: message,
-                  //     data
-                  //   });
-                  //
-                  //   if (state) {
-                  //     actionItem.state = state;
-                  //   }
-                  //
-                  //   previous = this.app.models.ActionItem.update(actionItem);
-                  // });
+                  previous.then(() => {
+                    actionItem.messages.push({
+                      datetime: new Date(),
+                      info: message,
+                      data
+                    });
+
+                    if (state) {
+                      actionItem.state = state;
+                    }
+
+                    previous = this.app.models.ActionItem.update(actionItem);
+                  });
                 };
                 // If action exists on this server, execute immediately.
                 if (this.actions.submission.hasOwnProperty(action.name)) {
