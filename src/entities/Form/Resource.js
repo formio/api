@@ -8,18 +8,28 @@ module.exports = class Form extends Resource {
     super(model, router, app);
   }
 
-  createDefaultAction(req, res) {
-    return this.app.models.Action.create(
-      this.app.resources.Action.prepare({
-        name: 'save',
-        title: 'Save Submission',
-        form: res.resource.item._id,
-        priority: 10,
-        handler: ['before'],
-        method: ['create', 'update'],
-        settings: {}
-      }, req)
-    );
+  createDefaultActions(req, res) {
+    return Promise.all(Object.keys(this.app.actions.submission).map(name => {
+      const Action = this.app.actions.submission[name];
+      const info = Action.info();
+      // Add default actions to the form.
+      if (info.default) {
+        return this.app.models.Action.create(
+          this.app.resources.Action.prepare({
+            title: info.title,
+            name: info.name,
+            priority: info.priority,
+            settings: {},
+            ...info.defaults,
+            entityType: 'form',
+            entity: res.resource.item._id, // Entity goes last so they can't change it.
+          }, req)
+        );
+      }
+      else {
+        return Promise.resolve();
+      }
+    }));
   }
 
   checkModifiedDate(req, res) {
@@ -47,7 +57,7 @@ module.exports = class Form extends Resource {
           return resolve();
         });
       }),
-      this.createDefaultAction.bind(this, req, res)
+      this.createDefaultActions.bind(this, req, res)
     ])
       .then(() => next())
       .catch(next);

@@ -184,13 +184,15 @@ module.exports = class Submission extends Resource {
 
   executeActions(handler, method, req, res) {
     log('debug', 'executeActions', handler, method);
-    const actions = [];
+
+    const promises = [];
     req.context.actions.forEach(action => {
       if (action.method.includes(method) && action.handler.includes(handler)) {
         const context = {
           jsonLogic: FormioUtils.jsonLogic,
           data: req.body.data,
-          form: req.context.resources.form,
+          form: req.context.resources.form, // Legacy support
+          entity: req.context.resources.form,
           query: req.query,
           util: FormioUtils,
           _,
@@ -198,13 +200,18 @@ module.exports = class Submission extends Resource {
         };
 
         if (this.shouldExecute(action, context)) {
-          actions.push(() => {
+          promises.push(() => {
             return this.app.models.ActionItem.create(
               this.app.resources.ActionItem.prepare({
+                action: action._id,
                 title: action.title,
-                form: req.params.formId,
-                submission: req.params.submissionId || req.body._id,
-                action: action.name,
+                dataType: 'submission',
+                dataId: req.params.submissionId || req.body._id,
+                data: res.resource.item || req.body,
+                context: {
+                  query: req.query,
+                  params: req.params,
+                },
                 handler,
                 method,
                 state: 'new',
@@ -217,41 +224,13 @@ module.exports = class Submission extends Resource {
                 ]
               }, req)
             )
-              .then(actionItem => {
-                let previous = Promise.resolve();
-                const setActionItemMessage = (message, data = {}, state = null) => {
-                  previous.then(() => {
-                    actionItem.messages.push({
-                      datetime: new Date(),
-                      info: message,
-                      data
-                    });
-
-                    if (state) {
-                      actionItem.state = state;
-                    }
-
-                    previous = this.app.models.ActionItem.update(actionItem);
-                  });
-                };
-                // If action exists on this server, execute immediately.
-                if (this.actions.submission.hasOwnProperty(action.name)) {
-                  setActionItemMessage('Starting Action', {}, 'inprogress');
-                  const instance = new this.actions.submission[action.name](this.app, action.settings);
-                  return instance.resolve(handler, method, req, res, setActionItemMessage)
-                    .then(() => {
-                      setActionItemMessage('Action Resolved (no longer blocking)', {}, 'complete');
-                    })
-                    .catch(error => {
-                      setActionItemMessage('Error Occurred', error, 'error');
-                    });
-                }
-              });
+              .then(actionItem => this.app.executeAction(actionItem, req, res));
           });
         }
       }
     });
-    return this.callPromisesAsync(actions);
+
+    return this.callPromisesAsync(promises);
   }
 
   shouldExecute(action, context) {

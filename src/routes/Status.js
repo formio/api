@@ -6,6 +6,6 @@ module.exports = class Status extends Route {
   }
 
   execute(req, res) {
-    res.send(this.getStatus());
+    res.send(this.app.getStatus());
   }
 };

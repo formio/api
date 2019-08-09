@@ -21,6 +21,7 @@ module.exports = class FormApi {
     this._db = db;
     this.models = {};
     this.resources = {};
+    this.locks = {};
 
     log('info', 'Starting Form Manager');
     this.addModels();
@@ -28,6 +29,10 @@ module.exports = class FormApi {
     this.addResources();
     this.addRoutes();
     this.router.use(this.afterPhases);
+  }
+
+  get isServer() {
+    return true;
   }
 
   get db() {
@@ -368,7 +373,8 @@ module.exports = class FormApi {
     // Load actions associated with a form if we have a submission.
     if (req.context.params.hasOwnProperty('formId')) {
       loads.push(this.loadActions(req, {
-        form: this.db.toID(req.context.params['formId']),
+        entity: this.db.toID(req.context.params['formId']),
+        entityType: 'form',
       }));
     }
 
@@ -557,6 +563,93 @@ module.exports = class FormApi {
           func(req, res, (err) => err ? reject(err) : resolve());
         })
       );
-}, Promise.resolve());
+    }, Promise.resolve());
+  }
+
+  async executeAction(actionItem, req, res) {
+    log('info', 'Execute action', req.uuid, actionItem.action);
+
+    try {
+      const release = await this.lock(actionItem._id);
+
+      const action = await this.models.Action.read({
+        _id: this.db.toID(actionItem.action)
+      });
+
+      // Syncronously add messages to actionItem.
+      let previous = Promise.resolve();
+      const setActionItemMessage = (message, data = {}, state = null) => {
+        previous.then(() => {
+          actionItem.messages.push({
+            datetime: new Date(),
+            info: message,
+            data
+          });
+
+          if (state) {
+            actionItem.state = state;
+          }
+
+          previous = this.models.ActionItem.update(actionItem);
+        });
+      };
+
+      if (this.actions.submission.hasOwnProperty(action.name)) {
+        const Action = this.actions.submission[action.name];
+
+        if (this.isServer || !Action.serverOnly) {
+          setActionItemMessage('Starting Action', {});
+          const instance = new Action(this, action.settings);
+          return instance.resolve({
+            handler: actionItem.handler,
+            method: actionItem.method,
+            data: actionItem.data,
+            context: actionItem.context,
+            req,
+            res,
+          }, setActionItemMessage)
+            .then(() => {
+              setActionItemMessage('Action Resolved (no longer blocking)', {}, 'complete');
+            })
+            .catch(error => {
+              setActionItemMessage('Error Occurred', error);
+              throw error;
+            });
+        }
+      }
+
+      release();
+    }
+    catch (err) {
+      console.log('could not lock');
+      // swallow the error.
+    }
+  }
+
+  /**
+   * This is a basic locking system. For servers it should be overridden to provide for concurrency between server instances.
+   *
+   * @param key
+   * @returns {Promise<Function>}
+   */
+  lock(key) {
+    // If lock is already set on it.
+    if (this.locks[key]) {
+      return Promise.reject();
+    }
+
+    this.locks[key] = true;
+
+    let timeout = null;
+
+    const removeLock = () => {
+      delete this.locks[key];
+      clearTimeout(timeout);
+    };
+
+    // Remove the lock automatically after 30 seconds.
+    timeout = setTimeout(removeLock, 30000);
+
+    return Promise.resolve(removeLock);
   }
 };

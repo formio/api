@@ -8,6 +8,7 @@ module.exports = class SaveSubmission extends Action {
       group: 'default',
       description: 'Saves the submission into the database.',
       priority: 10,
+      default: true,
       defaults: {
         handler: ['before'],
         method: ['create', 'update']
@@ -33,7 +34,7 @@ module.exports = class SaveSubmission extends Action {
     ]);
   }
 
-  resolve(handler, method, req, res, setActionInfoMessage) {
+  resolve({ req }, setActionInfoMessage) {
     req.skipResource = false;
 
     if (this.settings.resource) {

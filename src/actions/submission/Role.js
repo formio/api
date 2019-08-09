@@ -8,6 +8,7 @@ module.exports = class Role extends Action {
       group: 'default',
       description: 'Provides the Role Assignment capabilities.',
       priority: 1,
+      default: false,
       defaults: {
         handler: ['after'],
         method: ['create']
@@ -65,7 +66,7 @@ module.exports = class Role extends Action {
     ]);
   }
 
-  resolve(handler, method, req, res, setActionInfoMessage) {
+  resolve({ data: submission, req }, setActionInfoMessage) {
     // Error if operation type is not valid.
     if (!this.settings.type || (this.settings.type !== 'add' && this.settings.type !== 'remove')) {
       setActionInfoMessage('Invalid setting `type` for the RoleAction; expecting `add` or `remove`.');
@@ -73,17 +74,17 @@ module.exports = class Role extends Action {
     }
 
     // Error if association is existing and valid data was not provided.
-    if (!(this.settings.role || req.submission.data.role)) {
+    if (!(this.settings.role || submission.data.role)) {
       setActionInfoMessage('Missing role for RoleAction association.');
       return Promise.reject('Missing role for RoleAction association. Must specify role to assign in action settings ' +
         'or a form component named `role`');
     }
 
-    let resource = req.submission.data.submission || res.resource.item;
+    let resource = submission.data.submission || submission;
 
     const roleId = this.settings.role
       ? this.settings.role
-      : req.submission.data.role;
+      : submission.data.role;
 
     const availableRoles = this.app.getRoles(req);
     if (!availableRoles.reduce((found, role) => {

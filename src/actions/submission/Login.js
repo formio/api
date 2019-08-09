@@ -11,6 +11,7 @@ module.exports = class Login extends Action {
       group: 'default',
       description: 'Provides a way to login to the application.',
       priority: 2,
+      default: false,
       defaults: {
         handler: ['before'],
         method: ['create']
@@ -105,26 +106,26 @@ module.exports = class Login extends Action {
     ]);
   }
 
-  resolve(handler, method, req, res, setActionInfoMessage) {
-    if (!req.body || !req.body.hasOwnProperty('data')) {
+  resolve({ data: submission, req, res }, setActionInfoMessage) {
+    if (!submission || !submission.hasOwnProperty('data')) {
       return res.status(401).send('User or password was incorrect.');
     }
 
     // They must provide a username.
-    if (!has(req.body.data, this.settings.username)) {
+    if (!has(submission.data, this.settings.username)) {
       setActionInfoMessage('Username not set or not found');
       return res.status(401).send('User or password was incorrect.');
     }
 
     // They must provide a password.
-    if (!has(req.body.data, this.settings.password)) {
+    if (!has(submission.data, this.settings.password)) {
       setActionInfoMessage('Password not set or not found');
       return res.status(401).send('User or password was incorrect.');
     }
 
     const query = {
       form: { '$in': this.settings.resources.map(this.app.db.toID) },
-      [`data.${this.settings.username}`]: get(req.body.data, this.settings.username),
+      [`data.${this.settings.username}`]: get(submission.data, this.settings.username),
     };
 
     return this.app.models.Submission.read(query)
@@ -139,6 +140,7 @@ module.exports = class Login extends Action {
           return Promise.reject('User account does not have a password. You must reset your password to login.');
         }
 
+        // Need to use req.submission.data for password as it hasn't been encrypted yet.
         return bcrypt.compare(get(req.submission.data, this.settings.password), get(user.data, this.settings.password))
           .then(value => {
             if (!value) {

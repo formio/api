@@ -247,8 +247,12 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`
     ];
   }
 
+  static get serverOnly() {
+    return false;
+  }
+
   /* eslint-disable no-unused-vars */
-  resolve(handler, method, req, res, event) {
+  resolve({ handler, method, submission, req, res }, setActionItemMessage) {
     /* eslint-enable no-unused-vars */
     return Promise.resolve();
   }

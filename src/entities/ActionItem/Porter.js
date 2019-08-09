@@ -18,12 +18,12 @@ module.exports = class ActionItem extends Porter {
   }
 
   import(submission) {
-    this.mapEntityProperty(submission, 'form', { ...this.maps.forms, ...this.maps.resources });
+    this.mapEntityProperty(submission, 'entity', { ...this.maps.forms, ...this.maps.resources });
     return submission;
   }
 
   export(submission) {
-    this.mapEntityProperty(submission, 'form', { ...this.maps.forms, ...this.maps.resources });
+    this.mapEntityProperty(submission, 'entity', { ...this.maps.forms, ...this.maps.resources });
     return submission;
   }
 };

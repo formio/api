@@ -121,6 +121,8 @@ module.exports = class Schema {
   }
 
   preSave(item, model) {
+    item.access = item.access || [];
+    item.submissionAccess = item.submissionAccess || [];
     // If there is no machine name or it is an existing item, don't set.
     if (!this.schema.machineName || (item._id && item.machineName)) {
       return Promise.resolve(item);

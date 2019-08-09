@@ -20,6 +20,17 @@ module.exports = class Action extends Schema {
         type: 'string',
         required: true
       },
+      entity: {
+        type: 'id',
+        index: true,
+        required: true
+      },
+      entityType: {
+        type: 'string',
+        index: true,
+        required: true,
+        default: 'form'
+      },
       handler: [{
         type: 'string',
         require: true
@@ -39,21 +50,15 @@ module.exports = class Action extends Schema {
       settings: {
         required: false
       },
-      form: {
-        type: 'id',
-        ref: 'form',
-        index: true,
-        required: true
-      },
       machineName: this.machineName
     };
   }
 
   generateMachineName(document, model) {
-    return this.app.models.Form.findOne({ _id: this.app.db.toID(document.form), deleted: { $eq: null } })
+    return this.app.models.Form.findOne({ _id: this.app.db.toID(document.entity), deleted: { $eq: null } })
       .then((form) => {
         if (!form) {
-          document.machineName = `${document.form}:${document.name}`;
+          document.machineName = `${document.entity}:${document.name}`;
           return this.uniqueMachineName(document, model);
         }
 

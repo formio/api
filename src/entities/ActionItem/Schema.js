@@ -12,45 +12,49 @@ module.exports = class ActionItem extends Schema {
   get schema() {
     return {
       _id: this.id,
+      action: {
+        type: 'id',
+        required: true,
+        description: 'The action id that was triggered.',
+      },
       title: {
         type: 'string',
           require: true
       },
-      form: {
-        type: 'id',
-          ref: 'form',
-          index: true,
-          required: true
-      },
-      submission: {
-        type: 'id',
-          ref: 'submission',
-          index: true,
-          required: false
-      },
-      action: {
+      dataType: {
         type: 'string',
-          require: true
+        default: 'submission',
+        required: true,
       },
+      dataId: {
+        type: 'id',
+        index: true,
+        required: false
+      },
+      data: {},
       handler: {
         type: 'string',
-          require: true
+        require: true
       },
       method: {
         type: 'string',
-          require: true
+        require: true
       },
+      context: {},
       state: {
         type: 'string',
-      enum: ['new', 'inprogress', 'complete', 'error'],
-          required: true,
-      default: 'new',
-          description: 'The current status of this event.',
+        enum: ['new', 'complete', 'error'],
+        required: true,
+        default: 'new',
+        description: 'The current status of this event.',
       },
       messages: {},
-      data: {},
       created: this.created,
       modified: this.modified,
+      attempts: {
+        type:  'number',
+        default: 0
+      },
     };
   }
 };

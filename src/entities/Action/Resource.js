@@ -79,8 +79,8 @@ module.exports = class Action extends Resource {
       item._id = req.params.actionId;
     }
 
-    // Always make sure form is set correctly.
-    item.form = req.params.formId;
+    // For now all actions are for forms.
+    item.entityType = 'form';
 
     return item;
   }
