@@ -2,7 +2,7 @@ const Route = require('../classes/Route');
 
 module.exports = class Access extends Route {
   static get path() {
-    return 'access';
+    return '/access';
   }
 
   execute(req, res) {

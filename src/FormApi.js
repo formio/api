@@ -325,7 +325,7 @@ module.exports = class FormApi {
 
   addRoutes() {
     Object.values(this.routes).forEach(Route => {
-      this.router[Route.method](`/${Route.path}`, (req, res, next) => {
+      this.router[Route.method](Route.path, (req, res, next) => {
         const route = new Route(this);
         route.execute(req, res, next);
       });

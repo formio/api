@@ -6,7 +6,7 @@ module.exports = class Import extends Route {
   }
 
   static get path() {
-    return 'import';
+    return '/import';
   }
 
   execute(req, res, next) {

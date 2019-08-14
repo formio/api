@@ -2,7 +2,7 @@ const Route = require('../classes/Route');
 
 module.exports = class Current extends Route {
   static get path() {
-    return 'current';
+    return '/current';
   }
 
   execute(req, res) {
