@@ -244,7 +244,8 @@ class Validator {
 
       // If the value must be unique.
       if (component.unique) {
-        fieldValidator = fieldValidator.distinct(component, submission, this.model, this.async);
+        // TODO: Fix distict validator.
+        // fieldValidator = fieldValidator.distinct(component, submission, this.model, this.async);
       }
 
       //if multiple masks input, then data is object with 'value' field, and validation should be applied to that field

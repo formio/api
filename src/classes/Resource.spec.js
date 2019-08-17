@@ -1,8 +1,9 @@
 const assert = require('chai').assert;
 const sinon = require('sinon');
 
-// A fake db wrapper for stubbing.
+// A fake db wrrouterer for stubbing.
 const app = require('../../test/mocks/app');
+const router = require('../../test/mocks/router');
 const model = require('../../test/mocks/model');
 const sandbox = sinon.createSandbox();
 
@@ -15,57 +16,57 @@ describe('Resource.js', () => {
   });
 
   describe('Initialization', () => {
-    it('Adds routes to app', done => {
-      sandbox.spy(app, 'get');
-      sandbox.spy(app, 'put');
-      sandbox.spy(app, 'post');
-      sandbox.spy(app, 'patch');
-      sandbox.spy(app, 'delete');
-      sandbox.spy(app, 'use');
+    it('Adds routes to router', done => {
+      sandbox.spy(router, 'get');
+      sandbox.spy(router, 'put');
+      sandbox.spy(router, 'post');
+      sandbox.spy(router, 'patch');
+      sandbox.spy(router, 'delete');
+      sandbox.spy(router, 'use');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
-      assert(app.get.calledTwice, 'Should call get twice');
-      assert.equal(app.get.args[0][0], `/${  model.name}`);
-      assert.equal(app.get.args[1][0], `/${  model.name  }/:${  model.name  }Id`);
-      assert(app.put.calledOnce, 'Should call put once');
-      assert.equal(app.put.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
-      assert(app.post.calledOnce, 'Should call post once');
-      assert.equal(app.post.args[0][0], `/${  model.name}`);
-      assert(app.patch.calledOnce, 'Should call patch once');
-      assert.equal(app.patch.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
-      assert(app.delete.calledOnce, 'Should call delete once');
-      assert.equal(app.delete.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
-      assert(app.use.calledOnce, 'Should call use once');
-      assert.equal(app.use.args[0][0], `/${  model.name  }/exists`);
+      assert(router.get.calledTwice, 'Should call get twice');
+      assert.equal(router.get.args[0][0], `/${  model.name}`);
+      assert.equal(router.get.args[1][0], `/${  model.name  }/:${  model.name  }Id`);
+      assert(router.put.calledOnce, 'Should call put once');
+      assert.equal(router.put.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
+      assert(router.post.calledOnce, 'Should call post once');
+      assert.equal(router.post.args[0][0], `/${  model.name}`);
+      assert(router.patch.calledOnce, 'Should call patch once');
+      assert.equal(router.patch.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
+      assert(router.delete.calledOnce, 'Should call delete once');
+      assert.equal(router.delete.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
+      assert(router.use.calledOnce, 'Should call use once');
+      assert.equal(router.use.args[0][0], `/${  model.name  }/exists`);
 
       done();
     });
 
-    it('Adds inherited routes to app', done => {
-      sandbox.spy(app, 'get');
-      sandbox.spy(app, 'put');
-      sandbox.spy(app, 'post');
-      sandbox.spy(app, 'patch');
-      sandbox.spy(app, 'delete');
-      sandbox.spy(app, 'use');
+    it('Adds inherited routes to router', done => {
+      sandbox.spy(router, 'get');
+      sandbox.spy(router, 'put');
+      sandbox.spy(router, 'post');
+      sandbox.spy(router, 'patch');
+      sandbox.spy(router, 'delete');
+      sandbox.spy(router, 'use');
 
-      const resource = new ChildResource(model, app);
+      const resource = new ChildResource(model, router, app);
 
-      assert(app.get.calledTwice, 'Should call get twice');
-      assert.equal(app.get.args[0][0], `/foo/${  model.name}`);
-      assert.equal(app.get.args[1][0], `/foo/${  model.name  }/:${  model.name  }Id`);
-      assert(app.put.calledOnce, 'Should call put once');
-      assert.equal(app.put.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
-      assert(app.post.calledOnce, 'Should call post once');
-      assert.equal(app.post.args[0][0], `/foo/${  model.name}`);
-      assert(app.patch.calledOnce, 'Should call patch once');
-      assert.equal(app.patch.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
-      assert(app.delete.calledOnce, 'Should call delete once');
-      assert.equal(app.delete.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
-      assert(app.use.calledTwice, 'Should call use once');
-      assert.equal(app.use.args[0][0], `/foo/${  model.name  }/exists`);
-      assert.equal(app.use.args[1][0], `/foo/${  model.name  }/test`);
+      assert(router.get.calledTwice, 'Should call get twice');
+      assert.equal(router.get.args[0][0], `/foo/${  model.name}`);
+      assert.equal(router.get.args[1][0], `/foo/${  model.name  }/:${  model.name  }Id`);
+      assert(router.put.calledOnce, 'Should call put once');
+      assert.equal(router.put.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
+      assert(router.post.calledOnce, 'Should call post once');
+      assert.equal(router.post.args[0][0], `/foo/${  model.name}`);
+      assert(router.patch.calledOnce, 'Should call patch once');
+      assert.equal(router.patch.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
+      assert(router.delete.calledOnce, 'Should call delete once');
+      assert.equal(router.delete.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
+      assert(router.use.calledTwice, 'Should call use once');
+      assert.equal(router.use.args[0][0], `/foo/${  model.name  }/exists`);
+      assert.equal(router.use.args[1][0], `/foo/${  model.name  }/test`);
 
       done();
     });
@@ -75,7 +76,7 @@ describe('Resource.js', () => {
     it('Calls find from index', done => {
       sandbox.spy(model, 'find');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
       resource.index({
         params: { testId: 1 },
@@ -96,9 +97,9 @@ describe('Resource.js', () => {
     it('Calls read from get', done => {
       sandbox.spy(model, 'read');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
-      resource.get({ params: { testId: 1 } }, {}, err => {
+      resource.get({ context: { params: { 'testId': 1 } } }, {}, err => {
         assert(model.read.calledOnce, 'Should call read');
         assert.deepEqual(model.read.args[0][0], { _id: 1 });
         done(err);
@@ -108,9 +109,9 @@ describe('Resource.js', () => {
     it('Returns an error from get', done => {
       sandbox.stub(model, 'read').rejects('Not found');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
-      resource.get({ params: { testId: 1 } }, {}, err => {
+      resource.get({ context: { params: { 'testId': 1 } } }, {}, err => {
         assert(model.read.calledOnce, 'Should call read');
         assert.deepEqual(model.read.args[0][0], { _id: 1 });
         assert.equal(err, 'Not found');
@@ -123,13 +124,13 @@ describe('Resource.js', () => {
     it('Calls read from post', done => {
       sandbox.spy(model, 'create');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
       const body = {
         foo: 'bar'
       };
 
-      resource.post({ body, params: { 'testId': 1 } }, {}, err => {
+      resource.post({ body, context: { params: { 'testId': 1 } } }, {}, err => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
         done(err);
@@ -139,13 +140,13 @@ describe('Resource.js', () => {
     it('Returns an error from post', done => {
       sandbox.stub(model, 'create').rejects('Not found');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
       const body = {
         foo: 'bar'
       };
 
-      resource.post({ body, params: { 'testId': 1 } }, {}, err => {
+      resource.post({ body, context: { params: { 'testId': 1 } } }, {}, err => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
         assert.equal(err, 'Not found');
@@ -159,13 +160,13 @@ describe('Resource.js', () => {
       sandbox.spy(ChildResource.prototype, 'after');
       sandbox.spy(Resource.prototype, 'post');
 
-      const resource = new ChildResource(model, app);
+      const resource = new ChildResource(model, router, app);
 
       const body = {
         foo: 'bar'
       };
 
-      resource.post({ body, params: { 'testId': 1 } }, {}, err => {
+      resource.post({ body, context: { params: { 'testId': 1 } } }, {}, err => {
         sinon.assert.callOrder(ChildResource.prototype.post, ChildResource.prototype.before, Resource.prototype.post, ChildResource.prototype.after);
         done(err);
       });
@@ -176,9 +177,9 @@ describe('Resource.js', () => {
     it('Calls update', done => {
       sandbox.spy(model, 'update');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
-      resource.put({ params: { testId: 1 }, body: { baz: 'bur' } }, {}, err => {
+      resource.put({ context: { params: { testId: 1 } }, body: { baz: 'bur' } }, {}, err => {
         assert(model.update.calledOnce, 'Should call update');
         assert.deepEqual(model.update.args[0][0], { baz: 'bur', _id: 1 });
         done(err);
@@ -188,9 +189,9 @@ describe('Resource.js', () => {
     it('Returns an error from put', done => {
       sandbox.stub(model, 'update').rejects('Not found');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
-      resource.put({ params: { testId: 1 }, body: { baz: 'bur' } }, {}, err => {
+      resource.put({ context: { params: { testId: 1 } }, body: { baz: 'bur' } }, {}, err => {
         assert(model.update.calledOnce, 'Should call update');
         assert.equal(err, 'Not found');
         done();
@@ -203,11 +204,13 @@ describe('Resource.js', () => {
       sandbox.stub(model, 'read').resolves({ foo: 'bar', fiz: 'buz', _id: 1 });
       sandbox.spy(model, 'update');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
       resource.patch({
-        params: {
-          testId: 1
+        context: {
+          params: {
+            testId: 1
+          },
         },
         body: [
           {
@@ -230,7 +233,7 @@ describe('Resource.js', () => {
     //   sandbox.stub(model, 'read').resolves({foo: 'bar'});
     //   sandbox.stub(model, 'update').rejects('Not found');
     //
-    //   const resource = new Resource(model, app);
+    //   const resource = new Resource(model, router, app);
     //
     //   resource.patch({params: {testId: 1}, body: {foo: 'bar'}}, {}, err => {
     //     assert(model.patch.calledOnce, 'Should call patch');
@@ -245,9 +248,9 @@ describe('Resource.js', () => {
     it('Calls delete', done => {
       sandbox.spy(model, 'delete');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
-      resource.delete({ params: { testId: 1 } }, {}, err => {
+      resource.delete({ context: { params: { 'testId': 1 } } }, {}, err => {
         assert(model.delete.calledOnce, 'Should call delete');
         assert.deepEqual(model.delete.args[0][0], 1);
         done(err);
@@ -257,9 +260,9 @@ describe('Resource.js', () => {
     it('Returns an error from delete', done => {
       sandbox.stub(model, 'delete').rejects('Not found');
 
-      const resource = new Resource(model, app);
+      const resource = new Resource(model, router, app);
 
-      resource.delete({ params: { testId: 1 } }, {}, err => {
+      resource.delete({ context: { params: { 'testId': 1 } } }, {}, err => {
         assert(model.delete.calledOnce, 'Should call delete');
         assert.deepEqual(model.delete.args[0][0], 1);
         assert.equal(err, 'Not found');

@@ -6,7 +6,7 @@ module.exports = class Role extends Porter {
   }
 
   get model() {
-    return this.app.models.Role;
+    return this.router.models.Role;
   }
 
   getMaps(port, query) {

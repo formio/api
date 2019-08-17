@@ -2,7 +2,6 @@
 
 const jsonpatch = require('fast-json-patch');
 const moment = require('moment');
-const log = require('../log');
 
 module.exports = class Resource {
   constructor(model, router, app) {
@@ -39,20 +38,20 @@ module.exports = class Resource {
   }
 
   rest() {
-    log('debug', `registering rest endpoings for ${this.name}`);
+    this.app.log('debug', `registering rest endpoings for ${this.name}`);
     this.register('get', this.route, 'index');
     this.register('post', this.route, 'post');
-    this.register('get', `${this.route  }/:${  this.name  }Id`, 'get');
-    this.register('put', `${this.route  }/:${  this.name  }Id`, 'put');
-    this.register('patch', `${this.route  }/:${  this.name  }Id`, 'patch');
-    this.register('delete', `${this.route  }/:${  this.name  }Id`, 'delete');
-    this.register('use', `${this.route  }/exists`, 'exists');
+    this.register('get', `${this.route}/:${this.name}Id`, 'get');
+    this.register('put', `${this.route}/:${this.name}Id`, 'put');
+    this.register('patch', `${this.route}/:${this.name}Id`, 'patch');
+    this.register('delete', `${this.route}/:${this.name}Id`, 'delete');
+    this.register('use', `${this.route}/exists`, 'exists');
 
     return this;
   }
 
   register(method, route, callback) {
-    log('debug', `Registering route ${method.toUpperCase()  }: ${  route}`);
+    this.app.log('debug', `Registering route ${method.toUpperCase()}: ${route}`);
     this.router[method](route, (req, res, next) => {
       this[callback](req, res, next);
     });
@@ -92,7 +91,7 @@ module.exports = class Resource {
               value = ((value === 'false') || (value === '0')) ? false : value;
               value = !!value;
               query[name] = query[name] || {};
-              query[name][`$${  selector}`] = value;
+              query[name][`$${selector}`] = value;
               break;
             case 'in':
             case 'nin':
@@ -101,12 +100,12 @@ module.exports = class Resource {
                 return this.getQueryValue(name, item, param);
               });
               query[name] = query[name] || {};
-              query[name][`$${  selector}`] = value;
+              query[name][`$${selector}`] = value;
               break;
             default:
               value = this.getQueryValue(name, value, param);
               query[name] = query[name] || {};
-              query[name][`$${  selector}`] = value;
+              query[name][`$${selector}`] = value;
               break;
           }
         }
@@ -141,7 +140,7 @@ module.exports = class Resource {
         value = this.model.toID(value);
       }
       catch (err) {
-        log('warning', `Invalid ObjectID: ${value}`);
+        this.app.log('warning', `Invalid ObjectID: ${value}`);
       }
     }
 
@@ -176,7 +175,7 @@ module.exports = class Resource {
   }
 
   index(req, res, next) {
-    log('debug', `resource index called for ${this.name}`);
+    this.app.log('debug', `resource index called for ${this.name}`);
     const query = this.getQuery(req);
     const options = this.getOptions(req);
     Promise.all([
@@ -186,66 +185,66 @@ module.exports = class Resource {
       .then(([count, docs]) => {
         res.resource = {
           count,
-          items: docs
+          items: docs.map(doc => this.finalize(doc, req)),
         };
-        log('debug', `resource index done for ${this.name}`);
+        this.app.log('debug', `resource index done for ${this.name}`);
         next();
       })
       .catch(next);
   }
 
   post(req, res, next) {
-    log('debug', `resource post called for ${this.name}`);
+    this.app.log('debug', `resource post called for ${this.name}`);
     this.model.create(this.prepare(req.body, req))
       .then((doc) => {
         res.resource = {
-          item: doc
+          item: this.finalize(doc),
         };
-        log('debug', `resource post done for ${this.name}`);
+        this.app.log('debug', `resource post done for ${this.name}`);
         next();
       })
       .catch(next);
   }
 
   get(req, res, next) {
-    log('debug', `resource get called for ${this.name}`);
+    this.app.log('debug', `resource get called for ${this.name}`);
     this.model.read({
-      _id: this.model.toID(req.params[`${this.name  }Id`])
+      _id: this.model.toID(req.context.params[`${this.name}Id`])
     })
       .then((doc) => {
         res.resource = {
-          item: doc
+          item: this.finalize(doc, req),
         };
-        log('debug', `resource get done for ${this.name}`);
+        this.app.log('debug', `resource get done for ${this.name}`);
         next();
       })
       .catch(next);
   }
 
   put(req, res, next) {
-    log('debug', `resource put called for ${this.name}`);
+    this.app.log('debug', `resource put called for ${this.name}`);
     this.model.update(this.prepare(req.body, req))
       .then((doc) => {
         res.resource = {
-          item: doc
+          item: this.finalize(doc, req),
         };
-        log('debug', `resource put done for ${this.name}`);
+        this.app.log('debug', `resource put done for ${this.name}`);
         next();
       })
       .catch(next);
   }
 
   patch(req, res, next) {
-    log('debug', `resource patch called for ${this.name}`);
-    this.model.read(req.params[`${this.name  }Id`])
+    this.app.log('debug', `resource patch called for ${this.name}`);
+    this.model.read(req.context.params[`${this.name}Id`])
       .then(doc => {
         const patched = jsonpatch.applyPatch(doc, req.body);
         this.model.update(this.prepare(patched.newDocument, req))
           .then((doc) => {
             res.resource = {
-              item: doc
+              item: this.finalize(doc, req),
             };
-            log('debug', `resource patch done for ${this.name}`);
+            this.app.log('debug', `resource patch done for ${this.name}`);
             next();
           });
       })
@@ -253,13 +252,13 @@ module.exports = class Resource {
   }
 
   delete(req, res, next) {
-    log('debug', `resource delete called for ${this.name}`);
-    this.model.delete(req.params[`${this.name  }Id`])
+    this.app.log('debug', `resource delete called for ${this.name}`);
+    this.model.delete(req.context.params[`${this.name}Id`])
       .then((doc) => {
         res.resource = {
-          item: doc
+          item: this.finalize(doc, req),
         };
-        log('debug', `resource delete done for ${this.name}`);
+        this.app.log('debug', `resource delete done for ${this.name}`);
         next();
       })
       .catch(next);
@@ -267,14 +266,19 @@ module.exports = class Resource {
 
   prepare(item, req) {
     // Ensure they can't change the id.
-    if (req.params[`${this.name}Id`]) {
-      item._id = req.params[`${this.name}Id`];
+    if (req.context.params[`${this.name}Id`]) {
+      item._id = req.context.params[`${this.name}Id`];
     }
 
     return item;
   }
 
+  finalize(item, req) {
+    return item;
+  }
+
   exists(req, res, next) {
-    next();
+    // TODO: Implement exists endpoint.
+    res.sendStatus(405);
   }
 };

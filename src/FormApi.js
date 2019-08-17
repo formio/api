@@ -254,6 +254,10 @@ module.exports = class FormApi {
       });
   }
 
+  query(query) {
+    return query;
+  }
+
   /**
    * Convert aliases to ids for the path.
    *
@@ -276,9 +280,9 @@ module.exports = class FormApi {
       return next();
     }
 
-    this.models.Form.find({
+    this.models.Form.find(this.query({
       path: alias
-    })
+    }, req))
       .then(forms => {
         // If no form was found, continue.
         if (!forms.length) {
