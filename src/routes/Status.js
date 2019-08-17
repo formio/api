@@ -5,6 +5,10 @@ module.exports = class Status extends Route {
     return '/status';
   }
 
+  static get rootOnly() {
+    return true;
+  }
+
   execute(req, res) {
     res.send(this.app.getStatus());
   }

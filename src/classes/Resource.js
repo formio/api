@@ -18,7 +18,7 @@ module.exports = class Resource {
   }
 
   get route() {
-    return this.path(`/${  this.name}`);
+    return this.path(`/${this.name}`);
   }
 
   path(route) {
@@ -52,7 +52,7 @@ module.exports = class Resource {
   }
 
   register(method, route, callback) {
-    log('debug', `Registering route ${  method.toUpperCase()  }: ${  route}`);
+    log('debug', `Registering route ${method.toUpperCase()  }: ${  route}`);
     this.router[method](route, (req, res, next) => {
       this[callback](req, res, next);
     });

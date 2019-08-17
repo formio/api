@@ -6,25 +6,6 @@ const _ = require('lodash');
 const uniqueMessage = 'may only contain letters, numbers, hyphens, and forward slashes ' +
   '(but cannot start or end with a hyphen or forward slash)';
 
-const uniqueValidator = property => function(value, model, done) {
-  // TODO: Have a way to alter to add projectId.
-  const query = { deleted: { $eq: null } };
-  query[property] = value;
-
-  // Ignore the id if this is an update.
-  if (this._id) {
-    query._id = { $ne: model.db.toID(this._id) };
-  }
-
-  model.find(query)
-    .then((result) => {
-      done(!result.length);
-    })
-    .catch(() => {
-      done(false);
-    });
-};
-
 /* eslint-disable no-useless-escape */
 const invalidRegex = /[^0-9a-zA-Z\-\/]|^\-|\-$|^\/|\/$/;
 const validKeyRegex = /^[A-Za-z_]+[A-Za-z0-9\-._]*$/g;
@@ -101,7 +82,7 @@ module.exports = class Form extends Schema {
           {
             isAsync: true,
             message: 'The Name must be unique.',
-            validator: uniqueValidator('name')
+            validator: this.uniqueValidator('name')
           }
         ]
       },
@@ -124,7 +105,7 @@ module.exports = class Form extends Schema {
           {
             isAsync: true,
             message: 'The Path must be unique.',
-            validator: uniqueValidator('path')
+            validator: this.uniqueValidator('path')
           }
         ]
       },

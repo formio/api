@@ -10,11 +10,10 @@ const resources = require('./entities/resources');
 const schemas = require('./entities/schemas');
 const routes = require('./routes');
 const actions = require('./actions');
-const config = require('../config');
 const EVERYONE = '000000000000000000000000';
 
 module.exports = class FormApi {
-  constructor(router, db) {
+  constructor(router, db, config) {
     this.log = log;
     this.config = config;
     this.router = router;
@@ -356,7 +355,7 @@ module.exports = class FormApi {
     parts.forEach((part, index) => {
       if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
         req.context.params[`${part}Id`] = parts[index + 1];
-        loads.push(this.db.read(`${part  }s`, {
+        loads.push(this.db.read(`${part}s`, {
           _id: this.db.toID(parts[index + 1])
         })
           .then(doc => {
@@ -424,7 +423,7 @@ module.exports = class FormApi {
       return next();
     }
 
-    // If we don't have access by now, they don't have access.
+    // If they don't have access by now, they don't have access.
     return res.status(401).send();
   }
 

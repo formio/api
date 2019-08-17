@@ -7,6 +7,10 @@ module.exports = class Route {
     return '';
   }
 
+  static get rootOnly() {
+    return false;
+  }
+
   constructor(app) {
     this.app = app;
   }

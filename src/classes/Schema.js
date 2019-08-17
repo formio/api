@@ -164,4 +164,28 @@ module.exports = class Schema {
         return document;
       });
   }
+
+  uniqueQuery(doc) {
+    return {};
+  }
+
+  uniqueValidator(property) {
+    return (value, model, done) => {
+      const query = this.uniqueQuery(this);
+      query[property] = value;
+
+      // Ignore the id if this is an update.
+      if (this._id) {
+        query._id = { $ne: model.db.toID(this._id) };
+      }
+
+      model.find(query)
+        .then((result) => {
+          done(!result.length);
+        })
+        .catch(() => {
+          done(false);
+        });
+    };
+  }
 };

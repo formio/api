@@ -11,7 +11,7 @@ module.exports = class Action extends Resource {
   }
 
   get route() {
-    return this.path(`/form/:formId/${  this.name}`);
+    return this.path(`/form/:formId/${this.name}`);
   }
 
   getQuery(req, query = {}) {
