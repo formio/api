@@ -55,7 +55,7 @@ module.exports = class Import {
           return Promise.reject(`The given entities was not valid: ${entity.key || 'project'}`);
         }
 
-        return entity.cleanUp(items, this.maps, this.req)
+        return entity.cleanUp(items)
           .then(() => this.app.log('debug', `Cleanup ${entity.key} complete`));
       });
     }, Promise.resolve());
