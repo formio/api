@@ -7,7 +7,7 @@ module.exports = class Schema {
 
   get schema() {
     return {
-      create: this.created,
+      created: this.created,
       modified: this.modified,
       machineName: this.machineName,
     };

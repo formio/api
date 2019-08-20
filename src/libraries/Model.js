@@ -198,7 +198,7 @@ module.exports = class Model {
       }
 
       // Required
-      if (!value && field.required) {
+      if (!value && value !== 0 && field.required) {
         return reject(`'${path}' is required`);
       }
 

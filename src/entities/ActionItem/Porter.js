@@ -10,7 +10,7 @@ module.exports = class ActionItem extends Porter {
   }
 
   get model() {
-    return this.router.models.ActionItem;
+    return this.app.models.ActionItem;
   }
 
   getMaps() {

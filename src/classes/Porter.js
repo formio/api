@@ -38,6 +38,10 @@ module.exports = class Porter {
     return document;
   }
 
+  postImport(document) {
+    return document;
+  }
+
   export(document) {
     return document;
   }
