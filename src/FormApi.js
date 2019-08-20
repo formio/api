@@ -1,7 +1,9 @@
 const uuid = require('uuid/v1');
+const bcrypt = require('bcryptjs');
 const info = require('../package.json');
 const log = require('./log');
 const util = require('./util');
+
 const ImportClass = require('./libraries/Import');
 const ExportClass = require('./libraries/Export');
 const ModelClass = require('./libraries/Model');
@@ -658,5 +660,23 @@ module.exports = class FormApi {
     timeout = setTimeout(removeLock, 30000);
 
     return Promise.resolve(removeLock);
+  }
+
+  encrypt(text) {
+    return new Promise((resolve, reject) => {
+      bcrypt.genSalt(10, function(err, salt) {
+        if (err) {
+          return reject(err);
+        }
+
+        bcrypt.hash(text, salt, function(error, hash) {
+          if (error) {
+            return reject(error);
+          }
+
+          resolve(hash);
+        });
+      });
+    });
   }
 };

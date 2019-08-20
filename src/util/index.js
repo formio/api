@@ -7,5 +7,4 @@ if (util.hasOwnProperty('default')) {
 
 module.exports = {
   ...util,
-  encrypt: require('./encrypt'),
 };
