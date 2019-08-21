@@ -64,4 +64,15 @@ module.exports = class Form extends Resource {
       .then(() => next())
       .catch(next);
   }
+
+  callSuper(method, req, res) {
+    return new Promise((resolve, reject) => {
+      super[method](req, res, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve();
+      });
+    });
+  }
 };

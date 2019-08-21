@@ -37,17 +37,6 @@ module.exports = class Resource {
       , Promise.resolve());
   }
 
-  callSuper(method, req, res) {
-    return new Promise((resolve, reject) => {
-      super[method](req, res, (err) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve();
-      });
-    });
-  }
-
   rest() {
     this.app.log('debug', `registering rest endpoings for ${this.name}`);
     this.register('get', this.route, 'index');
