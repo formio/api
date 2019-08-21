@@ -58,6 +58,10 @@ module.exports = class Role extends Schema {
   }
 
   generateMachineName(document, model) {
+    if (document.machineName) {
+      return Promise.resolve(document);
+    }
+
     document.machineName = _camelCase(document.title);
     return this.uniqueMachineName(document, model);
   }

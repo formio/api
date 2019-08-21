@@ -49,15 +49,8 @@ module.exports = class Form extends Resource {
 
   post(req, res, next) {
     this.callPromisesAsync([
-      () => new Promise((resolve, reject) => {
-        super.post(req, res, (err) => {
-          if (err) {
-            return reject(err);
-          }
-          return resolve();
-        });
-      }),
-      this.createDefaultActions.bind(this, req, res)
+      () => this.callSuper('post', req, res),
+      () => this.createDefaultActions(req, res),
     ])
       .then(() => next())
       .catch(next);
@@ -65,15 +58,8 @@ module.exports = class Form extends Resource {
 
   put(req, res, next) {
     this.callPromisesAsync([
-      this.checkModifiedDate.bind(this, req, res),
-      () => new Promise((resolve, reject) => {
-        super.put(req, res, (err) => {
-          if (err) {
-            return reject(err);
-          }
-          return resolve();
-        });
-      }),
+      () => this.checkModifiedDate(req, res),
+      () => this.callSuper('put', req, res),
     ])
       .then(() => next())
       .catch(next);

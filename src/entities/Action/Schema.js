@@ -55,6 +55,10 @@ module.exports = class Action extends Schema {
   }
 
   generateMachineName(document, model) {
+    if (document.machineName) {
+      return Promise.resolve(document);
+    }
+
     return this.app.models.Form.findOne({ _id: this.app.db.toID(document.entity), deleted: { $eq: null } })
       .then((form) => {
         if (!form) {

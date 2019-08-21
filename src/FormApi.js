@@ -466,12 +466,10 @@ module.exports = class FormApi {
 
     if (res.token) {
       res.setHeader('Access-Control-Expose-Headers', 'x-jwt-token, Authorization');
-      if (req.headers.hasOwnProperty('x-jwt-token')) {
+      if (req.headers.hasOwnProperty('x-jwt-token') || !req.headers.hasOwnProperty('Authorization')) {
         res.setHeader('x-jwt-token', res.token);
       }
-      else {
-        res.setHeader('Authorization', `Bearer: ${res.token}`);
-      }
+      res.setHeader('Authorization', `Bearer: ${res.token}`);
     }
 
     if (!res.resource) {

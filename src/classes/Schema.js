@@ -132,6 +132,9 @@ module.exports = class Schema {
   }
 
   generateMachineName(document, model) {
+    if (document.machineName) {
+      return Promise.resolve(document);
+    }
     document.machineName = document.name;
     return this.uniqueMachineName(document, model);
   }
