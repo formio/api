@@ -82,6 +82,8 @@ module.exports = class Action extends Resource {
     // For now all actions are for forms.
     item.entityType = 'form';
 
+    item = super.prepare(item, req);
+
     return item;
   }
 

@@ -270,6 +270,11 @@ module.exports = class Resource {
       item._id = req.context.params[`${this.name}Id`];
     }
 
+    // TODO: Fix this so only those with "create_own" can set or change the owner.
+    if (!item.owner && req.user) {
+      item.owner = req.user._id;
+    }
+
     return item;
   }
 
