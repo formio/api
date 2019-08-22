@@ -15,7 +15,7 @@ module.exports = class Action extends Resource {
   }
 
   getQuery(req, query = {}) {
-    query.form = this.model.toID(req.params.formId);
+    query.entity = this.model.toID(req.context.params.formId);
     return super.getQuery(req, query);
   }
 
@@ -49,10 +49,10 @@ module.exports = class Action extends Resource {
       });
     });
     const options = {
-      baseUrl: this.path('/form'),
+      baseUrl: this.app.url(this.path('/form'), req),
       components,
       roles: Object.values(req.context.roles.all),
-      componentsUrl: this.path(`/form/${req.params.formId}/components`)
+      componentsUrl: this.app.url(this.path('/form/:formId/components'), req)
     };
     if (action && this.app.actions.submission[action]) {
       const info = this.getActionInfo(this.app.actions.submission[action]);

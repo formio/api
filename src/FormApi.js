@@ -307,6 +307,13 @@ module.exports = class FormApi {
       .catch(next);
   }
 
+  url(path, req) {
+    Object.keys(req.context.params).forEach(param => {
+      path = path.replace(`:${param}`, req.context.params[param]);
+    });
+    return path;
+  }
+
   getModelClass() {
     return ModelClass;
   }
