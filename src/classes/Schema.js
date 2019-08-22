@@ -168,9 +168,9 @@ module.exports = class Schema {
       });
   }
 
-  uniqueValidator(property, uniqueQuery = doc => ({})) {
+  uniqueValidator(property) {
     return function(value, model, done) {
-      const query = uniqueQuery(this);
+      const query = model.schema.uniqueQuery(this, model);
       query[property] = value;
 
       // Ignore the id if this is an update.
@@ -186,5 +186,9 @@ module.exports = class Schema {
           done(false);
         });
     };
+  }
+
+  uniqueQuery(doc, model) {
+    return {};
   }
 };
