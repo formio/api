@@ -6,8 +6,8 @@ const { eachComponent } = require('../../libraries/Util');
 module.exports = class Action extends Resource {
   constructor(model, router, app) {
     super(model, router, app);
-    this.register('get', `${this.route}/actions/:name`, 'actionSettings');
-    this.register('get', `${this.route}/actions`, 'actionsIndex');
+    this.register('get', `${this.route}s/:name`, 'actionSettings');
+    this.register('get', `${this.route}s`, 'actionsIndex');
   }
 
   get route() {
