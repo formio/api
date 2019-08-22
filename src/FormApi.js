@@ -471,25 +471,51 @@ module.exports = class FormApi {
 
   respond(req, res) {
     log('info', req.uuid, req.method, req.path, 'response');
+    const headers = [];
 
     if (res.token) {
-      res.setHeader('Access-Control-Expose-Headers', 'x-jwt-token, Authorization');
       if (req.headers.hasOwnProperty('x-jwt-token') || !req.headers.hasOwnProperty('Authorization')) {
+        headers.push('x-jwt-token');
         res.setHeader('x-jwt-token', res.token);
       }
+      headers.push('Authorization');
       res.setHeader('Authorization', `Bearer: ${res.token}`);
     }
 
     if (!res.resource) {
+      res.setHeader('Access-Control-Expose-Headers', headers.join(', '));
       return res.status(404).send();
     }
     if (res.resource.items) {
+      headers.push('Content-Range');
+      res.setHeader('Content-Range', this.getRangeHeader(res.resource.count, req));
+      res.setHeader('Access-Control-Expose-Headers', headers.join(', '));
       return res.send(res.resource.items);
     }
     if (res.resource.item) {
+      res.setHeader('Access-Control-Expose-Headers', headers.join(', '));
       return res.send(res.resource.item);
     }
+    res.setHeader('Access-Control-Expose-Headers', headers.join(', '));
     res.status(404).send('Not found');
+  }
+
+  getRangeHeader(count, req) {
+    const skip = req.query.skip || 0;
+    const limit = req.query.limit || 10;
+    const start = skip;
+    let end = skip + limit - 1;
+    // End can't be greater than count - 1.
+    if (end >= count) {
+      end = count - 1;
+    }
+
+    // End can't be less than zero
+    if (end < 0) {
+      end = 0;
+    }
+
+    return `${start}-${end}/${count}`;
   }
 
   /**
