@@ -1,4 +1,4 @@
-const Schema = require('../../classes/Schema');
+const Schema = require('../../dbs/Schema');
 
 module.exports = class Submission extends Schema {
   get name() {

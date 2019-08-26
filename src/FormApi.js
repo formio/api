@@ -4,9 +4,8 @@ const info = require('../package.json');
 const log = require('./log');
 const util = require('./util');
 
-const ImportClass = require('./libraries/Import');
-const ExportClass = require('./libraries/Export');
-const ModelClass = require('./libraries/Model');
+const ImportClass = require('./classes/Import');
+const ExportClass = require('./classes/Export');
 const porters = require('./entities/porters');
 const resources = require('./entities/resources');
 const schemas = require('./entities/schemas');
@@ -314,16 +313,12 @@ module.exports = class FormApi {
     return path;
   }
 
-  getModelClass() {
-    return ModelClass;
-  }
-
   addModels() {
     log('info', 'Adding models');
     const schemas = this.schemas;
     for (const schema in schemas) {
       log('debug', `Adding model ${  schema}`);
-      this.models[schema] = new (this.getModelClass(schemas[schema]))(new schemas[schema](this), this.db);
+      this.models[schema] = new this.db.Model(schemas[schema])(new schemas[schema](this), this.db);
     }
   }
 

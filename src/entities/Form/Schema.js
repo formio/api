@@ -1,4 +1,4 @@
-const Schema = require('../../classes/Schema');
+const Schema = require('../../dbs/Schema');
 
 const eachComponent = require('formiojs/utils/formUtils').eachComponent;
 const _ = require('lodash');

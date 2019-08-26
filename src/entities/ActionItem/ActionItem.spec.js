@@ -5,7 +5,7 @@ const sinon = require('sinon');
 const db = require('../../../test/mocks/db');
 const sandbox = sinon.createSandbox();
 
-const Model = require('../../libraries/Model');
+const Model = require('../../dbs/Model');
 const Schema = require('./Schema');
 
 describe('ActionItem Tests', () => {
