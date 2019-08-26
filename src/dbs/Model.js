@@ -295,6 +295,37 @@ module.exports = class Model {
   }
 
   /** Public Functions */
+  indexOptions(query, options = {}) {
+    const optionKeys = ['limit', 'skip', 'select', 'sort'];
+
+    optionKeys.forEach(key => {
+      if (query.hasOwnProperty(key)) {
+        switch (key) {
+          case 'limit':
+          case 'skip':
+            options[key] = parseInt(query[key]);
+            break;
+          case 'sort':
+          case 'select':
+            // Select has changed to projection.
+            options[(key === 'select' ? 'projection' : key)] = query[key].split(',')
+              .map(item => item.trim())
+              .reduce((prev, item) => {
+                let val = '1';
+                if (item.charAt(0) === '-') {
+                  item = item.substring(1);
+                  val = '-1';
+                }
+                prev[item] = val;
+                return prev;
+              }, {});
+            break;
+        }
+      }
+    });
+
+    return options;
+  }
 
   find(query = {}, options = {}) {
     return this.initialized.then(() => {

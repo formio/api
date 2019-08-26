@@ -16,7 +16,7 @@ module.exports = class Action extends Resource {
 
   indexQuery(req, query = {}) {
     query.entity = this.model.toID(req.context.params.formId);
-    return super.indexQuery(query, req);
+    return super.indexQuery(req, query);
   }
 
   getQuery(query, req) {

@@ -12,4 +12,5 @@ module.exports = {
   read: (id) => Promise.resolve({id}),
   update: (doc) => Promise.resolve(doc),
   delete: (id) => Promise.resolve(id),
+  indexOptions: (query) => ({}),
 };

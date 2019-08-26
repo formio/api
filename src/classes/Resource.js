@@ -151,49 +151,10 @@ module.exports = class Resource {
     return value;
   }
 
-  indexOptions(req, options = {}) {
-    const optionKeys = ['limit', 'skip', 'select', 'sort'];
-
-    optionKeys.forEach(key => {
-      if (req.query.hasOwnProperty(key)) {
-        switch (key) {
-          case 'limit':
-          case 'skip':
-            options[key] = parseInt(req.query[key]);
-            break;
-          case 'sort':
-            options[key] = req.query[key].split(',')
-              .map(item => item.trim())
-              .reduce((prev, item) => {
-                let val = 'asc';
-                if (item.charAt(0) === '-') {
-                  item = item.substring(1);
-                  val = 'desc';
-                }
-                prev[item] = val;
-                return prev;
-              }, {});
-            break;
-          case 'select':
-            // Select has changed to projection.
-            options[(key === 'select' ? 'projection' : key)] = req.query[key].split(',')
-              .map(item => item.trim())
-              .reduce((prev, item) => {
-                prev[item] = 1;
-                return prev;
-              }, {});
-            break;
-        }
-      }
-    });
-
-    return options;
-  }
-
   index(req, res, next) {
     this.app.log('debug', `resource index called for ${this.name}`);
     const query = this.indexQuery(req);
-    const options = this.indexOptions(req);
+    const options = this.model.indexOptions(req.query);
     Promise.all([
       this.model.count(query),
       this.model.find(query, options)
