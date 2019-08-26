@@ -102,29 +102,24 @@ module.exports = class Model {
     return Promise.all(promises).then(() => doc);
   }
 
-  beforeSave(input, doc) {
-    return this.schema.preSave(input, this)
-      .then(input => {
-        const promises = [];
+  async beforeSave(input, doc) {
+    input = await this.schema.preSave(input, this);
 
-        // Do _id first so it is available for unique checking.
-        if (this.schema.schema.hasOwnProperty('_id')) {
-          promises.push(this.iterateFields('_id', this.schema.schema['_id'], input, doc, this.setField.bind(this)));
-        }
+    // Ensure all fields are set first.
+    await Promise.all(Object.keys(this.schema.schema).map((path) => {
+      return this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this));
+    }));
 
-        for (const path in this.schema.schema) {
-          if (path !== '_id') {
-            promises.push(this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this)));
-          }
-        }
-        return Promise.all(promises)
-          .then(() => doc);
-      });
+    // Run validations.
+    await Promise.all(Object.keys(this.schema.schema).map((path) => {
+      return this.iterateFields(path, this.schema.schema[path], doc, doc, this.validateField.bind(this));
+    }));
+
+    return doc;
   }
 
   setField(path, field, value, doc) {
     return new Promise((resolve, reject) => {
-      const async = [];
       // Set default value
       if ((value === null || value === undefined) && field.hasOwnProperty('default')) {
         if (typeof field.default === 'function') {
@@ -197,11 +192,6 @@ module.exports = class Model {
         }
       }
 
-      // Required
-      if (!value && value !== 0 && field.required) {
-        return reject(`'${path}' is required`);
-      }
-
       // String options
       if (value && field.type === 'string') {
         if (field.lowercase) {
@@ -212,6 +202,24 @@ module.exports = class Model {
         }
       }
 
+      // Set the path on the doc
+      if (value !== null && value !== undefined) {
+        _.set(doc, path, value);
+      }
+
+      return resolve();
+    });
+  }
+
+  validateField(path, field, value, doc) {
+    return new Promise((resolve, reject) => {
+      const promises = [];
+
+      // Required
+      if (!value && value !== 0 && field.required) {
+        return reject(`'${path}' is required`);
+      }
+
       // Enumarated values.
       if (value && field.hasOwnProperty('enum')) {
         if (!field.enum.includes(value)) {
@@ -219,16 +227,11 @@ module.exports = class Model {
         }
       }
 
-      // Set the path on the doc
-      if (value !== null && value !== undefined) {
-        _.set(doc, path, value);
-      }
-
       // Validate the value
       if (field.hasOwnProperty('validate') && Array.isArray(field.validate)) {
         field.validate.forEach(item => {
           if (item.isAsync) {
-            async.push(new Promise(resolve => {
+            promises.push(new Promise(resolve => {
               item.validator.call(doc, value, this, (result, message) => resolve(result ? true : message || item.message));
             }));
           }
@@ -241,7 +244,7 @@ module.exports = class Model {
       }
 
       // Wait for async and check for errors.
-      return Promise.all(async).then((result) => {
+      return Promise.all(promises).then((result) => {
         result = result.filter(item => item !== true);
         if (result.length) {
           return reject(result[0]);
@@ -340,9 +343,9 @@ module.exports = class Model {
     });
   }
 
-  delete(_id) {
+  delete(query) {
     return this.initialized.then(() => {
-      return this.db.delete(this.collectionName, _id);
+      return this.db.delete(this.collectionName, query);
     });
   }
 };

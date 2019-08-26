@@ -18,15 +18,12 @@ module.exports = class Form extends Porter {
       $or: [
         {
           machineName: document.machineName,
-          deleted: { $eq: null }
         },
         {
           name: document.name,
-          deleted: { $eq: null }
         },
         {
           path: document.path,
-          deleted: { $eq: null }
         }
       ]
     };

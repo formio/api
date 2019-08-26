@@ -23,6 +23,7 @@
     "max-statements": [2, 40],
     "max-depth": [2, 10],
     "no-prototype-builtins": "off",
+    "require-atomic-updates": "off",
     "prefer-const": "error",
     "prefer-template": "error",
     "object-curly-spacing": [

@@ -20,9 +20,14 @@ module.exports = class Submission extends Resource {
     return this.app.actions;
   }
 
-  getQuery(req, query = {}) {
-    query.form = this.model.toID(req.params.formId);
-    return super.getQuery(req, query);
+  indexQuery(req, query = {}) {
+    query.form = this.model.toID(req.context.params.formId);
+    return super.indexQuery(req, query);
+  }
+
+  getQuery(query, req) {
+    query.form = this.model.toID(req.context.params.formId);
+    return super.getQuery(query, req);
   }
 
   index(req, res, next) {

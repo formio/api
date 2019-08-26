@@ -14,7 +14,12 @@ module.exports = class Action extends Resource {
     return this.path(`/form/:formId/${this.name}`);
   }
 
-  getQuery(req, query = {}) {
+  indexQuery(req, query = {}) {
+    query.entity = this.model.toID(req.context.params.formId);
+    return super.indexQuery(query, req);
+  }
+
+  getQuery(query, req) {
     query.entity = this.model.toID(req.context.params.formId);
     return super.getQuery(req, query);
   }

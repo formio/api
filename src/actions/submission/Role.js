@@ -101,7 +101,7 @@ module.exports = class Role extends Action {
       resource = resource._id;
     }
 
-    return this.app.models.Submission.read({ _id: this.app.db.toID(resource) })
+    return this.app.models.Submission.read(this.app.query({ _id: this.app.db.toID(resource) }, req))
       .then(submission => {
         // Ensure roles is set and an array.
         submission.roles = submission.roles || [];

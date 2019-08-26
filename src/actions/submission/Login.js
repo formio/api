@@ -128,7 +128,7 @@ module.exports = class Login extends Action {
       [`data.${this.settings.username}`]: get(submission.data, this.settings.username),
     };
 
-    return this.app.models.Submission.read(query)
+    return this.app.models.Submission.read(this.app.query(query, req))
       .then(user => {
         if (!user) {
           setActionInfoMessage('User not found');
@@ -148,9 +148,9 @@ module.exports = class Login extends Action {
               return Promise.reject('User or password was incorrect.');
             }
             setActionInfoMessage('Password matched. Setting response data');
-            return this.app.models.Form.read({
+            return this.app.models.Form.read(this.app.query({
               _id: this.app.db.toID(user.form),
-            })
+            }, req))
               .then(form => {
                 req.user = user;
                 res.token = this.app.generateToken(this.app.tokenPayload(user, form));

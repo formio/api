@@ -57,7 +57,11 @@ module.exports = class Resource {
     });
   }
 
-  getQuery(req, query = {}) {
+  getQuery(query, req) {
+    return query;
+  }
+
+  indexQuery(req, query = {}) {
     /* eslint-disable no-unused-vars */
     const { limit, skip, select, sort, populate, ...filters } = req.query || {};
     /* eslint-enable no-unused-vars */
@@ -97,13 +101,13 @@ module.exports = class Resource {
             case 'nin':
               value = Array.isArray(value) ? value : value.split(',');
               value = value.map(item => {
-                return this.getQueryValue(name, item, param);
+                return this.indexQueryValue(name, item, param);
               });
               query[name] = query[name] || {};
               query[name][`$${selector}`] = value;
               break;
             default:
-              value = this.getQueryValue(name, value, param);
+              value = this.indexQueryValue(name, value, param);
               query[name] = query[name] || {};
               query[name][`$${selector}`] = value;
               break;
@@ -111,7 +115,7 @@ module.exports = class Resource {
         }
         else {
           // Set the find query to this value.
-          value = this.getQueryValue(name, value, param);
+          value = this.indexQueryValue(name, value, param);
           query[name] = value;
         }
       }
@@ -124,7 +128,7 @@ module.exports = class Resource {
     return query;
   }
 
-  getQueryValue(name, value, param) {
+  indexQueryValue(name, value, param) {
     if (param.type === 'number') {
       return parseInt(value, 10);
     }
@@ -147,7 +151,7 @@ module.exports = class Resource {
     return value;
   }
 
-  getOptions(req, options = {}) {
+  indexOptions(req, options = {}) {
     const optionKeys = ['limit', 'skip', 'select', 'sort'];
 
     optionKeys.forEach(key => {
@@ -158,6 +162,18 @@ module.exports = class Resource {
             options[key] = parseInt(req.query[key]);
             break;
           case 'sort':
+            options[key] = req.query[key].split(',')
+              .map(item => item.trim())
+              .reduce((prev, item) => {
+                let val = 'asc';
+                if (item.charAt(0) === '-') {
+                  item = item.substring(1);
+                  val = 'desc';
+                }
+                prev[item] = val;
+                return prev;
+              }, {});
+            break;
           case 'select':
             // Select has changed to projection.
             options[(key === 'select' ? 'projection' : key)] = req.query[key].split(',')
@@ -176,8 +192,8 @@ module.exports = class Resource {
 
   index(req, res, next) {
     this.app.log('debug', `resource index called for ${this.name}`);
-    const query = this.getQuery(req);
-    const options = this.getOptions(req);
+    const query = this.indexQuery(req);
+    const options = this.indexOptions(req);
     Promise.all([
       this.model.count(query),
       this.model.find(query, options)
@@ -208,9 +224,9 @@ module.exports = class Resource {
 
   get(req, res, next) {
     this.app.log('debug', `resource get called for ${this.name}`);
-    this.model.read({
+    this.model.read(this.getQuery({
       _id: this.model.toID(req.context.params[`${this.name}Id`])
-    })
+    }, req))
       .then((doc) => {
         res.resource = {
           item: this.finalize(doc, req),
@@ -236,7 +252,9 @@ module.exports = class Resource {
 
   patch(req, res, next) {
     this.app.log('debug', `resource patch called for ${this.name}`);
-    this.model.read(req.context.params[`${this.name}Id`])
+    this.model.read(this.getQuery({
+      _id: this.model.toID(req.context.params[`${this.name}Id`])
+    }, req))
       .then(doc => {
         const patched = jsonpatch.applyPatch(doc, req.body);
         this.model.update(this.prepare(patched.newDocument, req))
@@ -253,7 +271,9 @@ module.exports = class Resource {
 
   delete(req, res, next) {
     this.app.log('debug', `resource delete called for ${this.name}`);
-    this.model.delete(req.context.params[`${this.name}Id`])
+    this.model.delete(this.getQuery({
+      _id: this.model.toID(req.context.params[`${this.name}Id`])
+    }, req))
       .then((doc) => {
         res.resource = {
           item: this.finalize(doc, req),

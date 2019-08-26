@@ -252,7 +252,7 @@ describe('Resource.js', () => {
 
       resource.delete({ context: { params: { 'testId': 1 } } }, {}, err => {
         assert(model.delete.calledOnce, 'Should call delete');
-        assert.deepEqual(model.delete.args[0][0], 1);
+        assert.deepEqual(model.delete.args[0][0], {_id: 1});
         done(err);
       });
     });
@@ -264,7 +264,7 @@ describe('Resource.js', () => {
 
       resource.delete({ context: { params: { 'testId': 1 } } }, {}, err => {
         assert(model.delete.calledOnce, 'Should call delete');
-        assert.deepEqual(model.delete.args[0][0], 1);
+        assert.deepEqual(model.delete.args[0][0], {_id: 1});
         assert.equal(err, 'Not found');
         done();
       });

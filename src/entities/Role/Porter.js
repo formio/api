@@ -27,11 +27,9 @@ module.exports = class Role extends Porter {
       $or: [
         {
           machineName: document.machineName,
-          deleted: { $eq: null }
         },
         {
           title: document.title,
-          deleted: { $eq: null }
         }
       ]
     };

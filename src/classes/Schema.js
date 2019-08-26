@@ -182,7 +182,7 @@ module.exports = class Schema {
         .then((result) => {
           done(!result.length);
         })
-        .catch(() => {
+        .catch((err) => {
           done(false);
         });
     };

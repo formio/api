@@ -243,14 +243,14 @@ module.exports = class FormApi {
    * @returns {*|PromiseLike<T>|Promise<T>}
    */
   loadRoles(req, type, query) {
-    return this.models.Role.find(query)
+    return this.models.Role.find(this.query(query, req, 'role'))
       .then(roles => {
         req.context.roles[type] = roles;
       });
   }
 
   loadActions(req, query) {
-    return this.models.Action.find(query)
+    return this.models.Action.find(this.query(query, req, 'action'))
       .then(actions => {
         req.context.actions = actions.sort((a, b) => b.priory - a.priority);
       });
@@ -369,9 +369,10 @@ module.exports = class FormApi {
     parts.forEach((part, index) => {
       if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
         req.context.params[`${part}Id`] = parts[index + 1];
-        loads.push(this.db.read(`${part}s`, {
+        const modelName = part.charAt(0).toUpperCase() + part.slice(1);
+        loads.push(this.models[modelName].read(this.query({
           _id: this.db.toID(parts[index + 1])
-        })
+        }, req, part))
           .then(doc => {
             req.context.resources[part] = doc;
           }));
@@ -613,9 +614,9 @@ module.exports = class FormApi {
     try {
       const release = await this.lock(actionItem._id);
 
-      const action = await this.models.Action.read({
+      const action = await this.models.Action.read(this.query({
         _id: this.db.toID(actionItem.action)
-      });
+      }, req));
 
       // Syncronously add messages to actionItem.
       let previous = Promise.resolve();

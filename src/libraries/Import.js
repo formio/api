@@ -8,14 +8,14 @@ module.exports = class Import {
     this.maps = {};
   }
 
-  async import() {
+  async import(query) {
     this.app.log('debug', 'Starting import');
 
     // First load in all maps of existing entities.
     await Promise.all(this.app.porters.map(Porter => {
       const entity = new Porter(this.app);
       this.app.log('debug', `Build map of ${entity.key}`);
-      return entity.getMaps('import').then(map => {
+      return entity.getMaps('import', query).then(map => {
         this.maps[entity.key] = map;
         this.app.log('debug', `Map of ${entity.key} found ${Object.keys(map).length}`);
       });
