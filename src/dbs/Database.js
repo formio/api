@@ -1,16 +1,52 @@
-import Model from './Model';
+const Model = require('./Model');
 
-export default class Database {
-  Model = Model
-  toID = id => id
-  find = (collection, query, options) => Promise.resolve([])
-  count = (collection, query) => Promise.resolve(0)
-  create = (collection, doc) => Promise.resolve(doc)
-  read = (collection, query) => Promise.resolve(query)
-  update = (collection, doc) => Promise.resolve(doc)
-  delete = (collection, query) => Promise.resolve()
-  getCollections = (collection) => Promise.resolve([])
-  createCollection = (collection, doc) => Promise.resolve(doc)
-  createIndex = (collection, field) => Promise.resolve()
-  aggregate = (collection, query) => Promise.resolve()
-}
+// TODO: Convert this to an interface once we move to typescript.
+module.exports = class Database {
+  constructor() {
+    this.Model = Model;
+  }
+
+  toID(id) {
+    return id;
+  }
+
+  find(collection, query, options) {
+    return Promise.resolve([]);
+  }
+
+  count(collection, query) {
+    return Promise.resolve(0);
+  }
+
+  create(collection, doc) {
+    return Promise.resolve(doc);
+  }
+
+  read(collection, query) {
+    return Promise.resolve(query);
+  }
+
+  update(collection, doc) {
+    return Promise.resolve(doc);
+  }
+
+  delete(collection, query) {
+    return Promise.resolve();
+  }
+
+  getCollections(collection) {
+    return Promise.resolve([]);
+  }
+
+  createCollection(collection, doc) {
+    return Promise.resolve(doc);
+  }
+
+  createIndex(collection, field) {
+    return Promise.resolve();
+  }
+
+  aggregate(collection, query) {
+    return Promise.resolve();
+  }
+};
