@@ -1,18 +1,21 @@
 module.exports = class Route {
-  static get method() {
+  constructor(app, base) {
+    this.app = app;
+    this.base = base;
+  }
+
+  get method() {
     return 'get';
   }
 
-  static get path() {
-    return '';
+  get path() {
+    return this.base;
   }
 
-  static get rootOnly() {
-    return false;
-  }
-
-  constructor(app) {
-    this.app = app;
+  register(router, base) {
+    router[this.method](this.path, (req, res, next) => {
+      return this.execute(req, res, next);
+    });
   }
 
   execute(req, res, next) {

@@ -1,12 +1,12 @@
 const Route = require('../classes/Route');
 
 module.exports = class Import extends Route {
-  static get method() {
+  get method() {
     return 'post';
   }
 
-  static get path() {
-    return '/import';
+  get path() {
+    return `${super.path}/import`;
   }
 
   execute(req, res, next) {

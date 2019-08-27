@@ -1,8 +1,8 @@
 const Route = require('../classes/Route');
 
 module.exports = class Export extends Route {
-  static get path() {
-    return '/export';
+  get path() {
+    return `${super.path}/export`;
   }
 
   execute(req, res, next) {
