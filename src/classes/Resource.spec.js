@@ -79,7 +79,9 @@ describe('Resource.js', () => {
       const resource = new Resource(model, router, app);
 
       resource.index({
-        params: { testId: 1 },
+        context: {
+          params: { testId: 1 }
+        },
         query: {
           'data.name': 'joe',
           'data.age__gt': 20,

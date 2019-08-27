@@ -242,14 +242,14 @@ module.exports = class FormApi {
    * @returns {*|PromiseLike<T>|Promise<T>}
    */
   loadRoles(req, type, query) {
-    return this.models.Role.find(this.query(query, req, 'role'))
+    return this.models.Role.find(query, {}, req.context.params)
       .then(roles => {
         req.context.roles[type] = roles;
       });
   }
 
   loadActions(req, query) {
-    return this.models.Action.find(this.query(query, req, 'action'))
+    return this.models.Action.find(query, {}, req.context.params)
       .then(actions => {
         req.context.actions = actions.sort((a, b) => b.priory - a.priority);
       });
@@ -268,6 +268,10 @@ module.exports = class FormApi {
    * @returns {*}
    */
   alias(req, baseUrl = '', next) {
+    // Pre initialize conted
+    req.context = req.context || {};
+    req.context.params = req.context.params || {};
+
     /* eslint-disable no-useless-escape */
     const formsRegEx = new RegExp(`\/(${this.reservedForms.join('|')})($|\/.*)`, 'i');
     /* eslint-enable no-useless-escape */
@@ -281,9 +285,9 @@ module.exports = class FormApi {
       return next();
     }
 
-    this.models.Form.find(this.query({
+    this.models.Form.find({
       path: alias
-    }, req))
+    }, {}, req.context.params)
       .then(forms => {
         // If no form was found, continue.
         if (!forms.length) {
@@ -365,9 +369,9 @@ module.exports = class FormApi {
       if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
         req.context.params[`${part}Id`] = parts[index + 1];
         const modelName = part.charAt(0).toUpperCase() + part.slice(1);
-        loads.push(this.models[modelName].read(this.query({
+        loads.push(this.models[modelName].read({
           _id: this.db.toID(parts[index + 1])
-        }, req, part))
+        }, req.context.params)
           .then(doc => {
             req.context.resources[part] = doc;
           }));
@@ -609,9 +613,9 @@ module.exports = class FormApi {
     try {
       const release = await this.lock(actionItem._id);
 
-      const action = await this.models.Action.read(this.query({
+      const action = await this.models.Action.read({
         _id: this.db.toID(actionItem.action)
-      }, req));
+      }, req.context.params);
 
       // Syncronously add messages to actionItem.
       let previous = Promise.resolve();

@@ -34,7 +34,7 @@ module.exports = class Model {
   }
 
   get collectionName() {
-    return `${this.name  }s`;
+    return `${this.name}s`;
   }
 
   /* Private Functions */
@@ -327,25 +327,25 @@ module.exports = class Model {
     return options;
   }
 
-  find(query = {}, options = {}) {
+  find(query = {}, options = {}, context = {}) {
     return this.initialized.then(() => {
       return this.db.find(this.collectionName, query, options)
         .then(docs => Promise.all(docs.map(doc => this.afterLoad(doc))));
     });
   }
 
-  findOne(query = {}, options = {}) {
-    return this.find(query, options)
+  findOne(query = {}, options = {}, context = {}) {
+    return this.find(query, context, options)
       .then(docs => docs[0]);
   }
 
-  count(query) {
+  count(query = {}, options = {}, context = {}) {
     return this.initialized.then(() => {
-      return this.db.count(this.collectionName, query);
+      return this.db.count(this.collectionName, query, options);
     });
   }
 
-  create(input) {
+  create(input, context) {
     return this.initialized.then(() => {
       return this.beforeSave(input, {})
         .then(doc => {
@@ -355,26 +355,26 @@ module.exports = class Model {
     });
   }
 
-  read(query) {
+  read(query, context) {
     return this.initialized.then(() => {
       return this.db.read(this.collectionName, query)
         .then(doc => this.afterLoad(doc));
     });
   }
 
-  update(input) {
+  update(input, context) {
     return this.initialized.then(() => {
-      return this.read({ _id: this.toID(input._id) }).then(previous => {
+      return this.read({ _id: this.toID(input._id) }, context).then(previous => {
         return this.beforeSave(input, previous)
           .then(doc => {
-            return this.db.update(this.collectionName, doc)
+            return this.db.update(this.collectionName, doc, context)
               .then(doc => this.afterLoad(doc));
           });
       });
     });
   }
 
-  delete(query) {
+  delete(query, context) {
     return this.initialized.then(() => {
       return this.db.delete(this.collectionName, query);
     });

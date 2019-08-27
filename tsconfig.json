@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "preserveConstEnums": true,
+    "outDir": "lib",
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "resolveJsonModule": true
+  },
+  "include": ["src/*.ts", "src/**/*.ts", "src/*.js", "src/**/*.js", "src/**/*.json"]
+}

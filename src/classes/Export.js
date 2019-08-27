@@ -31,7 +31,7 @@ module.exports = class Export {
                   return Promise.resolve(template);
                 }
                 template[entity.key] = template[entity.key] || {};
-                return entity.model.find(this.query(entity.key, {}))
+                return entity.model.find(entity.key, {}, this.req)
                   .then(documents => {
                     documents.forEach(document => {
                       this.app.log('debug', `Exporting ${entity.key} - ${entity.exportMachineName(document)}`);

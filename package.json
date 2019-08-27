@@ -6,7 +6,8 @@
   "scripts": {
     "test:coverage": "nyc --reporter=text mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'",
     "test": "mocha --reporter spec './{,!(node_modules)/**/}*.spec.js'",
-    "lint": "eslint src"
+    "watch": "tsc -w",
+    "lint": "tslint 'src/**/*.ts'"
   },
   "keywords": [
     "Form.io",
@@ -15,7 +16,7 @@
     "api"
   ],
   "author": "Randall Knutson <randall@form.io>",
-  "license": "Unlicensed",
+  "license": "UNLICENSED",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "composable-middleware": "^0.3.0",
@@ -32,14 +33,16 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.2",
+    "@types/express": "^4.17.1",
+    "@types/node": "^12.7.2",
     "chai": "^4.1.2",
-    "eslint": "^6.0.1",
-    "eslint-config-formio": "^1.1.4",
     "mocha": "^5.1.1",
     "nyc": "^11.7.3",
     "pre-commit": "^1.2.2",
-    "sinon": "^5.0.2"
+    "sinon": "^5.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.19.0",
+    "typescript": "^3.5.3"
   },
   "pre-commit": [
     "lint",

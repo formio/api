@@ -57,10 +57,6 @@ module.exports = class Resource {
     });
   }
 
-  getQuery(query, req) {
-    return query;
-  }
-
   indexQuery(req, query = {}) {
     /* eslint-disable no-unused-vars */
     const { limit, skip, select, sort, populate, ...filters } = req.query || {};
@@ -156,8 +152,8 @@ module.exports = class Resource {
     const query = this.indexQuery(req);
     const options = this.model.indexOptions(req.query);
     Promise.all([
-      this.model.count(query),
-      this.model.find(query, options)
+      this.model.count(query, {}, req.context.params),
+      this.model.find(query, options, req.context.params)
     ])
       .then(([count, docs]) => {
         res.resource = {
@@ -172,7 +168,7 @@ module.exports = class Resource {
 
   post(req, res, next) {
     this.app.log('debug', `resource post called for ${this.name}`);
-    this.model.create(this.prepare(req.body, req))
+    this.model.create(this.prepare(req.body, req), req.context.params)
       .then((doc) => {
         res.resource = {
           item: this.finalize(doc),
@@ -185,9 +181,9 @@ module.exports = class Resource {
 
   get(req, res, next) {
     this.app.log('debug', `resource get called for ${this.name}`);
-    this.model.read(this.getQuery({
+    this.model.read({
       _id: this.model.toID(req.context.params[`${this.name}Id`])
-    }, req))
+    }, req.context.params)
       .then((doc) => {
         res.resource = {
           item: this.finalize(doc, req),
@@ -200,7 +196,7 @@ module.exports = class Resource {
 
   put(req, res, next) {
     this.app.log('debug', `resource put called for ${this.name}`);
-    this.model.update(this.prepare(req.body, req))
+    this.model.update(this.prepare(req.body, req), req.context.params)
       .then((doc) => {
         res.resource = {
           item: this.finalize(doc, req),
@@ -213,12 +209,12 @@ module.exports = class Resource {
 
   patch(req, res, next) {
     this.app.log('debug', `resource patch called for ${this.name}`);
-    this.model.read(this.getQuery({
+    this.model.read({
       _id: this.model.toID(req.context.params[`${this.name}Id`])
-    }, req))
+    }, req.context.params)
       .then(doc => {
         const patched = jsonpatch.applyPatch(doc, req.body);
-        this.model.update(this.prepare(patched.newDocument, req))
+        this.model.update(this.prepare(patched.newDocument, req), req.context.params)
           .then((doc) => {
             res.resource = {
               item: this.finalize(doc, req),
@@ -232,9 +228,9 @@ module.exports = class Resource {
 
   delete(req, res, next) {
     this.app.log('debug', `resource delete called for ${this.name}`);
-    this.model.delete(this.getQuery({
+    this.model.delete({
       _id: this.model.toID(req.context.params[`${this.name}Id`])
-    }, req))
+    }, req.context.params)
       .then((doc) => {
         res.resource = {
           item: this.finalize(doc, req),
