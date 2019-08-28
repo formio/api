@@ -1,25 +1,23 @@
 'use strict';
 
 const FormApi = require('./src/FormApi');
-const log = require('./src/log');
-const Action = require('./src/classes/Action');
 const actions = require('./src/actions');
+const classes = require('./src/classes');
 const dbs = require('./src/dbs');
+const porters = require('./src/entities/porters');
 const resources = require('./src/entities/resources');
 const schemas = require('./src/entities/schemas');
-const porters = require('./src/entities/porters');
-const libraries = require('./src/libraries');
-const classes = require('./src/classes');
+const routes = require('./src/routes');
+const util = require('./src/util');
 
 module.exports = {
-  Action,
   FormApi,
-  log,
   actions,
+  classes,
   dbs,
+  porters,
   resources,
   schemas,
-  porters,
-  libraries,
-  classes,
+  routes,
+  util,
 };
