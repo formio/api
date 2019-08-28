@@ -3,7 +3,7 @@ const Joi = require('joi');
 const _ = require('lodash');
 const request = require('request-promise-native');
 const cache = require('memory-cache');
-const util = require('../libraries/Util');
+const util = require('../../util');
 
 /*
  * Returns true or false based on visibility.

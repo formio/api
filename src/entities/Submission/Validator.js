@@ -4,7 +4,7 @@ const vm = require('vm');
 const _ = require('lodash');
 
 const { JoiX, checkConditional } = require('./JoiX');
-const util = require('../libraries/Util');
+const util = require('../../util');
 const moment = require('moment');
 
 /**

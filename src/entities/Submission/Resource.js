@@ -3,7 +3,7 @@
 const FormioUtils = require('formiojs/utils');
 const _ = require('lodash');
 const vm = require('vm');
-const Validator = require('../../libraries/Validator');
+const Validator = require('./Validator');
 const Resource = require('../../classes/Resource');
 const log = require('../../log');
 

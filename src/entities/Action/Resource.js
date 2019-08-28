@@ -1,7 +1,7 @@
 'use strict';
 
 const Resource = require('../../classes/Resource');
-const { eachComponent } = require('../../libraries/Util');
+const { eachComponent } = require('../../util');
 
 module.exports = class Action extends Resource {
   constructor(model, router, app) {

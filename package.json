@@ -47,5 +47,15 @@
   "pre-commit": [
     "lint",
     "test"
-  ]
+  ],
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/formio/form-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/formio/form-api/issues"
+  }
 }
