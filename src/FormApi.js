@@ -9,7 +9,7 @@ const ExportClass = require('./classes/Export');
 const porters = require('./entities/porters');
 const resources = require('./entities/resources');
 const schemas = require('./entities/schemas');
-const routes = require('./routes');
+const routeClasses = require('./routes');
 const actions = require('./actions');
 const EVERYONE = '000000000000000000000000';
 
@@ -21,6 +21,7 @@ module.exports = class FormApi {
     this._db = db;
     this.models = {};
     this.resources = {};
+    this.routes = {};
     this.locks = {};
 
     log('info', 'Starting Form Manager');
@@ -138,8 +139,8 @@ module.exports = class FormApi {
     return actions;
   }
 
-  get routes() {
-    return routes;
+  get routeClasses() {
+    return routeClasses;
   }
 
   get util() {
@@ -335,9 +336,10 @@ module.exports = class FormApi {
   }
 
   addRoutes(base) {
-    Object.values(this.routes).forEach(Route => {
+    Object.values(this.routeClasses).forEach(Route => {
       this.log('debug', `Adding route ${Route.path}`);
       const route = new Route(this, base);
+      this.routes[`${route.method}-${route.path}`] = route;
       route.register(this.router);
     });
   }
@@ -419,6 +421,19 @@ module.exports = class FormApi {
       }
     }
 
+    // Check if this is a defined route. If so, call the authorize method on the route class.
+    const route = this.getRoute(req.path, req.context.params);
+    const routeInstance = this.routes[`${req.method.toLowerCase()}-${route}`] || this.routes[`use-${route}`]
+    if (routeInstance) {
+      const result = routeInstance.authorize(req);
+      if (result === true) {
+        return next();
+      }
+      if (result === false) {
+        return res.status(401).send('Unauthorized');
+      }
+    }
+
     const entity = this.primaryEntity(req);
     // If there is no entity we are at the root level. Give permission.
     if (!entity) {
@@ -436,7 +451,7 @@ module.exports = class FormApi {
     }
 
     // If they don't have access by now, they don't have access.
-    return res.status(401).send();
+    return res.status(401).send('Unauthorized');
   }
 
   importTemplate(template, req) {
@@ -496,6 +511,13 @@ module.exports = class FormApi {
     }
     res.setHeader('Access-Control-Expose-Headers', headers.join(', '));
     res.status(404).send('Not found');
+  }
+
+  getRoute(path, params) {
+    for(const key in params) {
+      path = path.replace(params[key], `:${key}`);
+    }
+    return path;
   }
 
   getRangeHeader(count, req) {
