@@ -10,7 +10,7 @@ const porters = require('./entities/porters');
 const resources = require('./entities/resources');
 const schemas = require('./entities/schemas');
 const routeClasses = require('./routes');
-const actions = require('./actions');
+const actions = require('./entities/Submission/actions');
 const EVERYONE = '000000000000000000000000';
 
 module.exports = class FormApi {
@@ -655,8 +655,8 @@ module.exports = class FormApi {
         });
       };
 
-      if (this.actions.submission.hasOwnProperty(action.name)) {
-        const Action = this.actions.submission[action.name];
+      if (this.actions.hasOwnProperty(action.name)) {
+        const Action = this.actions[action.name];
 
         if (this.isServer || !Action.serverOnly) {
           setActionItemMessage('Starting Action', {});

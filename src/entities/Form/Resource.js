@@ -9,8 +9,8 @@ module.exports = class Form extends Resource {
   }
 
   createDefaultActions(req, res) {
-    return Promise.all(Object.keys(this.app.actions.submission).map(name => {
-      const Action = this.app.actions.submission[name];
+    return Promise.all(Object.keys(this.app.actions).map(name => {
+      const Action = this.app.actions[name];
       const info = Action.info();
       // Add default actions to the form.
       if (info.default) {

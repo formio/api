@@ -6,6 +6,8 @@ const vm = require('vm');
 const Validator = require('./Validator');
 const Resource = require('../../classes/Resource');
 const log = require('../../log');
+const fields = require('./fields');
+const properties = require('./properties');
 
 module.exports = class Submission extends Resource {
   constructor(model, router, app) {
@@ -305,8 +307,8 @@ module.exports = class Submission extends Resource {
         const { component, data, handler, action, path } = context;
 
         // Execute field actions
-        if (this.actions.field.hasOwnProperty(component.type)) {
-          promises.push(this.actions.field[component.type](component, data, handler, action, {
+        if (fields.hasOwnProperty(component.type)) {
+          promises.push(fields[component.type](component, data, handler, action, {
             path,
             req,
             res,
@@ -315,9 +317,9 @@ module.exports = class Submission extends Resource {
         }
 
         // Execute property actions.
-        Object.keys(this.actions.property).forEach((property) => {
+        Object.keys(properties).forEach((property) => {
           if (component.hasOwnProperty(property) && component[property]) {
-            promises.push(this.actions.property[property](component, data, handler, action, { req, res, app: this }));
+            promises.push(properties[property](component, data, handler, action, { req, res, app: this }));
           }
         });
 
