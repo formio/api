@@ -1,5 +1,5 @@
 {
-  "name": "@formio/form-api",
+  "name": "@formio/api",
   "version": "0.1.0",
   "description": "A form API library that creates rest endpoints and database integrations for forms.",
   "main": "index.js",
