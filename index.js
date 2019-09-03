@@ -1,7 +1,7 @@
 'use strict';
 
 const FormApi = require('./src/FormApi');
-const actions = require('./src/actions');
+const actions = require('./src/entities/Submission/actions');
 const classes = require('./src/classes');
 const dbs = require('./src/dbs');
 const porters = require('./src/entities/porters');
