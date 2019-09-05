@@ -2,7 +2,7 @@ const uuid = require('uuid/v1');
 const bcrypt = require('bcryptjs');
 const info = require('../package.json');
 const log = require('./log');
-const util = require('./util');
+import util = require('./util');
 
 const ImportClass = require('./classes/Import');
 const ExportClass = require('./classes/Export');
