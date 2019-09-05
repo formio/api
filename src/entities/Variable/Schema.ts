@@ -13,12 +13,12 @@ module.exports = class Variable extends Schema {
     return {
       key: {
         type: 'string',
-        required: true
+        required: true,
       },
       value: {
         type: 'string',
-        required: true
-      }
+        required: true,
+      },
     };
   }
 };

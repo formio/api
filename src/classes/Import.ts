@@ -8,14 +8,14 @@ module.exports = class Import {
     this.maps = {};
   }
 
-  async import(query) {
+  public async import(query) {
     this.app.log('debug', 'Starting import');
 
     // First load in all maps of existing entities.
-    await Promise.all(this.app.porters.map(Porter => {
+    await Promise.all(this.app.porters.map((Porter) => {
       const entity = new Porter(this.app);
       this.app.log('debug', `Build map of ${entity.key}`);
-      return entity.getMaps('import', query).then(map => {
+      return entity.getMaps('import', query).then((map) => {
         this.maps[entity.key] = map;
         this.app.log('debug', `Map of ${entity.key} found ${Object.keys(map).length}`);
       });
@@ -35,7 +35,7 @@ module.exports = class Import {
         }
 
         return Promise.all(Object.keys(items)
-          .map(machineName => this.importItem(machineName, items[machineName], entity))
+          .map((machineName) => this.importItem(machineName, items[machineName], entity)),
         )
           .then((docs) => entity.postImport(docs, this.req))
           .then(() => this.app.log('debug', `Importing ${entity.key} complete`));
@@ -55,7 +55,7 @@ module.exports = class Import {
     }, Promise.resolve());
   }
 
-  importItem(machineName, item, entity) {
+  public importItem(machineName, item, entity) {
     this.app.log('debug', `Importing ${entity.key} - ${machineName}`);
     const document = entity.import(item, this.req);
 
@@ -72,23 +72,21 @@ module.exports = class Import {
     }
 
     return entity.model.findOne(entity.query(document))
-      .then(doc => {
+      .then((doc) => {
         if (!doc) {
           return entity.model.create(document)
-            .then(doc => {
+            .then((doc) => {
               this.maps[entity.key][machineName] = doc._id;
               return doc;
             });
-        }
-        else if (!entity.createOnly) {
+        } else if (!entity.createOnly) {
           document._id = doc._id;
           return entity.model.update(document)
-            .then(doc => {
+            .then((doc) => {
               this.maps[entity.key][machineName] = doc._id;
               return doc;
             });
-        }
-        else {
+        } else {
           this.maps[entity.key][machineName] = doc._id;
           return Promise.resolve(doc);
         }

@@ -6,47 +6,47 @@ module.exports = class Database {
     this.Model = Model;
   }
 
-  toID(id) {
+  public toID(id) {
     return id;
   }
 
-  find(collection, query, options) {
+  public find(collection, query, options) {
     return Promise.resolve([]);
   }
 
-  count(collection, query) {
+  public count(collection, query) {
     return Promise.resolve(0);
   }
 
-  create(collection, doc) {
+  public create(collection, doc) {
     return Promise.resolve(doc);
   }
 
-  read(collection, query) {
+  public read(collection, query) {
     return Promise.resolve(query);
   }
 
-  update(collection, doc) {
+  public update(collection, doc) {
     return Promise.resolve(doc);
   }
 
-  delete(collection, query) {
+  public delete(collection, query) {
     return Promise.resolve();
   }
 
-  getCollections(collection) {
+  public getCollections(collection) {
     return Promise.resolve([]);
   }
 
-  createCollection(collection, doc) {
+  public createCollection(collection, doc) {
     return Promise.resolve(doc);
   }
 
-  createIndex(collection, field) {
+  public createIndex(collection, field) {
     return Promise.resolve();
   }
 
-  aggregate(collection, query) {
+  public aggregate(collection, query) {
     return Promise.resolve();
   }
 };

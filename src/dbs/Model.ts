@@ -23,8 +23,7 @@ module.exports = class Model {
     // Ensure the model is initialized before returning any calls.
     if (this._db) {
       this.initialized = this.initialize();
-    }
-    else {
+    } else {
       // this.initialized = Promise.reject('DB not initialized');
     }
   }
@@ -39,18 +38,17 @@ module.exports = class Model {
 
   /* Private Functions */
 
-  initialize() {
+  public initialize() {
     return this.db.getCollections()
-      .then(collections => {
+      .then((collections) => {
         if (collections.includes(this.collectionName)) {
           log('debug', `${this.collectionName} collection already exists`);
           return Promise.resolve();
-        }
-        else {
+        } else {
           log('debug', `${this.collectionName} collection doesn't exist. Creating...`);
           return this.db.createCollection(this.collectionName)
             .then(() => log('debug', `${this.collectionName} collection created successfully`))
-            .catch(err => console.error(err));
+            .catch((err) => console.error(err));
         }
       })
       .then(() => {
@@ -63,7 +61,7 @@ module.exports = class Model {
           }
         }
         if (this.schema.indexes) {
-          this.schema.indexes.map(index => {
+          this.schema.indexes.map((index) => {
             log('debug', `Ensure extra index for ${this.collectionName} ${index.name}`);
             promises.push(this.db.createIndex(this.collectionName, index.spec, index.options));
           });
@@ -72,7 +70,7 @@ module.exports = class Model {
       });
   }
 
-  iterateFields(path, schema, input, doc, execute) {
+  public iterateFields(path, schema, input, doc, execute) {
     const promises = [];
     if (Array.isArray(schema.type) && schema.type.length >= 1) {
       const values = _.get(input, path, []);
@@ -81,28 +79,25 @@ module.exports = class Model {
           for (const name in schema.type[0]) {
             promises.push(this.iterateFields(`${path}[${index}].${name}`, schema.type[0][name], input, doc, execute));
           }
-        }
-        else {
+        } else {
           const field = {
             ...schema,
-            type: schema.type[0]
+            type: schema.type[0],
           };
           promises.push(this.iterateFields(`${path}[${index}]`, field, input, doc, execute));
         }
       });
-    }
-    else if (typeof schema.type === 'object') {
+    } else if (typeof schema.type === 'object') {
       for (const name in schema.type) {
         promises.push(this.iterateFields(`${path}.${name}`, schema.type[name], input, doc, execute));
       }
-    }
-    else {
+    } else {
       promises.push(execute(path, schema, _.get(input, path), doc));
     }
     return Promise.all(promises).then(() => doc);
   }
 
-  async beforeSave(input, doc) {
+  public async beforeSave(input, doc) {
     input = await this.schema.preSave(input, this);
 
     // Ensure all fields are set first.
@@ -118,14 +113,13 @@ module.exports = class Model {
     return doc;
   }
 
-  setField(path, field, value, doc) {
+  public setField(path, field, value, doc) {
     return new Promise((resolve, reject) => {
       // Set default value
       if ((value === null || value === undefined) && field.hasOwnProperty('default')) {
         if (typeof field.default === 'function') {
           value = field.default();
-        }
-        else {
+        } else {
           value = field.default;
         }
       }
@@ -158,8 +152,7 @@ module.exports = class Model {
             case 'date':
               try {
                 value = new Date(value);
-              }
-              catch (err) {
+              } catch (err) {
                 if (!field.looseType) {
                   return reject(`'${path}' invalid type`);
                 }
@@ -168,8 +161,7 @@ module.exports = class Model {
             case 'id':
               try {
                 value = this.toID(value);
-              }
-              catch (err) {
+              } catch (err) {
                 if (!field.looseType) {
                   return reject(`'${path}' invalid type`);
                 }
@@ -181,8 +173,7 @@ module.exports = class Model {
                   /* eslint-disable new-cap */
                   value = new field.type(value);
                   /* eslint-enable new-cap */
-                }
-                catch (err) {
+                } catch (err) {
                   if (!field.looseType) {
                     return reject(`'${path}' invalid type`);
                   }
@@ -211,7 +202,7 @@ module.exports = class Model {
     });
   }
 
-  validateField(path, field, value, doc) {
+  public validateField(path, field, value, doc) {
     return new Promise((resolve, reject) => {
       const promises = [];
 
@@ -229,13 +220,12 @@ module.exports = class Model {
 
       // Validate the value
       if (field.hasOwnProperty('validate') && Array.isArray(field.validate)) {
-        field.validate.forEach(item => {
+        field.validate.forEach((item) => {
           if (item.isAsync) {
-            promises.push(new Promise(resolve => {
+            promises.push(new Promise((resolve) => {
               item.validator.call(doc, value, this, (result, message) => resolve(result ? true : message || item.message));
             }));
-          }
-          else {
+          } else {
             if (!item.validator.call(doc, value, this)) {
               return reject(item.message);
             }
@@ -245,7 +235,7 @@ module.exports = class Model {
 
       // Wait for async and check for errors.
       return Promise.all(promises).then((result) => {
-        result = result.filter(item => item !== true);
+        result = result.filter((item) => item !== true);
         if (result.length) {
           return reject(result[0]);
         }
@@ -254,7 +244,7 @@ module.exports = class Model {
     });
   }
 
-  afterLoad(doc) {
+  public afterLoad(doc) {
     if (!doc) {
       return Promise.resolve(doc);
     }
@@ -266,7 +256,7 @@ module.exports = class Model {
       .then(() => doc);
   }
 
-  getField(path, field, value, doc) {
+  public getField(path, field, value, doc) {
     // Use get function
     if (field.hasOwnProperty('get') && typeof field.set === 'function') {
       value = field.get(value);
@@ -285,20 +275,19 @@ module.exports = class Model {
     return Promise.resolve(doc);
   }
 
-  toID(value) {
+  public toID(value) {
     try {
       return this.db.toID(value);
-    }
-    catch (err) {
+    } catch (err) {
       return value;
     }
   }
 
   /** Public Functions */
-  indexOptions(query, options = {}) {
+  public indexOptions(query, options = {}) {
     const optionKeys = ['limit', 'skip', 'select', 'sort'];
 
-    optionKeys.forEach(key => {
+    optionKeys.forEach((key) => {
       if (query.hasOwnProperty(key)) {
         switch (key) {
           case 'limit':
@@ -309,7 +298,7 @@ module.exports = class Model {
           case 'select':
             // Select has changed to projection.
             options[(key === 'select' ? 'projection' : key)] = query[key].split(',')
-              .map(item => item.trim())
+              .map((item) => item.trim())
               .reduce((prev, item) => {
                 let val = '1';
                 if (item.charAt(0) === '-') {
@@ -327,54 +316,54 @@ module.exports = class Model {
     return options;
   }
 
-  find(query = {}, options = {}, context = {}) {
+  public find(query = {}, options = {}, context = {}) {
     return this.initialized.then(() => {
       return this.db.find(this.collectionName, query, options)
-        .then(docs => Promise.all(docs.map(doc => this.afterLoad(doc))));
+        .then((docs) => Promise.all(docs.map((doc) => this.afterLoad(doc))));
     });
   }
 
-  findOne(query = {}, options = {}, context = {}) {
+  public findOne(query = {}, options = {}, context = {}) {
     return this.find(query, context, options)
-      .then(docs => docs[0]);
+      .then((docs) => docs[0]);
   }
 
-  count(query = {}, options = {}, context = {}) {
+  public count(query = {}, options = {}, context = {}) {
     return this.initialized.then(() => {
       return this.db.count(this.collectionName, query, options);
     });
   }
 
-  create(input, context) {
+  public create(input, context) {
     return this.initialized.then(() => {
       return this.beforeSave(input, {})
-        .then(doc => {
+        .then((doc) => {
           return this.db.create(this.collectionName, doc)
-            .then(doc => this.afterLoad(doc));
+            .then((doc) => this.afterLoad(doc));
         });
     });
   }
 
-  read(query, context) {
+  public read(query, context) {
     return this.initialized.then(() => {
       return this.db.read(this.collectionName, query)
-        .then(doc => this.afterLoad(doc));
+        .then((doc) => this.afterLoad(doc));
     });
   }
 
-  update(input, context) {
+  public update(input, context) {
     return this.initialized.then(() => {
-      return this.read({ _id: this.toID(input._id) }, context).then(previous => {
+      return this.read({ _id: this.toID(input._id) }, context).then((previous) => {
         return this.beforeSave(input, previous)
-          .then(doc => {
+          .then((doc) => {
             return this.db.update(this.collectionName, doc, context)
-              .then(doc => this.afterLoad(doc));
+              .then((doc) => this.afterLoad(doc));
           });
       });
     });
   }
 
-  delete(query, context) {
+  public delete(query, context) {
     return this.initialized.then(() => {
       return this.db.delete(this.collectionName, query);
     });

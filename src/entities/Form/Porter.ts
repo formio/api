@@ -9,11 +9,11 @@ module.exports = class Form extends Porter {
     return this.app.models.Form;
   }
 
-  getMaps(port, query = { type: 'form' }) {
+  public getMaps(port, query = { type: 'form' }) {
     return super.getMaps(port, query);
   }
 
-  query(document) {
+  public query(document) {
     return {
       $or: [
         {
@@ -24,12 +24,12 @@ module.exports = class Form extends Porter {
         },
         {
           path: document.path,
-        }
-      ]
+        },
+      ],
     };
   }
 
-  cleanUp(forms) {
+  public cleanUp(forms) {
     const promises = [];
 
     // Any form/resource refs that referred to items below in the template need to be updated.
@@ -40,7 +40,7 @@ module.exports = class Form extends Porter {
       }
 
       promises.push(this.model.read({ _id: this.app.db.toID(this.maps[this.key][key]) })
-        .then(doc => {
+        .then((doc) => {
           doc.components = form.components;
           return this.model.update(doc);
         }));
@@ -49,14 +49,14 @@ module.exports = class Form extends Porter {
     return Promise.all(promises);
   }
 
-  import(form) {
+  public import(form) {
     this.mapEntityProperty(form.submissionAccess, 'roles', this.maps.roles);
     this.mapEntityProperty(form.access, 'roles', this.maps.roles);
     this.componentMachineNameToId(form.components);
     return form;
   }
 
-  export(form) {
+  public export(form) {
     this.mapEntityProperty(form.submissionAccess, 'roles', this.maps.roles);
     this.mapEntityProperty(form.access, 'roles', this.maps.roles);
     this.componentMachineNameToId(form.components);

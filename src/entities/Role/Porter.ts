@@ -9,20 +9,19 @@ module.exports = class Role extends Porter {
     return this.app.models.Role;
   }
 
-  getMaps(port, query) {
+  public getMaps(port, query) {
     return super.getMaps(port, query)
-      .then(maps => {
+      .then((maps) => {
         if (port === 'export') {
           maps['000000000000000000000000'] = 'everyone';
-        }
-        else {
-          maps['everyone'] = '000000000000000000000000';
+        } else {
+          maps.everyone = '000000000000000000000000';
         }
         return maps;
       });
   }
 
-  query(document) {
+  public query(document) {
     return {
       $or: [
         {
@@ -30,12 +29,12 @@ module.exports = class Role extends Porter {
         },
         {
           title: document.title,
-        }
-      ]
+        },
+      ],
     };
   }
 
-  export(document) {
+  public export(document) {
     // Like _.pick()
     const { title, description, admin, default: roleDefault } = document;
     return { title, description, admin, default: roleDefault };

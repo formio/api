@@ -20,7 +20,7 @@ module.exports = class Resource {
     return this.path(`/${this.name}`);
   }
 
-  path(route) {
+  public path(route) {
     return route;
   }
 
@@ -30,14 +30,14 @@ module.exports = class Resource {
    * @param promises
    * @param next
    */
-  callPromisesAsync(promises) {
+  public callPromisesAsync(promises) {
     return promises.reduce((p, f) => p
         .then(f)
         .catch((err) => Promise.reject(err))
       , Promise.resolve());
   }
 
-  rest() {
+  public rest() {
     this.app.log('debug', `registering rest endpoings for ${this.name}`);
     this.register('get', this.route, 'index');
     this.register('post', this.route, 'post');
@@ -50,14 +50,14 @@ module.exports = class Resource {
     return this;
   }
 
-  register(method, route, callback) {
+  public register(method, route, callback) {
     this.app.log('debug', `Registering route ${method.toUpperCase()}: ${route}`);
     this.router[method](route, (req, res, next) => {
       this[callback](req, res, next);
     });
   }
 
-  indexQuery(req, query = {}) {
+  public indexQuery(req, query = {}) {
     /* eslint-disable no-unused-vars */
     const { limit, skip, select, sort, populate, ...filters } = req.query || {};
     /* eslint-enable no-unused-vars */
@@ -80,8 +80,7 @@ module.exports = class Resource {
 
               try {
                 value = new RegExp(parts[1], (parts[2] || 'i'));
-              }
-              catch (err) {
+              } catch (err) {
                 value = null;
               }
               query[name] = value;
@@ -96,7 +95,7 @@ module.exports = class Resource {
             case 'in':
             case 'nin':
               value = Array.isArray(value) ? value : value.split(',');
-              value = value.map(item => {
+              value = value.map((item) => {
                 return this.indexQueryValue(name, item, param);
               });
               query[name] = query[name] || {};
@@ -108,14 +107,12 @@ module.exports = class Resource {
               query[name][`$${selector}`] = value;
               break;
           }
-        }
-        else {
+        } else {
           // Set the find query to this value.
           value = this.indexQueryValue(name, value, param);
           query[name] = value;
         }
-      }
-      else {
+      } else {
         // Set the find query to this value.
         query[name] = value;
       }
@@ -124,12 +121,12 @@ module.exports = class Resource {
     return query;
   }
 
-  indexQueryValue(name, value, param) {
+  public indexQueryValue(name, value, param) {
     if (param.type === 'number') {
       return parseInt(value, 10);
     }
 
-    var date = moment.utc(value, ['YYYY-MM-DD', 'YYYY-MM', moment.ISO_8601], true);
+    let date = moment.utc(value, ['YYYY-MM-DD', 'YYYY-MM', moment.ISO_8601], true);
     if (date.isValid()) {
       return date.toDate();
     }
@@ -138,8 +135,7 @@ module.exports = class Resource {
     if (param.type === 'id' && typeof value === 'string') {
       try {
         value = this.model.toID(value);
-      }
-      catch (err) {
+      } catch (err) {
         this.app.log('warning', `Invalid ObjectID: ${value}`);
       }
     }
@@ -147,18 +143,18 @@ module.exports = class Resource {
     return value;
   }
 
-  index(req, res, next) {
+  public index(req, res, next) {
     this.app.log('debug', `resource index called for ${this.name}`);
     const query = this.indexQuery(req);
     const options = this.model.indexOptions(req.query);
     Promise.all([
       this.model.count(query, {}, req.context.params),
-      this.model.find(query, options, req.context.params)
+      this.model.find(query, options, req.context.params),
     ])
       .then(([count, docs]) => {
         res.resource = {
           count,
-          items: docs.map(doc => this.finalize(doc, req)),
+          items: docs.map((doc) => this.finalize(doc, req)),
         };
         this.app.log('debug', `resource index done for ${this.name}`);
         next();
@@ -166,7 +162,7 @@ module.exports = class Resource {
       .catch(next);
   }
 
-  post(req, res, next) {
+  public post(req, res, next) {
     this.app.log('debug', `resource post called for ${this.name}`);
     this.model.create(this.prepare(req.body, req), req.context.params)
       .then((doc) => {
@@ -179,10 +175,10 @@ module.exports = class Resource {
       .catch(next);
   }
 
-  get(req, res, next) {
+  public get(req, res, next) {
     this.app.log('debug', `resource get called for ${this.name}`);
     this.model.read({
-      _id: this.model.toID(req.context.params[`${this.name}Id`])
+      _id: this.model.toID(req.context.params[`${this.name}Id`]),
     }, req.context.params)
       .then((doc) => {
         res.resource = {
@@ -194,7 +190,7 @@ module.exports = class Resource {
       .catch(next);
   }
 
-  put(req, res, next) {
+  public put(req, res, next) {
     this.app.log('debug', `resource put called for ${this.name}`);
     this.model.update(this.prepare(req.body, req), req.context.params)
       .then((doc) => {
@@ -207,12 +203,12 @@ module.exports = class Resource {
       .catch(next);
   }
 
-  patch(req, res, next) {
+  public patch(req, res, next) {
     this.app.log('debug', `resource patch called for ${this.name}`);
     this.model.read({
-      _id: this.model.toID(req.context.params[`${this.name}Id`])
+      _id: this.model.toID(req.context.params[`${this.name}Id`]),
     }, req.context.params)
-      .then(doc => {
+      .then((doc) => {
         const patched = jsonpatch.applyPatch(doc, req.body);
         this.model.update(this.prepare(patched.newDocument, req), req.context.params)
           .then((doc) => {
@@ -226,10 +222,10 @@ module.exports = class Resource {
       .catch(next);
   }
 
-  delete(req, res, next) {
+  public delete(req, res, next) {
     this.app.log('debug', `resource delete called for ${this.name}`);
     this.model.delete({
-      _id: this.model.toID(req.context.params[`${this.name}Id`])
+      _id: this.model.toID(req.context.params[`${this.name}Id`]),
     }, req.context.params)
       .then((doc) => {
         res.resource = {
@@ -241,7 +237,7 @@ module.exports = class Resource {
       .catch(next);
   }
 
-  prepare(item, req) {
+  public prepare(item, req) {
     // Ensure they can't change the id.
     if (req.context.params[`${this.name}Id`]) {
       item._id = req.context.params[`${this.name}Id`];
@@ -255,11 +251,11 @@ module.exports = class Resource {
     return item;
   }
 
-  finalize(item, req) {
+  public finalize(item, req) {
     return item;
   }
 
-  exists(req, res, next) {
+  public exists(req, res, next) {
     // TODO: Implement exists endpoint.
     res.sendStatus(405);
   }

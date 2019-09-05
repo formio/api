@@ -12,7 +12,7 @@ module.exports = (component, data, handler, action, { req, path, app }) => {
     // If this has a new value, encrypt it.
     if (['put', 'patch', 'post'].includes(action) && _.get(data, component.key)) {
       return app.encrypt(_.get(data, component.key))
-        .then(hash => {
+        .then((hash) => {
           _.set(data, component.key, hash);
           if (action !== 'post') {
             // Since the password was changed, invalidate all user tokens.

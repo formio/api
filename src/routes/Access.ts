@@ -5,12 +5,12 @@ module.exports = class Access extends Route {
     return `${super.path}/access`;
   }
 
-  execute(req, res) {
+  public execute(req, res) {
     Promise.all([
       this.app.models.Role.find({}),
       this.app.models.Form.find({}),
     ])
-      .then(results => {
+      .then((results) => {
         res.send({
           roles: results[0].reduce((result, role) => {
             result[role.title.replace(/\s/g, '').toLowerCase()] = {

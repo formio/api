@@ -1,10 +1,10 @@
 module.exports = class Action {
-  constructor(app, settings) {
-    this.app = app;
-    this.settings = settings;
+
+  static get serverOnly() {
+    return false;
   }
 
-  static info() {
+  public static info() {
     return {
       name: 'name',
       title: 'Action Title',
@@ -13,28 +13,28 @@ module.exports = class Action {
       priority: 0,
       defaults: {
         handler: ['before'],
-        method: ['create', 'update']
-      }
+        method: ['create', 'update'],
+      },
     };
   }
 
-  static settingsForm(options, actionSettings) {
+  public static settingsForm(options, actionSettings) {
     return [
       {
         type: 'hidden',
         input: true,
-        key: 'priority'
+        key: 'priority',
       },
       {
         type: 'hidden',
         input: true,
-        key: 'name'
+        key: 'name',
       },
       {
         type: 'textfield',
         input: true,
         label: 'Title',
-        key: 'title'
+        key: 'title',
       },
       {
         type: 'fieldset',
@@ -47,9 +47,9 @@ module.exports = class Action {
             input: false,
             type: 'container',
             key: 'settings',
-            components: actionSettings
-          }
-        ]
+            components: actionSettings,
+          },
+        ],
       },
       {
         type: 'fieldset',
@@ -68,16 +68,16 @@ module.exports = class Action {
             data: { json: JSON.stringify([
                 {
                   name: 'before',
-                  title: 'Before'
+                  title: 'Before',
                 },
                 {
                   name: 'after',
-                  title: 'After'
-                }
+                  title: 'After',
+                },
               ]) },
             template: '<span>{{ item.title }}</span>',
             valueProperty: 'name',
-            multiple: (options.info.access && options.info.access.handler === false) ? false : true
+            multiple: (options.info.access && options.info.access.handler === false) ? false : true,
           },
           {
             type: (options.info.access && options.info.access.method === false) ? 'hidden' : 'select',
@@ -89,30 +89,30 @@ module.exports = class Action {
             data: { json: JSON.stringify([
                 {
                   name: 'create',
-                  title: 'Create'
+                  title: 'Create',
                 },
                 {
                   name: 'update',
-                  title: 'Update'
+                  title: 'Update',
                 },
                 {
                   name: 'read',
-                  title: 'Read'
+                  title: 'Read',
                 },
                 {
                   name: 'delete',
-                  title: 'Delete'
+                  title: 'Delete',
                 },
                 {
                   name: 'resources.js',
-                  title: 'Index'
-                }
+                  title: 'Index',
+                },
               ]) },
             template: '<span>{{ item.title }}</span>',
             valueProperty: 'name',
-            multiple: (options.info.access && options.info.access.method === false) ? false : true
-          }
-        ]
+            multiple: (options.info.access && options.info.access.method === false) ? false : true,
+          },
+        ],
       },
       {
         key: 'fieldset',
@@ -144,7 +144,7 @@ module.exports = class Action {
                         dataSrc: 'json',
                         data: { json: JSON.stringify(options.components) },
                         valueProperty: 'key',
-                        multiple: false
+                        multiple: false,
                       },
                       {
                         type : 'select',
@@ -158,23 +158,23 @@ module.exports = class Action {
                           values : [
                             {
                               value : '',
-                              label : ''
+                              label : '',
                             },
                             {
                               value : 'equals',
-                              label : 'Equals'
+                              label : 'Equals',
                             },
                             {
                               value : 'notEqual',
-                              label : 'Does Not Equal'
-                            }
+                              label : 'Does Not Equal',
+                            },
                           ],
                           json : '',
                           url : '',
-                          resource : ''
+                          resource : '',
                         },
                         valueProperty : 'value',
-                        multiple : false
+                        multiple : false,
                       },
                       {
                         input: true,
@@ -183,9 +183,9 @@ module.exports = class Action {
                         label: '',
                         key: 'value',
                         placeholder: 'Enter value',
-                        multiple: false
-                      }
-                    ]
+                        multiple: false,
+                      },
+                    ],
                   },
                   {
                     components: [
@@ -200,7 +200,7 @@ module.exports = class Action {
                             tag: 'h4',
                             input: false,
                             content: 'Or you can provide your own custom JavaScript or <a href="http://jsonlogic.com" target="_blank">JSON</a> condition logic here',
-                            className: ''
+                            className: '',
                           },
                           {
                             label: '',
@@ -211,17 +211,17 @@ module.exports = class Action {
                             editorComponents: options.components,
                             placeholder: `// Example: Only execute if submitted roles has 'authenticated'.
 JavaScript: execute = (data.roles.indexOf('authenticated') !== -1);
-JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         key: 'html2',
@@ -229,7 +229,7 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`
         tag: 'hr',
         input: false,
         content: '',
-        className: ''
+        className: '',
       },
       {
         type: 'button',
@@ -242,17 +242,17 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`
         block: false,
         action: 'submit',
         disableOnInvalid: true,
-        theme: 'primary'
-      }
+        theme: 'primary',
+      },
     ];
   }
-
-  static get serverOnly() {
-    return false;
+  constructor(app, settings) {
+    this.app = app;
+    this.settings = settings;
   }
 
   /* eslint-disable no-unused-vars */
-  resolve({ handler, method, submission, req, res }, setActionItemMessage) {
+  public resolve({ handler, method, submission, req, res }, setActionItemMessage) {
     /* eslint-enable no-unused-vars */
     return Promise.resolve();
   }

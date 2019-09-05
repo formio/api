@@ -28,7 +28,7 @@ module.exports = class Schema {
       type: 'date',
       description: 'The date this resource was created.',
       default: Date.now,
-      readonly: true
+      readonly: true,
     };
   }
 
@@ -37,7 +37,7 @@ module.exports = class Schema {
       type: 'date',
       description: 'The date this resource was modified.',
       default: Date.now,
-      readonly: true
+      readonly: true,
     };
   }
 
@@ -46,7 +46,7 @@ module.exports = class Schema {
     const available = [
       'read',
       'write',
-      'admin'
+      'admin',
     ];
 
     return [
@@ -55,13 +55,13 @@ module.exports = class Schema {
         type: {
           type: 'string',
           enum: available,
-          required: 'A permission type is required to associate an available permission with a Resource.'
+          required: 'A permission type is required to associate an available permission with a Resource.',
         },
         resources: {
           type: 'id',
-          ref: 'form'
-        }
-      }
+          ref: 'form',
+        },
+      },
     ];
   }
 
@@ -69,15 +69,15 @@ module.exports = class Schema {
     return [
       {
         type: {
-          type: 'string'
+          type: 'string',
         },
         resource: {
-          type: 'string'
+          type: 'string',
         },
         id: {
-          type: 'string'
-        }
-      }
+          type: 'string',
+        },
+      },
     ];
   }
 
@@ -91,7 +91,7 @@ module.exports = class Schema {
       'read_own',
       'update_own',
       'delete_own',
-      'self'
+      'self',
     ];
   }
 
@@ -101,13 +101,13 @@ module.exports = class Schema {
         type: {
           type: 'string',
           enum: this.enumPermissions,
-          required: 'A permission type is required to associate an available permission with a given role.'
+          required: 'A permission type is required to associate an available permission with a given role.',
         },
         roles: {
           type: 'id',
-          ref: 'role'
-        }
-      }
+          ref: 'role',
+        },
+      },
     ];
   }
 
@@ -120,7 +120,7 @@ module.exports = class Schema {
     };
   }
 
-  preSave(item, model) {
+  public preSave(item, model) {
     item.access = item.access || [];
     item.submissionAccess = item.submissionAccess || [];
     // If there is no machine name or it is an existing item, don't set.
@@ -131,7 +131,7 @@ module.exports = class Schema {
     return this.generateMachineName(item, model);
   }
 
-  generateMachineName(document, model) {
+  public generateMachineName(document, model) {
     if (document.machineName) {
       return Promise.resolve(document);
     }
@@ -139,10 +139,10 @@ module.exports = class Schema {
     return this.uniqueMachineName(document, model);
   }
 
-  uniqueMachineName(document, model) {
+  public uniqueMachineName(document, model) {
     const query = {
       machineName: { $regex: `^${document.machineName}[0-9]*$` },
-      deleted: { $eq: null }
+      deleted: { $eq: null },
     };
     if (document._id) {
       query._id = { $ne: this.app.db.toID(document._id) };
@@ -168,7 +168,7 @@ module.exports = class Schema {
       });
   }
 
-  uniqueValidator(property) {
+  public uniqueValidator(property) {
     return function(value, model, done) {
       const query = model.schema.uniqueQuery(this, model);
       query[property] = value;
@@ -188,7 +188,7 @@ module.exports = class Schema {
     };
   }
 
-  uniqueQuery(doc, model) {
+  public uniqueQuery(doc, model) {
     return {};
   }
 };

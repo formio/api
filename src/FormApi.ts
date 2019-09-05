@@ -42,7 +42,7 @@ module.exports = class FormApi {
 
   set db(db) {
     this._db = db;
-    Object.values(this.models).forEach(model => {
+    Object.values(this.models).forEach((model) => {
       model.db = db;
     });
   }
@@ -117,11 +117,11 @@ module.exports = class FormApi {
    */
   get methodPermissions() {
     return {
-      'POST': { all: 'create_all', own: 'create_own' },
-      'GET': { all: 'read_all', own: 'read_own' },
-      'PUT': { all: 'update_all', own: 'update_own' },
-      'PATCH': { all: 'update_all', own: 'update_own' },
-      'DELETE': { all: 'delete_all', own: 'delete_own' }
+      POST: { all: 'create_all', own: 'create_own' },
+      GET: { all: 'read_all', own: 'read_own' },
+      PUT: { all: 'update_all', own: 'update_own' },
+      PATCH: { all: 'update_all', own: 'update_own' },
+      DELETE: { all: 'delete_all', own: 'delete_own' },
     };
   }
 
@@ -131,7 +131,7 @@ module.exports = class FormApi {
    * @param req
    * @returns {*}
    */
-  getRoles(req = null) {
+  public getRoles(req = null) {
     return req.context.roles.all;
   }
 
@@ -162,9 +162,9 @@ module.exports = class FormApi {
    * @param req
    * @returns {*}
    */
-  primaryEntity(req) {
+  public primaryEntity(req) {
     let entity = null;
-    this.resourceTypes.forEach(type => {
+    this.resourceTypes.forEach((type) => {
       if (req.context.hasOwnProperty(type) && !entity) {
         entity = {
           type,
@@ -182,12 +182,12 @@ module.exports = class FormApi {
    * @param info
    * @param method
    */
-  entityPermissionRoles(req, info, method) {
+  public entityPermissionRoles(req, info, method) {
     const entity = req.context.resources[info.type];
     const accessKey = info.type === 'submission' ? 'submissionAccess' : 'access';
     let roles = [];
 
-    entity[accessKey].forEach(access => {
+    entity[accessKey].forEach((access) => {
       // Handle "all" permission
       if (access.type === this.methodPermissions[method].all) {
         roles = [...roles, ...access.roles];
@@ -202,7 +202,7 @@ module.exports = class FormApi {
       if (access.type === 'self') {
         if (req.user._id === entity._id) {
           // Find *_own permission again.
-          const ownAccess = entity[accessKey].filter(access => access.type === this.methodPermissions[method].own);
+          const ownAccess = entity[accessKey].filter((access) => access.type === this.methodPermissions[method].own);
           if (ownAccess.length) {
             roles = [...roles, ...ownAccess[0].roles];
           }
@@ -210,7 +210,7 @@ module.exports = class FormApi {
       }
     });
 
-    return roles.map(role => role.toString());
+    return roles.map((role) => role.toString());
   }
 
   /**
@@ -220,10 +220,10 @@ module.exports = class FormApi {
    * @param user
    * @returns {*[]}
    */
-  userRoles(req) {
+  public userRoles(req) {
     if (!req.user) {
       return [
-        ...req.context.roles.default.map(role => role._id),
+        ...req.context.roles.default.map((role) => role._id),
         EVERYONE,
       ];
     }
@@ -242,21 +242,21 @@ module.exports = class FormApi {
    * @param query
    * @returns {*|PromiseLike<T>|Promise<T>}
    */
-  loadRoles(req, type, query) {
+  public loadRoles(req, type, query) {
     return this.models.Role.find(query, {}, req.context.params)
-      .then(roles => {
+      .then((roles) => {
         req.context.roles[type] = roles;
       });
   }
 
-  loadActions(req, query) {
+  public loadActions(req, query) {
     return this.models.Action.find(query, {}, req.context.params)
-      .then(actions => {
+      .then((actions) => {
         req.context.actions = actions.sort((a, b) => b.priory - a.priority);
       });
   }
 
-  query(query) {
+  public query(query) {
     return query;
   }
 
@@ -268,7 +268,7 @@ module.exports = class FormApi {
    * @param next
    * @returns {*}
    */
-  alias(req, baseUrl = '', next) {
+  public alias(req, baseUrl = '', next) {
     // Pre initialize conted
     req.context = req.context || {};
     req.context.params = req.context.params || {};
@@ -287,9 +287,9 @@ module.exports = class FormApi {
     }
 
     this.models.Form.find({
-      path: alias
+      path: alias,
     }, {}, req.context.params)
-      .then(forms => {
+      .then((forms) => {
         // If no form was found, continue.
         if (!forms.length) {
           return next();
@@ -311,14 +311,14 @@ module.exports = class FormApi {
       .catch(next);
   }
 
-  url(path, req) {
-    Object.keys(req.context.params).forEach(param => {
+  public url(path, req) {
+    Object.keys(req.context.params).forEach((param) => {
       path = path.replace(`:${param}`, req.context.params[param]);
     });
     return path;
   }
 
-  addModels() {
+  public addModels() {
     log('info', 'Adding models');
     const schemas = this.schemas;
     for (const schema in schemas) {
@@ -327,7 +327,7 @@ module.exports = class FormApi {
     }
   }
 
-  addResources() {
+  public addResources() {
     log('info', 'Adding resources');
     for (const resourceName in this.resourceClasses) {
       log('debug', `Adding resource ${  resourceName}`);
@@ -335,8 +335,8 @@ module.exports = class FormApi {
     }
   }
 
-  addRoutes(base) {
-    Object.values(this.routeClasses).forEach(Route => {
+  public addRoutes(base) {
+    Object.values(this.routeClasses).forEach((Route) => {
       this.log('debug', `Adding route ${Route.path}`);
       const route = new Route(this, base);
       this.routes[`${route.method}-${route.path}`] = route;
@@ -344,14 +344,14 @@ module.exports = class FormApi {
     });
   }
 
-  init(req, res, next) {
+  public init(req, res, next) {
     req.uuid = req.uuid || uuid();
     log('info', req.uuid, req.method, req.path, 'init');
 
     this.alias(req, '', next);
   }
 
-  context(req, res, next) {
+  public context(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'context');
 
     req.context = req.context || {};
@@ -370,9 +370,9 @@ module.exports = class FormApi {
         req.context.params[`${part}Id`] = parts[index + 1];
         const modelName = part.charAt(0).toUpperCase() + part.slice(1);
         loads.push(this.models[modelName].read({
-          _id: this.db.toID(parts[index + 1])
+          _id: this.db.toID(parts[index + 1]),
         }, req.context.params)
-          .then(doc => {
+          .then((doc) => {
             req.context.resources[part] = doc;
           }));
       }
@@ -386,7 +386,7 @@ module.exports = class FormApi {
     // Load actions associated with a form if we have a submission.
     if (req.context.params.hasOwnProperty('formId')) {
       loads.push(this.loadActions(req, {
-        entity: this.db.toID(req.context.params['formId']),
+        entity: this.db.toID(req.context.params.formId),
         entityType: 'form',
       }));
     }
@@ -395,18 +395,18 @@ module.exports = class FormApi {
       .then(() => {
         next();
       })
-      .catch(err => {
+      .catch((err) => {
         next(err);
       });
   }
 
-  authenticate(req, res, next) {
+  public authenticate(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'authenticate');
     // Authentication is implemented at the next level up.
     next();
   }
 
-  authorize(req, res, next) {
+  public authorize(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'authorize');
 
     if (this.config.adminKey) {
@@ -416,14 +416,14 @@ module.exports = class FormApi {
       }
 
       // If using admin key as a bearer token
-      if (req.headers['authorization'] && req.headers['authorization'] === `Bearer: ${this.config.adminKey}`) {
+      if (req.headers.authorization && req.headers.authorization === `Bearer: ${this.config.adminKey}`) {
         return next();
       }
     }
 
     // Check if this is a defined route. If so, call the authorize method on the route class.
     const route = this.getRoute(req.path, req.context.params);
-    const routeInstance = this.routes[`${req.method.toLowerCase()}-${route}`] || this.routes[`use-${route}`]
+    const routeInstance = this.routes[`${req.method.toLowerCase()}-${route}`] || this.routes[`use-${route}`];
     if (routeInstance) {
       const result = routeInstance.authorize(req);
       if (result === true) {
@@ -445,7 +445,7 @@ module.exports = class FormApi {
 
     // Determine if there is an intersection of the user roles and roles that have permission to access the entity.
     if (
-      (userRoles.filter(role => -1 !== entityPermissionRoles.indexOf(role))).length !== 0
+      (userRoles.filter((role) => -1 !== entityPermissionRoles.indexOf(role))).length !== 0
     ) {
       return next();
     }
@@ -454,35 +454,35 @@ module.exports = class FormApi {
     return res.status(401).send('Unauthorized');
   }
 
-  importTemplate(template, req) {
+  public importTemplate(template, req) {
     const importer = new this.ImportClass(this, template, req);
 
     return importer.import();
   }
 
-  exportTemplate(req) {
+  public exportTemplate(req) {
     const exporter = new this.ExportClass(this, req);
 
     return exporter.export();
   }
 
-  getStatus(status = {}) {
+  public getStatus(status = {}) {
     status.api = info.version;
     return status;
   }
 
-  beforeExecute(req, res, next) {
+  public beforeExecute(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'beforeExecute');
 
     next();
   }
 
-  afterExecute(req, res, next) {
+  public afterExecute(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'afterExecute');
     next();
   }
 
-  respond(req, res) {
+  public respond(req, res) {
     log('info', req.uuid, req.method, req.path, 'response');
     const headers = [];
 
@@ -513,14 +513,14 @@ module.exports = class FormApi {
     res.status(404).send('Not found');
   }
 
-  getRoute(path, params) {
-    for(const key in params) {
+  public getRoute(path, params) {
+    for (const key in params) {
       path = path.replace(params[key], `:${key}`);
     }
     return path;
   }
 
-  getRangeHeader(count, req) {
+  public getRangeHeader(count, req) {
     const skip = req.query.skip || 0;
     const limit = req.query.limit || 10;
     const start = skip;
@@ -546,7 +546,7 @@ module.exports = class FormApi {
    * @param url
    * @param body
    */
-  makeChildRequest({ req, url, body, method, params, query, options = {} }) {
+  public makeChildRequest({ req, url, body, method, params, query, options = {} }) {
     const childReq = this.createChildReq(req, options);
 
     if (!childReq) {
@@ -559,7 +559,7 @@ module.exports = class FormApi {
     childReq.method = method.toUpperCase();
     childReq.url = url;
 
-    const childRes = this.createChildRes(() =>{
+    const childRes = this.createChildRes(() => {
       if (childRes.statusCode > 299) {
         // return reject(result);
       }
@@ -579,7 +579,7 @@ module.exports = class FormApi {
       });
   }
 
-  createChildReq(req) {
+  public createChildReq(req) {
     // Determine how many child requests have been made.
     let childRequests = req.childRequests || 0;
 
@@ -597,7 +597,7 @@ module.exports = class FormApi {
     return childReq;
   }
 
-  createChildRes(response) {
+  public createChildRes(response) {
     response = response || (() => {});
     const subResponse = {
       statusCode: 200,
@@ -611,30 +611,30 @@ module.exports = class FormApi {
       status: (status) => {
         subResponse.statusCode = status;
         return subResponse;
-      }
+      },
     };
     return subResponse;
   }
 
   // This mimics expressjs middleware.
-  executeMiddleware(req, res, middleware) {
+  public executeMiddleware(req, res, middleware) {
     return middleware.reduce((prev, func) => {
       return prev.then(
         () => new Promise((resolve, reject) => {
           func(req, res, (err) => err ? reject(err) : resolve());
-        })
+        }),
       );
     }, Promise.resolve());
   }
 
-  async executeAction(actionItem, req, res) {
+  public async executeAction(actionItem, req, res) {
     log('info', 'Execute action', req.uuid, actionItem.action);
 
     try {
       const release = await this.lock(actionItem._id);
 
       const action = await this.models.Action.read({
-        _id: this.db.toID(actionItem.action)
+        _id: this.db.toID(actionItem.action),
       }, req.context.params);
 
       // Syncronously add messages to actionItem.
@@ -644,7 +644,7 @@ module.exports = class FormApi {
           actionItem.messages.push({
             datetime: new Date(),
             info: message,
-            data
+            data,
           });
 
           if (state) {
@@ -672,7 +672,7 @@ module.exports = class FormApi {
             .then(() => {
               setActionItemMessage('Action Resolved (no longer blocking)', {}, 'complete');
             })
-            .catch(error => {
+            .catch((error) => {
               setActionItemMessage('Error Occurred', error);
               throw error;
             });
@@ -680,8 +680,7 @@ module.exports = class FormApi {
       }
 
       release();
-    }
-    catch (err) {
+    } catch (err) {
       console.log('could not lock');
       // swallow the error.
     }
@@ -693,7 +692,7 @@ module.exports = class FormApi {
    * @param key
    * @returns {Promise<Function>}
    */
-  lock(key) {
+  public lock(key) {
     // If lock is already set on it.
     if (this.locks[key]) {
       return Promise.reject();
@@ -714,7 +713,7 @@ module.exports = class FormApi {
     return Promise.resolve(removeLock);
   }
 
-  encrypt(text) {
+  public encrypt(text) {
     return new Promise((resolve, reject) => {
       bcrypt.genSalt(10, function(err, salt) {
         if (err) {

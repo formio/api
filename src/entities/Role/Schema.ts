@@ -20,27 +20,27 @@ module.exports = class Role extends Schema {
           {
             isAsync: true,
             message: 'Role title must be unique.',
-            validator: this.uniqueValidator('title')
-          }
-        ]
+            validator: this.uniqueValidator('title'),
+          },
+        ],
       },
       description: {
         type: 'string',
-        default: ''
+        default: '',
       },
       default: {
         type: 'boolean',
-        default: false
+        default: false,
       },
       admin: {
         type: 'boolean',
-        default: false
+        default: false,
       },
-      ...super.schema
+      ...super.schema,
     };
   }
 
-  generateMachineName(document, model) {
+  public generateMachineName(document, model) {
     if (document.machineName) {
       return Promise.resolve(document);
     }

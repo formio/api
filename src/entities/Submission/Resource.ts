@@ -22,17 +22,17 @@ module.exports = class Submission extends Resource {
     return this.app.actions;
   }
 
-  indexQuery(req, query = {}) {
+  public indexQuery(req, query = {}) {
     query.form = this.model.toID(req.context.params.formId);
     return super.indexQuery(req, query);
   }
 
-  getQuery(query, req) {
+  public getQuery(query, req) {
     query.form = this.model.toID(req.context.params.formId);
     return super.getQuery(query, req);
   }
 
-  index(req, res, next) {
+  public index(req, res, next) {
     log('debug', 'submission index called');
     this.callPromisesAsync([
       this.executeSuper.bind(this, 'index', req, res),
@@ -42,10 +42,10 @@ module.exports = class Submission extends Resource {
         log('debug', 'submission index done');
         return next();
       })
-      .catch(err => next(err));
+      .catch((err) => next(err));
   }
 
-  post(req, res, next) {
+  public post(req, res, next) {
     log('debug', 'submission post called');
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
@@ -61,10 +61,10 @@ module.exports = class Submission extends Resource {
         log('debug', 'submission post done');
         return next();
       })
-      .catch(err => next(err));
+      .catch((err) => next(err));
   }
 
-  get(req, res, next) {
+  public get(req, res, next) {
     log('debug', 'submission get called');
     this.callPromisesAsync([
       this.executeSuper.bind(this, 'get', req, res),
@@ -74,10 +74,10 @@ module.exports = class Submission extends Resource {
         log('debug', 'submission get done');
         return next();
       })
-      .catch(err => next(err));
+      .catch((err) => next(err));
   }
 
-  put(req, res, next) {
+  public put(req, res, next) {
     log('debug', 'submission put called');
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
@@ -93,10 +93,10 @@ module.exports = class Submission extends Resource {
         log('debug', 'submission put done');
         return next();
       })
-      .catch(err => next(err));
+      .catch((err) => next(err));
   }
 
-  patch(req, res, next) {
+  public patch(req, res, next) {
     log('debug', 'submission patch called');
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
@@ -112,10 +112,10 @@ module.exports = class Submission extends Resource {
         log('debug', 'submission patch done');
         return next();
       })
-      .catch(err => next(err));
+      .catch((err) => next(err));
   }
 
-  delete(req, res, next) {
+  public delete(req, res, next) {
     log('debug', 'submission delete called');
     this.callPromisesAsync([
       this.executeSuper.bind(this, 'delete', req, res),
@@ -125,10 +125,10 @@ module.exports = class Submission extends Resource {
         log('debug', 'submission delete done');
         return next();
       })
-      .catch(err => next(err));
+      .catch((err) => next(err));
   }
 
-  getBody(req) {
+  public getBody(req) {
     const { data, owner, access, metadata } = req.body;
 
     return {
@@ -139,7 +139,7 @@ module.exports = class Submission extends Resource {
     };
   }
 
-  initializeSubmission(req, res) {
+  public initializeSubmission(req, res) {
     log('initializeSubmission');
     req.skipResource = true;
 
@@ -164,7 +164,7 @@ module.exports = class Submission extends Resource {
 
     // Ensure response is set.
     res.resource = {
-      item: req.body
+      item: req.body,
     };
 
     // Save off original submission.
@@ -173,7 +173,7 @@ module.exports = class Submission extends Resource {
     return Promise.resolve();
   }
 
-  validateSubmission(req, res) {
+  public validateSubmission(req, res) {
     log('debug', 'validateSubmission');
     return new Promise((resolve) => {
       const validator = new Validator(req.context.resources.form, this.app.models.Submission, req.token);
@@ -189,11 +189,11 @@ module.exports = class Submission extends Resource {
     });
   }
 
-  executeActions(handler, method, req, res) {
+  public executeActions(handler, method, req, res) {
     log('debug', 'executeActions', handler, method);
 
     const promises = [];
-    req.context.actions.forEach(action => {
+    req.context.actions.forEach((action) => {
       if (action.method.includes(method) && action.handler.includes(handler)) {
         const context = {
           jsonLogic: FormioUtils.jsonLogic,
@@ -203,7 +203,7 @@ module.exports = class Submission extends Resource {
           query: req.query,
           util: FormioUtils,
           _,
-          execute: false
+          execute: false,
         };
 
         if (this.shouldExecute(action, context)) {
@@ -226,12 +226,12 @@ module.exports = class Submission extends Resource {
                   {
                     datetime: new Date(),
                     info: 'New Action Triggered',
-                    data: {}
-                  }
-                ]
-              }, req)
+                    data: {},
+                  },
+                ],
+              }, req),
             )
-              .then(actionItem => this.app.executeAction(actionItem, req, res));
+              .then((actionItem) => this.app.executeAction(actionItem, req, res));
           });
         }
       }
@@ -240,7 +240,7 @@ module.exports = class Submission extends Resource {
     return this.callPromisesAsync(promises);
   }
 
-  shouldExecute(action, context) {
+  public shouldExecute(action, context) {
     const condition = action.condition;
     if (!condition) {
       return true;
@@ -250,8 +250,7 @@ module.exports = class Submission extends Resource {
       let json = null;
       try {
         json = JSON.parse(action.condition.custom);
-      }
- catch (e) {
+      } catch (e) {
         json = null;
       }
 
@@ -261,16 +260,14 @@ module.exports = class Submission extends Resource {
           : condition.custom);
 
         script.runInContext(vm.createContext(context), {
-          timeout: 500
+          timeout: 500,
         });
 
         return script.execute;
-      }
- catch (err) {
+      } catch (err) {
         return false;
       }
-    }
- else {
+    } else {
       if (_.isEmpty(condition.field) || _.isEmpty(condition.eq)) {
         return true;
       }
@@ -287,16 +284,14 @@ module.exports = class Submission extends Resource {
     }
   }
 
-  executeFieldHandlers(handler, action, req, res) {
+  public executeFieldHandlers(handler, action, req, res) {
     const form = req.context.resources.form;
     let submissions = [];
     if (res.resource && res.resource.items) {
       submissions = res.resource.items;
-    }
- else if (res.resource && res.resource.item) {
+    } else if (res.resource && res.resource.item) {
       submissions = [res.resource.item];
-    }
- else {
+    } else {
       submissions = [req.body];
     }
 
@@ -312,7 +307,7 @@ module.exports = class Submission extends Resource {
             path,
             req,
             res,
-            app: this.app
+            app: this.app,
           }));
         }
 
@@ -339,10 +334,10 @@ module.exports = class Submission extends Resource {
    * @param path
    * @returns {Promise<any[]>}
    */
-  eachValue(components, data, fn, context, path = '') {
+  public eachValue(components, data, fn, context, path = '') {
     const promises = [];
 
-    components.forEach(component => {
+    components.forEach((component) => {
       if (component.hasOwnProperty('components') && Array.isArray(component.components)) {
         // If tree type is an array of objects like datagrid and editgrid.
         if (['datagrid', 'editgrid'].includes(component.type) || component.arrayTree) {
@@ -352,22 +347,18 @@ module.exports = class Submission extends Resource {
               row,
               fn,
               context,
-              path ? `${path}.` : '' + `${component.key}[${index}]`
+              path ? `${path}.` : '' + `${component.key}[${index}]`,
             ));
           });
-        }
-        // If it is a form
-        else if (['form'].includes(component.type)) {
+        } else if (['form'].includes(component.type)) {
           promises.push(this.eachValue(
             component.components,
             _.get(data, `${component.key}.data`, {}),
             fn,
             context,
-            path ? `${path}.` : '' + `${component.key}.data`
+            path ? `${path}.` : '' + `${component.key}.data`,
           ));
-        }
-        // If tree type is an object like container.
-        else if (
+        } else if (
           ['container'].includes(component.type) ||
           (component.tree && !['panel', 'table', 'well', 'columns', 'fieldset', 'tabs', 'form'].includes(component.type))
         ) {
@@ -376,21 +367,17 @@ module.exports = class Submission extends Resource {
             _.get(data, component.key),
             fn,
             context,
-            path ? `${path}.` : '' + `${component.key}`
+            path ? `${path}.` : '' + `${component.key}`,
           ));
-        }
-        // If this is just a layout component.
-        else {
+        } else {
           promises.push(this.eachValue(component.components, data, fn, context, path));
         }
-      }
- else if (component.hasOwnProperty('columns') && Array.isArray(component.columns)) {
+      } else if (component.hasOwnProperty('columns') && Array.isArray(component.columns)) {
         // Handle column like layout components.
         component.columns.forEach((column) => {
           promises.push(this.eachValue(column.components, data, fn, context, path));
         });
-      }
- else if (component.hasOwnProperty('rows') && Array.isArray(component.rows)) {
+      } else if (component.hasOwnProperty('rows') && Array.isArray(component.rows)) {
         // Handle table like layout components.
         component.rows.forEach((row) => {
           if (Array.isArray(row)) {
@@ -399,8 +386,7 @@ module.exports = class Submission extends Resource {
             });
           }
         });
-      }
- else {
+      } else {
         // If this is just a regular component, call the callback.
         promises.push(fn({ ...context, data, component, path }));
       }
@@ -409,7 +395,7 @@ module.exports = class Submission extends Resource {
     return Promise.all(promises);
   }
 
-  executeSuper(name, req, res) {
+  public executeSuper(name, req, res) {
     log('debug', 'executeSuper', name);
     // If we are supposed to skip resource, do so.
     if (req.skipResource) {

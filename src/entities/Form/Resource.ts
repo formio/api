@@ -8,8 +8,8 @@ module.exports = class Form extends Resource {
     super(model, router, app);
   }
 
-  createDefaultActions(req, res) {
-    return Promise.all(Object.keys(this.app.actions).map(name => {
+  public createDefaultActions(req, res) {
+    return Promise.all(Object.keys(this.app.actions).map((name) => {
       const Action = this.app.actions[name];
       const info = Action.info();
       // Add default actions to the form.
@@ -23,16 +23,15 @@ module.exports = class Form extends Resource {
             ...info.defaults,
             entityType: 'form',
             entity: res.resource.item._id, // Entity goes last so they can't change it.
-          }, req)
+          }, req),
         );
-      }
-      else {
+      } else {
         return Promise.resolve();
       }
     }));
   }
 
-  checkModifiedDate(req, res) {
+  public checkModifiedDate(req, res) {
     if (!req.body.hasOwnProperty('modified') || !req.body.hasOwnProperty('components')) {
       return Promise.resolve();
     }
@@ -47,7 +46,7 @@ module.exports = class Form extends Resource {
     res.status(409).send(req.context.resources.form);
   }
 
-  post(req, res, next) {
+  public post(req, res, next) {
     this.callPromisesAsync([
       () => this.callSuper('post', req, res),
       () => this.createDefaultActions(req, res),
@@ -56,7 +55,7 @@ module.exports = class Form extends Resource {
       .catch(next);
   }
 
-  put(req, res, next) {
+  public put(req, res, next) {
     this.callPromisesAsync([
       () => this.checkModifiedDate(req, res),
       () => this.callSuper('put', req, res),
@@ -65,7 +64,7 @@ module.exports = class Form extends Resource {
       .catch(next);
   }
 
-  callSuper(method, req, res) {
+  public callSuper(method, req, res) {
     return new Promise((resolve, reject) => {
       super[method](req, res, (err) => {
         if (err) {

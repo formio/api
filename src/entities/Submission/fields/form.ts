@@ -40,7 +40,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
     const method = (action === 'post') ? 'post' : 'put';
 
     const params = {
-      formId: component.form
+      formId: component.form,
     };
 
     if (body._id) {
@@ -48,7 +48,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
     }
 
     return app.makeChildRequest({ url, method, body, params, req, res })
-      .then(childRes => {
+      .then((childRes) => {
         _set(data, component.key, childRes.resource.item);
       });
   }
@@ -67,10 +67,10 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
       if (compValue && compValue._id) {
         return app.models.Submission.findOne({
           _id: app.db.toID(compValue._id),
-          deleted: { $eq: null }
+          deleted: { $eq: null },
         })
-          .catch(err => app.log('info', err))
-          .then(submission => {
+          .catch((err) => app.log('info', err))
+          .then((submission) => {
             let found = false;
             submission.externalIds = submission.externalIds || [];
             _each(submission.externalIds, function(externalId) {
@@ -81,12 +81,11 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
             if (found) {
               // externalId already set.
               return Promise.resolve();
-            }
-            else {
+            } else {
               // Set new externalId and save.
               submission.externalIds.push({
                 type: 'parent',
-                id: res.resource.item._id
+                id: res.resource.item._id,
               });
               return app.models.Submission.update(submission);
             }

@@ -68,7 +68,7 @@ module.exports = class Form extends Schema {
       title: {
         type: 'string',
         description: 'The title for the form.',
-        required: true
+        required: true,
       },
       name: {
         type: 'string',
@@ -77,14 +77,14 @@ module.exports = class Form extends Schema {
         validate: [
           {
             message: `The Name ${uniqueMessage}`,
-            validator: (value) => !invalidRegex.test(value)
+            validator: (value) => !invalidRegex.test(value),
           },
           {
             isAsync: true,
             message: 'The Name must be unique.',
-            validator: this.uniqueValidator('name')
-          }
-        ]
+            validator: this.uniqueValidator('name'),
+          },
+        ],
       },
       path: {
         type: 'string',
@@ -96,18 +96,18 @@ module.exports = class Form extends Schema {
         validate: [
           {
             message: `The Path ${uniqueMessage}`,
-            validator: (value) => !invalidRegex.test(value)
+            validator: (value) => !invalidRegex.test(value),
           },
           {
             message: 'Path cannot end in `submission` or `action`',
-            validator: (path) => !path.match(/(submission|action)\/?$/)
+            validator: (path) => !path.match(/(submission|action)\/?$/),
           },
           {
             isAsync: true,
             message: 'The Path must be unique.',
-            validator: this.uniqueValidator('path')
-          }
-        ]
+            validator: this.uniqueValidator('path'),
+          },
+        ],
       },
       type: {
         type: 'string',
@@ -115,19 +115,19 @@ module.exports = class Form extends Schema {
         required: true,
         default: 'form',
         description: 'The form type.',
-        index: true
+        index: true,
       },
       display: {
         type: 'string',
-        description: 'The display method for this form'
+        description: 'The display method for this form',
       },
       action: {
         type: 'string',
-        description: 'A custom action URL to submit the data to.'
+        description: 'A custom action URL to submit the data to.',
       },
       tags: {
         type: ['string'],
-        index: true
+        index: true,
       },
       access: this.permissions,
       submissionAccess: this.permissions,
@@ -137,9 +137,9 @@ module.exports = class Form extends Schema {
         ref: 'submission',
         index: true,
         default: null,
-        get: owner => {
+        get: (owner) => {
           return owner ? owner.toString() : owner;
-        }
+        },
       },
       components: {
         // type: [Object],
@@ -147,12 +147,12 @@ module.exports = class Form extends Schema {
         validate: [
           {
             message: keyError,
-            validator: (components) => componentKeys(components).every((key) => key.match(validKeyRegex))
+            validator: (components) => componentKeys(components).every((key) => key.match(validKeyRegex)),
           },
           {
             message: shortcutError,
             validator: (components) => componentShortcuts(components)
-              .every((shortcut) => shortcut.match(validShortcutRegex))
+              .every((shortcut) => shortcut.match(validShortcutRegex)),
           },
           {
             isAsync: true,
@@ -167,7 +167,7 @@ module.exports = class Form extends Schema {
               }
 
               return valid(false, (msg + diff.value().join(', ')));
-            }
+            },
           },
           {
             isAsync: true,
@@ -182,17 +182,17 @@ module.exports = class Form extends Schema {
               }
 
               return valid(false, (msg + diff.value().join(', ')));
-            }
-          }
-        ]
+            },
+          },
+        ],
       },
       settings: {
         type: Object,
-        description: 'Custom form settings object.'
+        description: 'Custom form settings object.',
       },
       properties: {
         type: Object,
-        description: 'Custom form properties.'
+        description: 'Custom form properties.',
       },
       ...super.schema,
     };

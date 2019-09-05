@@ -18,17 +18,17 @@ module.exports = class Route {
    * @param req
    * @returns {string}
    */
-  authorize(req) {
+  public authorize(req) {
     return 'pass';
   }
 
-  register(router, base) {
+  public register(router, base) {
     router[this.method](this.path, (req, res, next) => {
       return this.execute(req, res, next);
     });
   }
 
-  execute(req, res, next) {
+  public execute(req, res, next) {
     return next();
   }
 };

@@ -1,7 +1,7 @@
 const Action = require('../../../classes/Action');
 
 module.exports = class SaveSubmission extends Action {
-  static info() {
+  public static info() {
     return {
       name: 'save',
       title: 'Save Submission',
@@ -11,16 +11,16 @@ module.exports = class SaveSubmission extends Action {
       default: true,
       defaults: {
         handler: ['before'],
-        method: ['create', 'update']
+        method: ['create', 'update'],
       },
       access: {
         handler: false,
-        method: false
-      }
+        method: false,
+      },
     };
   }
 
-  static settingsForm(options) {
+  public static settingsForm(options) {
     return super.settingsForm(options, [
       {
         type: 'resourcefields',
@@ -29,12 +29,12 @@ module.exports = class SaveSubmission extends Action {
         placeholder: 'This form',
         basePath: options.baseUrl,
         form: options.params.formId,
-        required: false
-      }
+        required: false,
+      },
     ]);
   }
 
-  async resolve({ req }, setActionInfoMessage) {
+  public async resolve({ req }, setActionInfoMessage) {
     req.skipResource = false;
 
     if (this.settings && this.settings.resource) {
@@ -53,7 +53,7 @@ module.exports = class SaveSubmission extends Action {
       if (submission) {
         const external = _.find(submission.externalIds, {
           type: 'resource',
-          resource: this.settings.resource
+          resource: this.settings.resource,
         });
 
         if (!external) {
@@ -82,10 +82,10 @@ module.exports = class SaveSubmission extends Action {
         method: type === 'create' ? 'POST' : 'PUT',
         params: {
           ...req.context.params,
-          submissionId: submission._id
+          submissionId: submission._id,
         },
         query: {},
-        options: {}
+        options: {},
       });
 
       // TODO: Save submission to externalIds if create

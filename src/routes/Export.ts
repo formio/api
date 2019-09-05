@@ -5,7 +5,7 @@ module.exports = class Export extends Route {
     return `${super.path}/export`;
   }
 
-  execute(req, res, next) {
+  public execute(req, res, next) {
     this.app.exportTemplate(req)
       .then((result) => {
         res.status(200).send(result);

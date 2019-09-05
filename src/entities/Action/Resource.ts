@@ -14,17 +14,17 @@ module.exports = class Action extends Resource {
     return this.path(`/form/:formId/${this.name}`);
   }
 
-  indexQuery(req, query = {}) {
+  public indexQuery(req, query = {}) {
     query.entity = this.model.toID(req.context.params.formId);
     return super.indexQuery(req, query);
   }
 
-  getQuery(query, req) {
+  public getQuery(query, req) {
     query.entity = this.model.toID(req.context.params.formId);
     return super.getQuery(req, query);
   }
 
-  actionsIndex(req, res) {
+  public actionsIndex(req, res) {
     const actions = [];
     for (const key in this.app.actions) {
       actions.push(this.getActionInfo(this.app.actions[key]));
@@ -32,25 +32,25 @@ module.exports = class Action extends Resource {
     res.send(actions);
   }
 
-  getActionInfo(action) {
+  public getActionInfo(action) {
     const info = action.info();
     info.defaults = Object.assign(info.defaults || {}, {
       priority: info.priority || 0,
       name: info.name,
-      title: info.title
+      title: info.title,
     });
 
     return info;
   }
 
-  actionSettings(req, res, next) {
+  public actionSettings(req, res, next) {
     const action = req.params.name;
     const components = [];
 
-    eachComponent(req.context.resources.form.components, component => {
+    eachComponent(req.context.resources.form.components, (component) => {
       components.push({
         key: component.key,
-        label: component.label || component.title || component.legend
+        label: component.label || component.title || component.legend,
       });
     });
     const options = {
@@ -58,23 +58,22 @@ module.exports = class Action extends Resource {
       params: req.context.params,
       components,
       roles: Object.values(req.context.roles.all),
-      componentsUrl: this.app.url(this.path('/form/:formId/components'), req)
+      componentsUrl: this.app.url(this.path('/form/:formId/components'), req),
     };
     if (action && this.app.actions[action]) {
       const info = this.getActionInfo(this.app.actions[action]);
       options.info = info;
       info.settingsForm = {
         action: this.path(`/form/${req.params.formId}/action`),
-        components: this.app.actions [action].settingsForm(options)
+        components: this.app.actions [action].settingsForm(options),
       };
       return res.json(info);
-    }
-    else {
+    } else {
       return next(new Error('Action not found'));
     }
   }
 
-  prepare(item, req) {
+  public prepare(item, req) {
     // Some renderers will submit submission data instead of an action. Fix it here.
     if (item.hasOwnProperty('data')) {
       item = item.data;
@@ -93,7 +92,7 @@ module.exports = class Action extends Resource {
     return item;
   }
 
-  executeSuper(name, req, res) {
+  public executeSuper(name, req, res) {
     // If we are supposed to skip resource, do so.
     if (req.skipResource) {
       return Promise.resolve();

@@ -13,20 +13,19 @@ module.exports = class Porter {
   }
 
   // Load all documents from the database and create a map of them.
-  getMaps(port, query = {}) {
+  public getMaps(port, query = {}) {
     return this.model.find(query)
-      .then(documents => documents.reduce((map, document) => {
+      .then((documents) => documents.reduce((map, document) => {
         if (port === 'export') {
           map[document._id] = this.exportMachineName(document);
-        }
-        else { // export
+        } else { // export
           map[this.exportMachineName(document)] = document._id;
         }
         return map;
       }, {}));
   }
 
-  valid(documents) {
+  public valid(documents) {
     if (typeof documents === 'object' && !(documents instanceof Array)) {
       return true;
     }
@@ -34,41 +33,41 @@ module.exports = class Porter {
     return false;
   }
 
-  import(document) {
+  public import(document) {
     return document;
   }
 
-  postImport(document) {
+  public postImport(document) {
     return document;
   }
 
-  export(document) {
+  public export(document) {
     return document;
   }
 
-  query(document) {
+  public query(document) {
     return {
       $or: [
         {
           machineName: document.machineName,
-        }
-      ]
+        },
+      ],
     };
   }
 
-  cleanUp() {
+  public cleanUp() {
     return Promise.resolve();
   }
 
-  exportMachineName(document) {
+  public exportMachineName(document) {
     return document.machineName || document.name;
   }
 
-  importMachineName(machineName, req) {
+  public importMachineName(machineName, req) {
     return machineName;
   }
 
-  mapEntityProperty(entities, property, items) {
+  public mapEntityProperty(entities, property, items) {
     if (!entities || !items) {
       return false;
     }
@@ -78,17 +77,16 @@ module.exports = class Porter {
     }
     let found = true;
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       if (entity.hasOwnProperty(property)) {
         if (Array.isArray(entity[property])) {
-          entity[property] = entity[property].map((prop) =>{
+          entity[property] = entity[property].map((prop) => {
             if (items.hasOwnProperty(prop)) {
               return items[prop];
             }
             found = false;
           });
-        }
-        else {
+        } else {
           if (items[entity[property]]) {
             const key = entity[property];
             entity[property] = items[key];
@@ -97,8 +95,7 @@ module.exports = class Porter {
             // if (items[key].hasOwnProperty._vid) {
             //   entity[`${property}Revision`] = items[key];
             // }
-          }
-          else {
+          } else {
             found = false;
           }
         }
@@ -108,7 +105,7 @@ module.exports = class Porter {
     return found;
   }
 
-  componentMachineNameToId(components) {
+  public componentMachineNameToId(components) {
     let changed = false;
     this.app.util.eachComponent(components, (component) => {
       // Update resource machineNames for resource components.

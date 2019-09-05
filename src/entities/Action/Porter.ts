@@ -9,7 +9,7 @@ module.exports = class Action extends Porter {
     return this.app.models.Action;
   }
 
-  import(action) {
+  public import(action) {
     this.mapEntityProperty(action.settings, 'resource', this.maps.resources);
     this.mapEntityProperty(action.settings, 'resources', this.maps.resources);
     this.mapEntityProperty(action.settings, 'role', this.maps.roles);
@@ -29,7 +29,7 @@ module.exports = class Action extends Porter {
     return action;
   }
 
-  export(action) {
+  public export(action) {
     this.mapEntityProperty(action, 'entity', { ...this.maps.forms, ...this.maps.resources });
     this.mapEntityProperty(action.settings, 'role', this.maps.roles);
     this.mapEntityProperty(action.settings, 'resource', this.maps.resources);

@@ -5,7 +5,7 @@ module.exports = class Resource extends Form {
     return 'resources';
   }
 
-  getMaps(port, query = { type: 'resource' }) {
+  public getMaps(port, query = { type: 'resource' }) {
     return super.getMaps(port, query);
   }
 };

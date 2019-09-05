@@ -28,28 +28,25 @@ const checkConditional = (component, row, data, recurse = false) => {
       // Create the sandbox.
       const sandbox = vm.createContext({
         data,
-        row
+        row,
       });
 
       // Execute the script.
       const script = new vm.Script(component.customConditional);
       script.runInContext(sandbox, {
-        timeout: 250
+        timeout: 250,
       });
 
       if (util.isBoolean(sandbox.show)) {
         isVisible = util.boolean(sandbox.show);
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.error(e);
     }
-  }
-  else {
+  } else {
     try {
       isVisible = util.checkCondition(component, row, data);
-    }
-    catch (err) {
+    } catch (err) {
       console.error(err);
     }
   }
@@ -57,8 +54,7 @@ const checkConditional = (component, row, data, recurse = false) => {
   // If visible and recurse, continue down tree to check parents.
   if (isVisible && recurse && component.parent.type !== 'form') {
     return !component.parent || checkConditional(component.parent, row, data, true);
-  }
-  else {
+  } else {
     return isVisible;
   }
 };
@@ -68,7 +64,7 @@ const getRules = (type) => [
     name: 'custom',
     params: {
       component: Joi.any(),
-      data: Joi.any()
+      data: Joi.any(),
     },
     validate(params, value, state, options) {
       const component = params.component;
@@ -96,18 +92,17 @@ const getRules = (type) => [
             data,
             row: _row,
             scope: { data },
-            component: component,
-            valid: valid
+            component,
+            valid,
           });
 
           // Execute the script.
           const script = new vm.Script(component.validate.custom);
           script.runInContext(sandbox, {
-            timeout: 100
+            timeout: 100,
           });
           valid = sandbox.valid;
-        }
-        catch (err) {
+        } catch (err) {
           // Say this isn't valid based on bad code executed...
           valid = err.toString();
         }
@@ -119,13 +114,13 @@ const getRules = (type) => [
       }
 
       return value; // Everything is OK
-    }
+    },
   },
   {
     name: 'json',
     params: {
       component: Joi.any(),
-      data: Joi.any()
+      data: Joi.any(),
     },
     validate(params, value, state, options) {
       const component = params.component;
@@ -144,10 +139,9 @@ const getRules = (type) => [
         try {
           valid = util.jsonLogic.apply(component.validate.json, {
             data,
-            row: _row
+            row: _row,
           });
-        }
-        catch (err) {
+        } catch (err) {
           valid = err.message;
         }
 
@@ -158,13 +152,13 @@ const getRules = (type) => [
       }
 
       return value; // Everything is OK
-    }
+    },
   },
   {
     name: 'hidden',
     params: {
       component: Joi.any(),
-      data: Joi.any()
+      data: Joi.any(),
     },
     validate(params, value, state, options) {
       // If we get here than the field has thrown an error.
@@ -182,12 +176,12 @@ const getRules = (type) => [
       }
 
       return this.createError(`${type}.hidden`, { message: 'hidden with value' }, state, options);
-    }
+    },
   },
   {
     name: 'maxWords',
     params: {
-      maxWords: Joi.any()
+      maxWords: Joi.any(),
     },
     validate(params, value, state, options) {
       if (value.trim().split(/\s+/).length <= parseInt(params.maxWords, 10)) {
@@ -195,12 +189,12 @@ const getRules = (type) => [
       }
 
       return this.createError(`${type}.maxWords`, { message: 'exceeded maximum words.' }, state, options);
-    }
+    },
   },
   {
     name: 'minWords',
     params: {
-      minWords: Joi.any()
+      minWords: Joi.any(),
     },
     validate(params, value, state, options) {
       if (value.trim().split(/\s+/).length >= parseInt(params.minWords, 10)) {
@@ -208,7 +202,7 @@ const getRules = (type) => [
       }
 
       return this.createError(`${type}.minWords`, { message: 'does not have enough words.' }, state, options);
-    }
+    },
   },
   {
     name: 'select',
@@ -217,7 +211,7 @@ const getRules = (type) => [
       submission: Joi.any(),
       token: Joi.any(),
       async: Joi.any(),
-      requests: Joi.any()
+      requests: Joi.any(),
     },
     /* eslint-disable no-unused-vars */
     validate(params, value, state, options) {
@@ -239,7 +233,7 @@ const getRules = (type) => [
         method: 'GET',
         qs: {},
         json: true,
-        headers: {}
+        headers: {},
       };
 
       // If the url is a boolean value.
@@ -280,7 +274,7 @@ const getRules = (type) => [
 
       // Make sure to interpolate.
       requestOptions.url = util.interpolate(requestOptions.url, {
-        data: submission.data
+        data: submission.data,
       });
 
       // Set custom headers.
@@ -300,7 +294,7 @@ const getRules = (type) => [
       async.push(new Promise((resolve) => {
         /* eslint-disable prefer-template */
         const cacheKey = `${requestOptions.method}:${requestOptions.url}?` +
-          Object.keys(requestOptions.qs).map(key => key + '=' + requestOptions.qs[key]).join('&');
+          Object.keys(requestOptions.qs).map((key) => key + '=' + requestOptions.qs[key]).join('&');
         /* eslint-enable prefer-template */
         const cacheTime = (process.env.VALIDATOR_CACHE_TIME || (3 * 60)) * 60 * 1000;
 
@@ -310,8 +304,7 @@ const getRules = (type) => [
           // Null means no cache hit but is also used as a success callback which we are faking with true here.
           if (result === true) {
             return resolve(null);
-          }
-          else {
+          } else {
             return resolve(result);
           }
         }
@@ -320,12 +313,12 @@ const getRules = (type) => [
         requests[cacheKey] = requests[cacheKey] || request(requestOptions);
 
         requests[cacheKey]
-          .then(body => {
+          .then((body) => {
             if (!body || !body.length) {
               const error = {
                 message: `"${value}" for "${component.label || component.key}" is not a valid selection.`,
                 path: state.path,
-                type: 'any.select'
+                type: 'any.select',
               };
               cache.put(cacheKey, error, cacheTime);
               return resolve(error);
@@ -334,11 +327,11 @@ const getRules = (type) => [
             cache.put(cacheKey, true, cacheTime);
             return resolve(null);
           })
-          .catch(result => {
+          .catch((result) => {
             const error = {
               message: `Select validation error: ${result.error}`,
               path: state.path,
-              type: 'any.select'
+              type: 'any.select',
             };
             cache.put(cacheKey, error, cacheTime);
             return resolve(error);
@@ -346,7 +339,7 @@ const getRules = (type) => [
       }));
 
       return value;
-    }
+    },
   },
   {
     name: 'distinct',
@@ -354,7 +347,7 @@ const getRules = (type) => [
       component: Joi.any(),
       submission: Joi.any(),
       model: Joi.any(),
-      async: Joi.any()
+      async: Joi.any(),
     },
     /* eslint-disable no-unused-vars */
     validate(params, value, state, options) {
@@ -378,26 +371,21 @@ const getRules = (type) => [
       const query = { form: util.idToBson(submission.form) };
       if (_.isString(value)) {
         query[path] = { $regex: new RegExp(`^${util.escapeRegExp(value)}$`), $options: 'i' };
-      }
-      // FOR-213 - Pluck the unique location id
-      else if (
+      } else if (
         !_.isString(value) &&
         value.hasOwnProperty('address_components') &&
         value.hasOwnProperty('place_id')
       ) {
         query[`${path}.place_id`] = { $regex: new RegExp(`^${util.escapeRegExp(value.place_id)}$`), $options: 'i' };
-      }
-      // Compare the contents of arrays vs the order.
-      else if (_.isArray(value)) {
+      } else if (_.isArray(value)) {
         query[path] = { $all: value };
-      }
-      else if (_.isObject(value)) {
+      } else if (_.isObject(value)) {
         query[path] = { $eq: value };
       }
 
       // Only search for non-deleted items.
       if (!query.hasOwnProperty('deleted')) {
-        query['deleted'] = { $eq: null };
+        query.deleted = { $eq: null };
       }
 
       async.push(new Promise((resolve) => {
@@ -407,18 +395,16 @@ const getRules = (type) => [
             return resolve({
               message: err,
               path: state.path,
-              type: 'any.unique'
+              type: 'any.unique',
             });
-          }
-          else if (result && submission._id && (result._id.toString() === submission._id)) {
+          } else if (result && submission._id && (result._id.toString() === submission._id)) {
             // This matches the current submission which is allowed.
             return resolve(null);
-          }
-          else if (result) {
+          } else if (result) {
             return resolve({
               message: `"${component.label}" must be unique.`,
               path: state.path,
-              type: 'any.unique'
+              type: 'any.unique',
             });
           }
           return resolve(null);
@@ -426,8 +412,8 @@ const getRules = (type) => [
       }));
 
       return value; // Everything is OK
-    }
-  }
+    },
+  },
 ];
 
 const JoiX = Joi.extend([
@@ -438,9 +424,9 @@ const JoiX = Joi.extend([
       json: '{{message}}',
       hidden: '{{message}}',
       select: '{{message}}',
-      distinct: '{{message}}'
+      distinct: '{{message}}',
     },
-    rules: getRules('any')
+    rules: getRules('any'),
   },
   {
     name: 'string',
@@ -452,9 +438,9 @@ const JoiX = Joi.extend([
       json: '{{message}}',
       hidden: '{{message}}',
       select: '{{message}}',
-      distinct: '{{message}}'
+      distinct: '{{message}}',
     },
-    rules: getRules('string')
+    rules: getRules('string'),
   },
   {
     name: 'array',
@@ -464,9 +450,9 @@ const JoiX = Joi.extend([
       json: '{{message}}',
       hidden: '{{message}}',
       select: '{{message}}',
-      distinct: '{{message}}'
+      distinct: '{{message}}',
     },
-    rules: getRules('array')
+    rules: getRules('array'),
   },
   {
     name: 'object',
@@ -476,9 +462,9 @@ const JoiX = Joi.extend([
       json: '{{message}}',
       hidden: '{{message}}',
       select: '{{message}}',
-      distinct: '{{message}}'
+      distinct: '{{message}}',
     },
-    rules: getRules('object')
+    rules: getRules('object'),
   },
   {
     name: 'number',
@@ -488,9 +474,9 @@ const JoiX = Joi.extend([
       json: '{{message}}',
       hidden: '{{message}}',
       select: '{{message}}',
-      distinct: '{{message}}'
+      distinct: '{{message}}',
     },
-    rules: getRules('number')
+    rules: getRules('number'),
   },
   {
     name: 'boolean',
@@ -500,9 +486,9 @@ const JoiX = Joi.extend([
       json: '{{message}}',
       hidden: '{{message}}',
       select: '{{message}}',
-      distinct: '{{message}}'
+      distinct: '{{message}}',
     },
-    rules: getRules('boolean')
+    rules: getRules('boolean'),
   },
   {
     name: 'date',
@@ -512,14 +498,13 @@ const JoiX = Joi.extend([
       json: '{{message}}',
       hidden: '{{message}}',
       select: '{{message}}',
-      distinct: '{{message}}'
+      distinct: '{{message}}',
     },
-    rules: getRules('date')
-  }
+    rules: getRules('date'),
+  },
 ]);
 
 module.exports = {
   checkConditional,
-  JoiX
+  JoiX,
 };
-

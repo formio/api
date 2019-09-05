@@ -5,7 +5,7 @@ module.exports = class Status extends Route {
     return '/status';
   }
 
-  execute(req, res) {
+  public execute(req, res) {
     res.send(this.app.getStatus());
   }
 };

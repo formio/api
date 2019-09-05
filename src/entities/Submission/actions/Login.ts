@@ -4,7 +4,7 @@ const has = require('lodash/has');
 const get = require('lodash/get');
 
 module.exports = class Login extends Action {
-  static info() {
+  public static info() {
     return {
       name: 'login',
       title: 'Login',
@@ -14,12 +14,12 @@ module.exports = class Login extends Action {
       default: false,
       defaults: {
         handler: ['before'],
-        method: ['create']
+        method: ['create'],
       },
       access: {
         handler: false,
-        method: false
-      }
+        method: false,
+      },
     };
   }
 
@@ -30,7 +30,7 @@ module.exports = class Login extends Action {
    * @param res
    * @param next
    */
-  static settingsForm(options) {
+  public static settingsForm(options) {
     return super.settingsForm(options, [
       {
         type: 'select',
@@ -44,8 +44,8 @@ module.exports = class Login extends Action {
         template: '<span>{{ item.title }}</span>',
         multiple: true,
         validate: {
-          required: true
-        }
+          required: true,
+        },
       },
       {
         type: 'select',
@@ -59,8 +59,8 @@ module.exports = class Login extends Action {
         valueProperty: 'key',
         multiple: false,
         validate: {
-          required: true
-        }
+          required: true,
+        },
       },
       {
         type: 'select',
@@ -74,8 +74,8 @@ module.exports = class Login extends Action {
         valueProperty: 'key',
         multiple: false,
         validate: {
-          required: true
-        }
+          required: true,
+        },
       },
       {
         type: 'textfield',
@@ -83,7 +83,7 @@ module.exports = class Login extends Action {
         input: true,
         label: 'Maximum Login Attempts',
         description: 'Use 0 for unlimited attempts',
-        defaultValue: '5'
+        defaultValue: '5',
       },
       {
         type: 'textfield',
@@ -92,7 +92,7 @@ module.exports = class Login extends Action {
         label: 'Login Attempt Time Window',
         description: 'This is the window of time to count the login attempts.',
         defaultValue: '30',
-        suffix: 'seconds'
+        suffix: 'seconds',
       },
       {
         type: 'textfield',
@@ -101,12 +101,12 @@ module.exports = class Login extends Action {
         label: 'Locked Account Wait Time',
         description: 'The amount of time a person needs to wait before they can try to login again.',
         defaultValue: '1800',
-        suffix: 'seconds'
-      }
+        suffix: 'seconds',
+      },
     ]);
   }
 
-  resolve({ data: submission, req, res }, setActionInfoMessage) {
+  public resolve({ data: submission, req, res }, setActionInfoMessage) {
     if (!submission || !submission.hasOwnProperty('data')) {
       return res.status(401).send('User or password was incorrect.');
     }
@@ -124,12 +124,12 @@ module.exports = class Login extends Action {
     }
 
     const query = {
-      form: { '$in': this.settings.resources.map(this.app.db.toID) },
+      form: { $in: this.settings.resources.map(this.app.db.toID) },
       [`data.${this.settings.username}`]: get(submission.data, this.settings.username),
     };
 
     return this.app.models.Submission.read(query, req.context.params)
-      .then(user => {
+      .then((user) => {
         if (!user) {
           setActionInfoMessage('User not found');
           return Promise.reject('User or password was incorrect.');
@@ -142,7 +142,7 @@ module.exports = class Login extends Action {
 
         // Need to use req.submission.data for password as it hasn't been encrypted yet.
         return bcrypt.compare(get(req.submission.data, this.settings.password), get(user.data, this.settings.password))
-          .then(value => {
+          .then((value) => {
             if (!value) {
               setActionInfoMessage('Password did not match');
               return Promise.reject('User or password was incorrect.');
@@ -151,7 +151,7 @@ module.exports = class Login extends Action {
             return this.app.models.Form.read({
               _id: this.app.db.toID(user.form),
             }, req.context.params)
-              .then(form => {
+              .then((form) => {
                 req.user = user;
                 res.token = this.app.generateToken(this.app.tokenPayload(user, form));
                 res.resource.item = user;

@@ -5,7 +5,7 @@ module.exports = class Current extends Route {
     return `${super.path}/current`;
   }
 
-  execute(req, res) {
+  public execute(req, res) {
     // TODO: convert this to subrequest? Need to protect password field.
     res.send(req.user);
   }

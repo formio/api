@@ -9,7 +9,7 @@ module.exports = class Import extends Route {
     return `${super.path}/import`;
   }
 
-  execute(req, res, next) {
+  public execute(req, res, next) {
     let template = req.body;
     if (typeof req.body === 'object' && req.body.hasOwnProperty('template')) {
       template = req.body.template;

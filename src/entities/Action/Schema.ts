@@ -14,47 +14,47 @@ module.exports = class Action extends Schema {
       _id: this.id,
       title: {
         type: 'string',
-        required: true
+        required: true,
       },
       name: {
         type: 'string',
-        required: true
+        required: true,
       },
       entity: {
         type: 'id',
         index: true,
-        required: true
+        required: true,
       },
       entityType: {
         type: 'string',
         index: true,
         required: true,
-        default: 'form'
+        default: 'form',
       },
       handler: [{
         type: 'string',
-        require: true
+        require: true,
       }],
       method: [{
         type: 'string',
-        require: true
+        require: true,
       }],
       condition: {
-        required: false
+        required: false,
       },
       priority: {
         type: 'number',
         require: true,
-        default: 0
+        default: 0,
       },
       settings: {
-        required: false
+        required: false,
       },
-      machineName: this.machineName
+      machineName: this.machineName,
     };
   }
 
-  generateMachineName(document, model) {
+  public generateMachineName(document, model) {
     if (document.machineName) {
       return Promise.resolve(document);
     }

@@ -1,7 +1,7 @@
 const Action = require('../../../classes/Action');
 
 module.exports = class Role extends Action {
-  static info() {
+  public static info() {
     return {
       name: 'role',
       title: 'Role Assignment',
@@ -11,16 +11,16 @@ module.exports = class Role extends Action {
       default: false,
       defaults: {
         handler: ['after'],
-        method: ['create']
+        method: ['create'],
       },
       access: {
         handler: false,
-        method: false
-      }
+        method: false,
+      },
     };
   }
 
-  static settingsForm(options) {
+  public static settingsForm(options) {
     return super.settingsForm(options, [
       {
         type: 'select',
@@ -34,19 +34,19 @@ module.exports = class Role extends Action {
           json: JSON.stringify([
             {
               type: 'add',
-              title: 'Add Role'
+              title: 'Add Role',
             },
             {
               type: 'remove',
-              title: 'Remove Role'
-            }
-          ])
+              title: 'Remove Role',
+            },
+          ]),
         },
         valueProperty: 'type',
         multiple: false,
         validate: {
-          required: true
-        }
+          required: true,
+        },
       },
       {
         type: 'select',
@@ -60,13 +60,13 @@ module.exports = class Role extends Action {
         valueProperty: '_id',
         multiple: false,
         validate: {
-          required: true
-        }
-      }
+          required: true,
+        },
+      },
     ]);
   }
 
-  resolve({ data: submission, req }, setActionInfoMessage) {
+  public resolve({ data: submission, req }, setActionInfoMessage) {
     // Error if operation type is not valid.
     if (!this.settings.type || (this.settings.type !== 'add' && this.settings.type !== 'remove')) {
       setActionInfoMessage('Invalid setting `type` for the RoleAction; expecting `add` or `remove`.');
@@ -102,7 +102,7 @@ module.exports = class Role extends Action {
     }
 
     return this.app.models.Submission.read({ _id: this.app.db.toID(resource) }, req.context.params)
-      .then(submission => {
+      .then((submission) => {
         // Ensure roles is set and an array.
         submission.roles = submission.roles || [];
 

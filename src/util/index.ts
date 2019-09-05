@@ -15,8 +15,7 @@ module.exports = {
   isBoolean(value) {
     if (typeof value === 'boolean') {
       return true;
-    }
-    else if (typeof value === 'string') {
+    } else if (typeof value === 'string') {
       value = value.toLowerCase();
       return (value === 'true') || (value === 'false');
     }

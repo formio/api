@@ -33,7 +33,7 @@ class Validator {
    * @param {Object} componentData
    *   The submission data corresponding to this component.
    */
-  buildSchema(schema, components, componentData, submission) {
+  public buildSchema(schema, components, componentData, submission) {
     if (!Array.isArray(components)) {
       return schema;
     }
@@ -53,13 +53,13 @@ class Validator {
         minLength: 'min',
         maxLength: 'max',
         minWords: 'minWords',
-        maxWords: 'maxWords'
+        maxWords: 'maxWords',
       };
       /* eslint-disable max-depth, valid-typeof */
       switch (component.type) {
         case 'form': {
           // Ensure each sub submission at least has an empty object or it won't validate.
-          _.update(componentData, `${component.key}.data`, value => value ? value : {});
+          _.update(componentData, `${component.key}.data`, (value) => value ? value : {});
 
           const subSubmission = _.get(componentData, component.key, {});
 
@@ -69,13 +69,12 @@ class Validator {
               {},
               component.components,
               subSubmission,
-              subSubmission
+              subSubmission,
             );
             fieldValidator = JoiX.object().unknown(true).keys({
-              data: JoiX.object().keys(formSchema)
+              data: JoiX.object().keys(formSchema),
             });
-          }
-          else {
+          } else {
             fieldValidator = JoiX.object();
           }
           break;
@@ -87,7 +86,7 @@ class Validator {
             {},
             component.components,
             _.get(componentData, component.key, componentData),
-            submission
+            submission,
           );
 
           fieldValidator = JoiX.array().items(JoiX.object().keys(objectSchema)).options({ stripUnknown: false });
@@ -97,7 +96,7 @@ class Validator {
             {},
             component.components,
             _.get(componentData, component.key, componentData),
-            submission
+            submission,
           );
 
           fieldValidator = JoiX.object().keys(objectSchema);
@@ -133,8 +132,7 @@ class Validator {
         case 'phonenumber':
           if (component.as === 'json') {
             fieldValidator = JoiX.object();
-          }
-          else {
+          } else {
             fieldValidator = JoiX.string().allow('');
             for (const name in stringValidators) {
               const funcName = stringValidators[name];
@@ -166,8 +164,7 @@ class Validator {
               const parts = component.validate.step.split('.');
               if (parts.length === 1) {
                 fieldValidator = fieldValidator.integer();
-              }
-              else {
+              } else {
                 fieldValidator = fieldValidator.precision(parts[1].length);
               }
             }
@@ -196,16 +193,15 @@ class Validator {
                 {},
                 component.components,
                 _.get(componentData, component.key, componentData),
-                submission
+                submission,
               );
               fieldValidator = JoiX.object().keys(objectSchema);
-            }
-            else {
+            } else {
               this.buildSchema(
                 schema,
                 component.components,
                 componentData,
-                submission
+                submission,
               );
             }
           }
@@ -225,8 +221,7 @@ class Validator {
           try {
             const regex = new RegExp(component.validate.pattern);
             fieldValidator = fieldValidator.regex(regex);
-          }
-          catch (err) {
+          } catch (err) {
             console.error(err);
           }
         }
@@ -248,13 +243,13 @@ class Validator {
         // fieldValidator = fieldValidator.distinct(component, submission, this.model, this.async);
       }
 
-      //if multiple masks input, then data is object with 'value' field, and validation should be applied to that field
+      // if multiple masks input, then data is object with 'value' field, and validation should be applied to that field
       if (component.allowMultipleMasks) {
         fieldValidator = JoiX.object().keys({
           value: fieldValidator,
-          maskName: JoiX.string()
+          maskName: JoiX.string(),
         });
-        //additionally apply required rule to the field itself
+        // additionally apply required rule to the field itself
         if (component.validate && component.validate.required) {
           fieldValidator = fieldValidator.required();
         }
@@ -281,19 +276,19 @@ class Validator {
     return schema;
   }
 
-  applyLogic(component, row, data) {
+  public applyLogic(component, row, data) {
     if (!Array.isArray(component.logic)) {
       return;
     }
 
-    component.logic.forEach(logic => {
+    component.logic.forEach((logic) => {
       const result = util.checkTrigger(component, logic.trigger, row, data);
 
       if (result) {
         if (!Array.isArray(logic.actions)) {
           return;
         }
-        logic.actions.forEach(action => {
+        logic.actions.forEach((action) => {
           switch (action.type) {
             case 'property':
               util.setActionProperty(component, action, row, data, component, result);
@@ -306,18 +301,17 @@ class Validator {
                   data,
                   row,
                   component,
-                  result
+                  result,
                 });
 
                 // Execute the script.
                 const script = new vm.Script(action.value);
                 script.runInContext(sandbox, {
-                  timeout: 250
+                  timeout: 250,
                 });
 
                 _.set(row, component.key, sandbox.value.toString());
-              }
-              catch (e) {
+              } catch (e) {
                 console.error(e);
               }
               break;
@@ -327,7 +321,7 @@ class Validator {
     });
   }
 
-  calculateValue(component, row, data) {
+  public calculateValue(component, row, data) {
     if (component.calculateServer && component.calculateValue) {
       if (_.isString(component.calculateValue)) {
         try {
@@ -337,30 +331,27 @@ class Validator {
             row,
             component,
             util,
-            moment
+            moment,
           });
 
           // Execute the script.
           const script = new vm.Script(component.calculateValue);
           script.runInContext(sandbox, {
-            timeout: 250
+            timeout: 250,
           });
 
           _.set(row, component.key, sandbox.value);
-        }
-        catch (e) {
+        } catch (e) {
           // Need to log error for calculated value.
         }
-      }
-      else {
+      } else {
         try {
           _.set(row, component.key, util.jsonLogic(component.calculateValue, {
             data,
             row,
-            _
+            _,
           }));
-        }
-        catch (e) {
+        } catch (e) {
           // Need to log error for calculated value.
         }
       }
@@ -376,7 +367,7 @@ class Validator {
    *   The callback function to pass the results.
    */
   /* eslint-disable max-statements */
-  validate(submission, next) {
+  public validate(submission, next) {
     // Skip validation if no data is provided.
     if (!submission.data) {
       return next();
@@ -385,7 +376,7 @@ class Validator {
     // Build the JoiX validation schema.
     let schema = {
       // Start off with the _id key.
-      _id: JoiX.string().meta({ primaryKey: true })
+      _id: JoiX.string().meta({ primaryKey: true }),
     };
 
     // Create the validator schema.
@@ -401,16 +392,15 @@ class Validator {
 
     JoiX.validate(submission.data, schema, { stripUnknown: true, abortEarly: false }, (validateErr, value) => {
       // Wait for all async validators to complete and add any errors.
-      Promise.all(this.async).then(errors => {
-        errors = errors.filter(item => item);
+      Promise.all(this.async).then((errors) => {
+        errors = errors.filter((item) => item);
         // Add in any asyncronous errors.
         if (errors.length) {
           if (!validateErr) {
             validateErr = new Error('Validation failed');
             validateErr.name = 'ValidationError';
             validateErr.details = errors;
-          }
-          else {
+          } else {
             validateErr.details = validateErr.details.concat(errors);
           }
         }
@@ -419,7 +409,7 @@ class Validator {
           // fields are hidden.
           validateErr.details = validateErr.details.filter((detail) => {
             let result = {
-              hidden: false
+              hidden: false,
             };
             if (detail.type.includes('.hidden')) {
               const component = components[detail.path.filter(isNaN).join('.')];
@@ -432,8 +422,7 @@ class Validator {
               }
 
               result.hidden = true;
-            }
-            else {
+            } else {
               // Walk up the path tree to determine if the component is hidden.
               result = detail.path.reduce((result, key) => {
                 result.path.push(key);
@@ -452,8 +441,7 @@ class Validator {
                   if (clearOnHide && result.hidden) {
                     _.unset(value, result.path);
                   }
-                }
-                else {
+                } else {
                   // Since this is a subform, change the submission object going to the conditionals.
                   result.submission = _.get(value, result.path);
                 }
@@ -470,8 +458,7 @@ class Validator {
             validateErr._validated = value;
 
             return next(validateErr);
-          }
-          else {
+          } else {
             validateErr._object = value;
           }
         }

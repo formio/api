@@ -19,7 +19,7 @@ module.exports = class ActionItem extends Schema {
       },
       title: {
         type: 'string',
-          require: true
+          require: true,
       },
       dataType: {
         type: 'string',
@@ -29,16 +29,16 @@ module.exports = class ActionItem extends Schema {
       dataId: {
         type: 'id',
         index: true,
-        required: false
+        required: false,
       },
       data: {},
       handler: {
         type: 'string',
-        require: true
+        require: true,
       },
       method: {
         type: 'string',
-        require: true
+        require: true,
       },
       context: {},
       state: {
@@ -53,7 +53,7 @@ module.exports = class ActionItem extends Schema {
       modified: this.modified,
       attempts: {
         type:  'number',
-        default: 0
+        default: 0,
       },
     };
   }
