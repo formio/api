@@ -1,4 +1,7 @@
-module.exports = class Route {
+export class Route {
+  public app;
+  public base;
+
   constructor(app, base) {
     this.app = app;
     this.base = base;

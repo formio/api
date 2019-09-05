@@ -1,7 +1,16 @@
-module.exports = class Porter {
+import {Model} from '../dbs/Model';
+
+export class Porter {
+  public app;
+  public maps;
+
   constructor(app, maps) {
     this.app = app;
     this.maps = maps;
+  }
+
+  get model(): Model {
+    return null;
   }
 
   get noExport() {
@@ -45,7 +54,7 @@ module.exports = class Porter {
     return document;
   }
 
-  public query(document) {
+  public query(document: any) {
     return {
       $or: [
         {
@@ -55,7 +64,7 @@ module.exports = class Porter {
     };
   }
 
-  public cleanUp() {
+  public cleanUp(): any {
     return Promise.resolve();
   }
 

@@ -1,9 +1,9 @@
-const Action = require('./Action');
-const Import = require('../classes/Import');
-const Export = require('../classes/Export');
-const Porter = require('./Porter');
-const Resource = require('./Resource');
-const Route = require('./Route');
+import {Action} from './Action';
+import {Import} from '../classes/Import';
+import {Export} from '../classes/Export';
+import {Porter} from './Porter';
+import {Resource} from './Resource';
+import {Route} from './Route';
 
 module.exports = {
   Action,

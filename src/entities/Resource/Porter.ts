@@ -1,6 +1,6 @@
-const Form = require('../Form/Porter');
+import {Form} from '../Form/Porter';
 
-module.exports = class Resource extends Form {
+export class Resource extends Form {
   get key() {
     return 'resources';
   }

@@ -1,9 +1,13 @@
 'use strict';
 
-const _ = require('lodash');
-const log = require('../log');
+import * as _ from 'lodash';
+import {log} from '../log';
 
-module.exports = class Model {
+export class Model {
+  public schema;
+  private _db;
+  private initialized;
+
   constructor(schema, db) {
     // @TODO
     // populate (deprecate?)

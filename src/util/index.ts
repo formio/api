@@ -1,11 +1,6 @@
-let util = require('formiojs/utils');
+import * as util from 'formiojs/utils';
 
-// Fix weirdness between module import systems.
-if (util.hasOwnProperty('default')) {
-  util = util.default;
-}
-
-module.exports = {
+export default {
   ...util,
   /**
    * Determine if a value is a boolean representation.

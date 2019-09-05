@@ -4,7 +4,7 @@ const Form = require('./Form/Resource');
 const Role = require('./Role/Resource');
 const Submission = require('./Submission/Resource');
 
-module.exports = {
+export const resources = {
   Action,
   ActionItem,
   Form,

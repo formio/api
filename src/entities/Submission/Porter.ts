@@ -1,6 +1,6 @@
-const Porter = require('../../classes/Porter');
+import {Porter} from '../../classes/Porter';
 
-module.exports = class Submission extends Porter {
+export class Submission extends Porter {
   get key() {
     return 'submissions';
   }

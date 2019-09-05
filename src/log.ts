@@ -1,6 +1,6 @@
-const debug = require('debug');
+import * as debug from 'debug';
 
-module.exports = (type, ...args) => {
+export const log = (type, ...args) => {
   const types = {
     debug: debug('formio:debug'),
     info: debug('formio:info'),

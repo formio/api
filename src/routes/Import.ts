@@ -1,6 +1,6 @@
-const Route = require('../classes/Route');
+import {Route} from '../classes/Route';
 
-module.exports = class Import extends Route {
+export class Import extends Route {
   get method() {
     return 'post';
   }

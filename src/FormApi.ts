@@ -1,19 +1,28 @@
-const uuid = require('uuid/v1');
-const bcrypt = require('bcryptjs');
-const info = require('../package.json');
-const log = require('./log');
-import util = require('./util');
+import * as bcrypt from 'bcryptjs';
+import * as uuid from 'uuid/v4';
+import * as info from '../package.json';
+import {Export as ExportClass} from './classes/Export';
+import {Import as ImportClass} from './classes/Import';
+import {porters} from './entities/porters';
+import {resources} from './entities/resources';
+import {schemas} from './entities/schemas';
+import {actions} from './entities/Submission/actions';
+import {log} from './log';
+import {routes as routeClasses} from './routes';
+import * as util from './util';
 
-const ImportClass = require('./classes/Import');
-const ExportClass = require('./classes/Export');
-const porters = require('./entities/porters');
-const resources = require('./entities/resources');
-const schemas = require('./entities/schemas');
-const routeClasses = require('./routes');
-const actions = require('./entities/Submission/actions');
 const EVERYONE = '000000000000000000000000';
 
-module.exports = class FormApi {
+export class Api {
+  public log;
+  public config;
+  public router;
+  private _db;
+  public models;
+  public resources;
+  public routes;
+  private locks;
+
   constructor(router, db, config) {
     this.log = log;
     this.config = config;
@@ -335,7 +344,7 @@ module.exports = class FormApi {
     }
   }
 
-  public addRoutes(base) {
+  public addRoutes(base = '') {
     Object.values(this.routeClasses).forEach((Route) => {
       this.log('debug', `Adding route ${Route.path}`);
       const route = new Route(this, base);

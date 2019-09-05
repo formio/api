@@ -1,6 +1,6 @@
-'use strict';
+export class Schema {
+  public app;
 
-module.exports = class Schema {
   constructor(app) {
     this.app = app;
   }
@@ -140,7 +140,7 @@ module.exports = class Schema {
   }
 
   public uniqueMachineName(document, model) {
-    const query = {
+    const query: any = {
       machineName: { $regex: `^${document.machineName}[0-9]*$` },
       deleted: { $eq: null },
     };

@@ -1,9 +1,13 @@
 'use strict';
 
-const jsonpatch = require('fast-json-patch');
-const moment = require('moment');
+import * as jsonpatch from 'fast-json-patch';
+import * as moment from 'moment';
 
-module.exports = class Resource {
+export class Resource {
+  public model;
+  public router;
+  public app;
+
   constructor(model, router, app) {
     this.model = model;
     this.router = router;
@@ -58,9 +62,8 @@ module.exports = class Resource {
   }
 
   public indexQuery(req, query = {}) {
-    /* eslint-disable no-unused-vars */
+    // @ts-ignore
     const { limit, skip, select, sort, populate, ...filters } = req.query || {};
-    /* eslint-enable no-unused-vars */
 
     // Iterate through each filter.
     for (const key in filters) {
@@ -126,7 +129,7 @@ module.exports = class Resource {
       return parseInt(value, 10);
     }
 
-    let date = moment.utc(value, ['YYYY-MM-DD', 'YYYY-MM', moment.ISO_8601], true);
+    const date = moment.utc(value, ['YYYY-MM-DD', 'YYYY-MM', moment.ISO_8601], true);
     if (date.isValid()) {
       return date.toDate();
     }
@@ -251,7 +254,7 @@ module.exports = class Resource {
     return item;
   }
 
-  public finalize(item, req) {
+  public finalize(item, req = {}) {
     return item;
   }
 

@@ -1,10 +1,10 @@
-const Access = require('./Access');
-const Current = require('./Current');
-const Export = require('./Export');
-const Import = require('./Import');
-const Status = require('./Status');
+import {Access} from './Access';
+import {Current} from './Current';
+import {Export} from './Export';
+import {Import} from './Import';
+import {Status} from './Status';
 
-module.exports = {
+export const routes = {
   Access,
   Current,
   Export,

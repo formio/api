@@ -1,6 +1,9 @@
-'use strict';
+export class Import {
+  public app;
+  public template;
+  public req;
+  public maps;
 
-module.exports = class Import {
   constructor(app, template, req) {
     this.app = app;
     this.template = template;
@@ -92,4 +95,4 @@ module.exports = class Import {
         }
       });
   }
-};
+}

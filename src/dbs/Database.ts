@@ -1,7 +1,9 @@
-const Model = require('./Model');
+import {Model} from './Model';
 
 // TODO: Convert this to an interface once we move to typescript.
-module.exports = class Database {
+export class Database {
+  public Model;
+
   constructor() {
     this.Model = Model;
   }

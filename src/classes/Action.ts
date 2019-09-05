@@ -1,4 +1,6 @@
-module.exports = class Action {
+export class Action {
+  public app;
+  public settings;
 
   static get serverOnly() {
     return false;

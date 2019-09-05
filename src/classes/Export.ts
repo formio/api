@@ -1,6 +1,7 @@
-'use strict';
+export class Export {
+  public app;
+  public req;
 
-module.exports = class Export {
   constructor(app, req) {
     this.app = app;
     this.req = req;
@@ -71,4 +72,4 @@ module.exports = class Export {
     }
     return query;
   }
-};
+}

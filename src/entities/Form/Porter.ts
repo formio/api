@@ -1,6 +1,6 @@
-const Porter = require('../../classes/Porter');
+import {Porter} from '../../classes/Porter';
 
-module.exports = class Form extends Porter {
+export class Form extends Porter {
   get key() {
     return 'forms';
   }
@@ -13,7 +13,7 @@ module.exports = class Form extends Porter {
     return super.getMaps(port, query);
   }
 
-  public query(document) {
+  public query(document: any): any {
     return {
       $or: [
         {
@@ -29,7 +29,7 @@ module.exports = class Form extends Porter {
     };
   }
 
-  public cleanUp(forms) {
+  public cleanUp(forms): any {
     const promises = [];
 
     // Any form/resource refs that referred to items below in the template need to be updated.

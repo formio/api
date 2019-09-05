@@ -7,7 +7,7 @@ const Submission = require('./Submission/Schema');
 const Role = require('./Role/Schema');
 const Variable = require('./Variable/Schema');
 
-module.exports = {
+export const schemas = {
   Action,
   ActionItem,
   Form,
