@@ -55,6 +55,7 @@ module.exports = class Action extends Resource {
     });
     const options = {
       baseUrl: this.app.url(this.path('/form'), req),
+      params: req.context.params,
       components,
       roles: Object.values(req.context.roles.all),
       componentsUrl: this.app.url(this.path('/form/:formId/components'), req)
