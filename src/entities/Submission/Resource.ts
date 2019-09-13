@@ -347,7 +347,7 @@ module.exports = class Submission extends Resource {
               row,
               fn,
               context,
-              path ? `${path}.` : '' + `${component.key}[${index}]`,
+              (path ? `${path}.` : '') + `${component.key}[${index}]`,
             ));
           });
         } else if (['form'].includes(component.type)) {
@@ -356,7 +356,7 @@ module.exports = class Submission extends Resource {
             _.get(data, `${component.key}.data`, {}),
             fn,
             context,
-            path ? `${path}.` : '' + `${component.key}.data`,
+            (path ? `${path}.` : '') + `${component.key}.data`,
           ));
         } else if (
           ['container'].includes(component.type) ||
@@ -367,7 +367,7 @@ module.exports = class Submission extends Resource {
             _.get(data, component.key),
             fn,
             context,
-            path ? `${path}.` : '' + `${component.key}`,
+            (path ? `${path}.` : '') + `${component.key}`,
           ));
         } else {
           promises.push(this.eachValue(component.components, data, fn, context, path));
