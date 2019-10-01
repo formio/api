@@ -1,14 +1,15 @@
-'use strict';
-
 import * as jsonpatch from 'fast-json-patch';
 import * as moment from 'moment';
+import {Model} from "../dbs/Model";
+import {Api} from "../FormApi";
+import {Router} from 'express';
 
 export class Resource {
-  public model;
-  public router;
-  public app;
+  public model: Model;
+  public router: Router;
+  public app: Api;
 
-  constructor(model, router, app) {
+  constructor(model: Model, router: Router, app: Api) {
     this.model = model;
     this.router = router;
     this.app = app;

@@ -1,12 +1,10 @@
-const _get = require('lodash/get');
-const _set = require('lodash/set');
-const _each = require('lodash/each');
-const utils = require('formiojs/utils');
+import {default as _} from '../../../util/lodash';
+import {formio} from '../../../util/formio';
 
 module.exports = (component, data, handler, action, { req, res, app }) => {
   if (['afterValidation'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
     // Get the submission object.
-    const body = _get(data, component.key);
+    const body = _.get(data, component.key);
 
     // Make sure to pass along the submission state to the subforms.
     if (req.body.state) {
@@ -26,7 +24,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
     // Only execute if the component should save reference and conditions do not apply.
     if (
       (component.hasOwnProperty('reference') && !component.reference) ||
-      !utils.checkCondition(component, data, req.body.data)
+      !formio.checkCondition(component, data, req.body.data)
     ) {
       return Promise.resolve();
     }
@@ -49,7 +47,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
 
     return app.makeChildRequest({ url, method, body, params, req, res })
       .then((childRes) => {
-        _set(data, component.key, childRes.resource.item);
+        _.set(data, component.key, childRes.resource.item);
       });
   }
 
@@ -61,7 +59,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
       (!component.hasOwnProperty('reference') || component.reference)
     ) {
       // Get child form component's value
-      const compValue = _get(data, component.key);
+      const compValue = _.get(data, component.key);
 
       // Fetch the child form's submission
       if (compValue && compValue._id) {
@@ -73,7 +71,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
           .then((submission) => {
             let found = false;
             submission.externalIds = submission.externalIds || [];
-            _each(submission.externalIds, function(externalId) {
+            submission.externalIds.forEach(function(externalId) {
               if (externalId.type === 'parent') {
                 found = true;
               }

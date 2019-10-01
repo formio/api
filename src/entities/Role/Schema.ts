@@ -1,7 +1,7 @@
-const Schema = require('../../dbs/Schema');
+import {Schema} from "../../classes";
 const _camelCase = require('lodash/camelCase');
 
-module.exports = class Role extends Schema {
+export class Role extends Schema {
   get name() {
     return 'role';
   }

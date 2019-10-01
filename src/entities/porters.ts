@@ -1,8 +1,8 @@
-const {Action} = require('./Action/Porter');
-const {Form} = require('./Form/Porter');
-const {Resource} = require('./Resource/Porter');
-const {Role} = require('./Role/Porter');
-const {Submission} = require('./Submission/Porter');
+import {Action} from './Action/Porter';
+import {Form} from './Form/Porter';
+import {Resource} from './Resource/Porter';
+import {Role} from './Role/Porter';
+import {Submission} from './Submission/Porter';
 
 export const porters = {
   Action,

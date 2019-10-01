@@ -1,8 +1,10 @@
-export class Route {
-  public app;
-  public base;
+import {Api} from "../FormApi";
 
-  constructor(app, base) {
+export class Route {
+  public app: Api;
+  public base: string;
+
+  constructor(app: Api, base: string) {
     this.app = app;
     this.base = base;
   }

@@ -1,4 +1,4 @@
-import {Porter} from '../../classes/Porter';
+import {Porter} from '../../classes';
 
 export class Action extends Porter {
   get key() {

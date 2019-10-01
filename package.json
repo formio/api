@@ -23,7 +23,7 @@
     "core-js": "^3.1.4",
     "debug": "^3.1.0",
     "fast-json-patch": "^2.0.6",
-    "formiojs": "^3.22.2",
+    "formiojs": "^4.2.7",
     "joi": "^13.2.0",
     "lodash": "^4.17.15",
     "memory-cache": "^0.2.0",

@@ -1,8 +1,8 @@
-const Action = require('./Action/Resource');
-const ActionItem = require('./ActionItem/Resource');
-const Form = require('./Form/Resource');
-const Role = require('./Role/Resource');
-const Submission = require('./Submission/Resource');
+import {Action} from './Action/Resource';
+import {ActionItem} from './ActionItem/Resource';
+import {Form} from './Form/Resource';
+import {Role} from './Role/Resource';
+import {Submission} from './Submission/Resource';
 
 export const resources = {
   Action,

@@ -1,6 +1,6 @@
-const Action = require('../../../classes/Action');
+import {Action} from '../../../classes';
 
-module.exports = class Role extends Action {
+export class Role extends Action {
   public static info() {
     return {
       name: 'role',

@@ -1,5 +1,7 @@
+import {Api} from "../FormApi";
+
 export class Action {
-  public app;
+  public app: Api;
   public settings;
 
   static get serverOnly() {
@@ -253,9 +255,7 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`,
     this.settings = settings;
   }
 
-  /* eslint-disable no-unused-vars */
-  public resolve({ handler, method, submission, req, res }, setActionItemMessage) {
-    /* eslint-enable no-unused-vars */
+  public resolve({ handler, method, data, req, res }, setActionItemMessage) {
     return Promise.resolve();
   }
 };

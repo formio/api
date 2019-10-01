@@ -1,7 +1,7 @@
 'use strict';
 
 const vm = require('vm');
-const _ = require('lodash');
+import {default as _} from '../../util/lodash';
 
 const { JoiX, checkConditional } = require('./JoiX');
 const util = require('../../util');
@@ -14,7 +14,13 @@ const moment = require('moment');
  * @param model
  * @constructor
  */
-class Validator {
+export class Validator {
+  private model: any;
+  private async: any[];
+  private requests: {};
+  private form: any;
+  private token: any;
+
   constructor(form, model, token) {
     this.model = model;
     this.async = [];
@@ -470,5 +476,3 @@ class Validator {
   }
   /* eslint-enable max-statements */
 }
-
-module.exports = Validator;

@@ -1,8 +1,10 @@
-export class Export {
-  public app;
-  public req;
+import {Api} from "../FormApi";
 
-  constructor(app, req) {
+export class Export {
+  public app: Api;
+  public req: Request;
+
+  constructor(app: Api, req: Request) {
     this.app = app;
     this.req = req;
   }

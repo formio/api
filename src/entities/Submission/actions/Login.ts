@@ -1,9 +1,8 @@
-const bcrypt = require('bcryptjs');
-const Action = require('../../../classes/Action');
-const has = require('lodash/has');
-const get = require('lodash/get');
+import * as bcrypt from 'bcryptjs';
+import {Action} from '../../../classes';
+import {default as _} from '../../../util/lodash';
 
-module.exports = class Login extends Action {
+export class Login extends Action {
   public static info() {
     return {
       name: 'login',
@@ -112,20 +111,20 @@ module.exports = class Login extends Action {
     }
 
     // They must provide a username.
-    if (!has(submission.data, this.settings.username)) {
+    if (!_.has(submission.data, this.settings.username)) {
       setActionInfoMessage('Username not set or not found');
       return res.status(401).send('User or password was incorrect.');
     }
 
     // They must provide a password.
-    if (!has(submission.data, this.settings.password)) {
+    if (!_.has(submission.data, this.settings.password)) {
       setActionInfoMessage('Password not set or not found');
       return res.status(401).send('User or password was incorrect.');
     }
 
     const query = {
       form: { $in: this.settings.resources.map(this.app.db.toID) },
-      [`data.${this.settings.username}`]: get(submission.data, this.settings.username),
+      [`data.${this.settings.username}`]: _.get(submission.data, this.settings.username),
     };
 
     return this.app.models.Submission.read(query, req.context.params)
@@ -135,13 +134,13 @@ module.exports = class Login extends Action {
           return Promise.reject('User or password was incorrect.');
         }
 
-        if (!get(user.data, this.settings.password)) {
+        if (!_.get(user.data, this.settings.password)) {
           setActionInfoMessage('Password not set');
           return Promise.reject('User account does not have a password. You must reset your password to login.');
         }
 
         // Need to use req.submission.data for password as it hasn't been encrypted yet.
-        return bcrypt.compare(get(req.submission.data, this.settings.password), get(user.data, this.settings.password))
+        return bcrypt.compare(_.get(req.submission.data, this.settings.password), _.get(user.data, this.settings.password))
           .then((value) => {
             if (!value) {
               setActionInfoMessage('Password did not match');

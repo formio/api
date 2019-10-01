@@ -1,6 +1,6 @@
-const Action = require('../../../classes/Action');
+import {Action} from '../../../classes';
 
-module.exports = class SaveSubmission extends Action {
+export class SaveSubmission extends Action {
   public static info() {
     return {
       name: 'save',
@@ -78,7 +78,7 @@ module.exports = class SaveSubmission extends Action {
       const result = await this.app.makeChildRequest({
         req,
         url: '/form/:formId/submission' + (type === 'create' ? '' : '/:submissionId'),
-        submission,
+        body: submission,
         method: type === 'create' ? 'POST' : 'PUT',
         params: {
           ...req.context.params,

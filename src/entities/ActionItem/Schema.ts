@@ -1,6 +1,6 @@
-const Schema = require('../../dbs/Schema');
+import {Schema} from "../../classes";
 
-module.exports = class ActionItem extends Schema {
+export class ActionItem extends Schema {
   get name() {
     return 'actionItem';
   }

@@ -1,14 +1,16 @@
 'use strict';
 
-import * as _ from 'lodash';
+import {default as _} from '../util/lodash';
 import {log} from '../log';
+import {Schema} from "../classes";
+import {Database} from "./Database";
 
 export class Model {
-  public schema;
-  private _db;
-  private initialized;
+  public schema: Schema;
+  private _db: Database;
+  private initialized: Promise<any>;
 
-  constructor(schema, db) {
+  constructor(schema: Schema, db: Database) {
     // @TODO
     // populate (deprecate?)
     // description (what does this do?)
@@ -64,8 +66,8 @@ export class Model {
             promises.push(this.db.createIndex(this.collectionName, name));
           }
         }
-        if (this.schema.indexes) {
-          this.schema.indexes.map((index) => {
+        if (this.schema.index) {
+          this.schema.index.map((index) => {
             log('debug', `Ensure extra index for ${this.collectionName} ${index.name}`);
             promises.push(this.db.createIndex(this.collectionName, index.spec, index.options));
           });

@@ -1,4 +1,4 @@
-const _ = require('lodash');
+import {default as _} from '../../../util/lodash';
 
 module.exports = (component, data, handler, action, { req, path, app }) => {
   if (['afterValidate'].includes(handler)) {

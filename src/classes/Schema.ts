@@ -5,7 +5,7 @@ export class Schema {
     this.app = app;
   }
 
-  get schema() {
+  get schema(): any {
     return {
       created: this.created,
       modified: this.modified,
@@ -13,7 +13,11 @@ export class Schema {
     };
   }
 
-  get index() {
+  get name() {
+    return 'schema';
+  }
+
+  get index(): any {
     return false;
   }
 

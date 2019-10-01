@@ -9,7 +9,7 @@ import {schemas} from './entities/schemas';
 import {actions} from './entities/Submission/actions';
 import {log} from './log';
 import {routes as routeClasses} from './routes';
-import * as util from './util';
+import {util} from './util';
 
 const EVERYONE = '000000000000000000000000';
 
@@ -556,7 +556,7 @@ export class Api {
    * @param body
    */
   public makeChildRequest({ req, url, body, method, params, query, options = {} }) {
-    const childReq = this.createChildReq(req, options);
+    const childReq = this.createChildReq(req);
 
     if (!childReq) {
       return Promise.reject('Too many recursive requests');
@@ -738,5 +738,13 @@ export class Api {
         });
       });
     });
+  }
+
+  public generateToken(payload) {
+
+  }
+
+  public tokenPayload(user, form) {
+
   }
 };

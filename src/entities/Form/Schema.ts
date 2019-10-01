@@ -1,7 +1,7 @@
-const Schema = require('../../dbs/Schema');
+import {Schema} from "../../classes";
 
 const eachComponent = require('formiojs/utils/formUtils').eachComponent;
-const _ = require('lodash');
+import {default as _} from '../../util/lodash';
 
 const uniqueMessage = 'may only contain letters, numbers, hyphens, and forward slashes ' +
   '(but cannot start or end with a hyphen or forward slash)';
@@ -53,7 +53,7 @@ const componentShortcuts = (components) => {
 const keyError = '';
 const shortcutError = '';
 
-module.exports = class Form extends Schema {
+export class Form extends Schema {
   get name() {
     return 'form';
   }

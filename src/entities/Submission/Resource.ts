@@ -1,7 +1,7 @@
 'use strict';
 
 const FormioUtils = require('formiojs/utils');
-const _ = require('lodash');
+import {default as _} from '../../util/lodash';
 const vm = require('vm');
 const Validator = require('./Validator');
 const Resource = require('../../classes/Resource');
@@ -9,7 +9,7 @@ const log = require('../../log');
 const fields = require('./fields');
 const properties = require('./properties');
 
-module.exports = class Submission extends Resource {
+export class Submission extends Resource {
   constructor(model, router, app) {
     super(model, router, app);
   }

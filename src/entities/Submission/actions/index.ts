@@ -1,6 +1,6 @@
-const login = require('./Login');
-const role = require('./Role');
-const save = require('./SaveSubmission');
+import {Login as login} from './Login';
+import {Role as role} from './Role';
+import {SaveSubmission as save} from './SaveSubmission';
 
 export const actions = {
   login,

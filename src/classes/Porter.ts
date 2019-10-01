@@ -1,10 +1,11 @@
 import {Model} from '../dbs/Model';
+import {Api} from "../FormApi";
 
 export class Porter {
-  public app;
+  public app: Api;
   public maps;
 
-  constructor(app, maps) {
+  constructor(app, maps?) {
     this.app = app;
     this.maps = maps;
   }
@@ -64,7 +65,7 @@ export class Porter {
     };
   }
 
-  public cleanUp(): any {
+  public cleanUp(items): any {
     return Promise.resolve();
   }
 
@@ -116,7 +117,7 @@ export class Porter {
 
   public componentMachineNameToId(components) {
     let changed = false;
-    this.app.util.eachComponent(components, (component) => {
+    this.app.util.formio.eachComponent(components, (component) => {
       // Update resource machineNames for resource components.
       if ((component.type === 'resource') && this.mapEntityProperty(component, 'resources', this.maps.resources)) {
         changed = true;

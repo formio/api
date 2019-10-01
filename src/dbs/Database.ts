@@ -16,7 +16,7 @@ export class Database {
     return Promise.resolve([]);
   }
 
-  public count(collection, query) {
+  public count(collection, query, options?) {
     return Promise.resolve(0);
   }
 
@@ -28,7 +28,7 @@ export class Database {
     return Promise.resolve(query);
   }
 
-  public update(collection, doc) {
+  public update(collection, doc, context?) {
     return Promise.resolve(doc);
   }
 
@@ -36,15 +36,15 @@ export class Database {
     return Promise.resolve();
   }
 
-  public getCollections(collection) {
+  public getCollections(collection?) {
     return Promise.resolve([]);
   }
 
-  public createCollection(collection, doc) {
+  public createCollection(collection, doc?) {
     return Promise.resolve(doc);
   }
 
-  public createIndex(collection, field) {
+  public createIndex(collection, field, options?, database?) {
     return Promise.resolve();
   }
 

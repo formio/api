@@ -1,15 +1,7 @@
-import {Action} from './Action';
-import {Import} from '../classes/Import';
-import {Export} from '../classes/Export';
-import {Porter} from './Porter';
-import {Resource} from './Resource';
-import {Route} from './Route';
-
-module.exports = {
-  Action,
-  Import,
-  Export,
-  Porter,
-  Resource,
-  Route,
-};
+export * from './Action';
+export * from './Import';
+export * from './Export';
+export * from './Porter';
+export * from './Resource';
+export * from './Route';
+export * from './Schema';

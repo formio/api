@@ -1,6 +1,6 @@
 const vm = require('vm');
 const Joi = require('joi');
-const _ = require('lodash');
+import {default as _} from '../../util/lodash';
 const request = require('request-promise-native');
 const cache = require('memory-cache');
 const util = require('../../util');
@@ -15,7 +15,7 @@ const util = require('../../util');
  * @param {Object} data
  *   The full submission data.
  */
-const checkConditional = (component, row, data, recurse = false) => {
+export const checkConditional = (component, row, data, recurse = false) => {
   let isVisible = true;
 
   if (!component || !component.hasOwnProperty('key')) {
@@ -72,7 +72,7 @@ const getRules = (type) => [
       let row = state.parent;
       let valid = true;
 
-      if (!_.isArray(row)) {
+      if (!Array.isArray(row)) {
         row = [row];
       }
 
@@ -128,7 +128,7 @@ const getRules = (type) => [
       let row = state.parent;
       let valid = true;
 
-      if (!_.isArray(row)) {
+      if (!Array.isArray(row)) {
         row = [row];
       }
 
@@ -416,7 +416,7 @@ const getRules = (type) => [
   },
 ];
 
-const JoiX = Joi.extend([
+export const JoiX = Joi.extend([
   {
     name: 'any',
     language: {
@@ -504,7 +504,3 @@ const JoiX = Joi.extend([
   },
 ]);
 
-module.exports = {
-  checkConditional,
-  JoiX,
-};

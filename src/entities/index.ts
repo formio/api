@@ -1,11 +1,3 @@
-'use strict';
-
-const porters = require('./porters');
-const resources = require('./resources');
-const schemas = require('./schemas');
-
-module.exports = {
-  porters,
-  resources,
-  schemas,
-};
+export * from './porters';
+export * from './resources';
+export * from './schemas';

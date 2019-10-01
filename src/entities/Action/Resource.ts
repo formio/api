@@ -1,9 +1,8 @@
 'use strict';
 
-const Resource = require('../../classes/Resource');
-const { eachComponent } = require('../../util');
+import {Resource} from '../../classes';
 
-module.exports = class Action extends Resource {
+export class Action extends Resource {
   constructor(model, router, app) {
     super(model, router, app);
     this.register('get', `${this.route}s/:name`, 'actionSettings');
@@ -47,7 +46,7 @@ module.exports = class Action extends Resource {
     const action = req.params.name;
     const components = [];
 
-    eachComponent(req.context.resources.form.components, (component) => {
+    this.app.util.eachComponent(req.context.resources.form.components, (component) => {
       components.push({
         key: component.key,
         label: component.label || component.title || component.legend,

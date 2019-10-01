@@ -1,9 +1,9 @@
 'use strict';
 
-const _ = require('lodash');
-const Resource = require('../../classes/Resource');
+import {default as _} from '../../util/lodash';
+import {Resource} from '../../classes';
 
-module.exports = class Form extends Resource {
+export class Form extends Resource {
   constructor(model, router, app) {
     super(model, router, app);
   }

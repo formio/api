@@ -1,4 +1,4 @@
-import {Route} from '../classes/Route';
+import {Route} from '../classes';
 
 export class Export extends Route {
   get path() {
