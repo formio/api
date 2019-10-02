@@ -1,14 +1,15 @@
-const assert = require('chai').assert;
-const sinon = require('sinon');
+import {assert} from 'chai';
+import * as sinon from 'sinon';
 
 // A fake db wrrouterer for stubbing.
-const app = require('../../test/mocks/app');
-const router = require('../../test/mocks/router');
-const model = require('../../test/mocks/model');
-const sandbox = sinon.createSandbox();
+import app from '../../test/mocks/app';
+import router from '../../test/mocks/router';
+import model from '../../test/mocks/model';
+import ChildResource from '../../test/mocks/childResource';
 
-const Resource = require('./Resource');
-const ChildResource = require('../../test/mocks/childResource');
+import {Resource} from "./Resource";
+
+const sandbox = sinon.createSandbox();
 
 describe('Resource.js', () => {
   afterEach(() => {

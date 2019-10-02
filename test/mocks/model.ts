@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   schema: {
     _id: {type: 'id'},
     data: {},

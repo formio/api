@@ -9,7 +9,7 @@ export class Form extends Porter {
     return this.app.models.Form;
   }
 
-  public getMaps(port, query = { type: 'form' }) {
+  public getMaps(port, query: any = { type: 'form' }) {
     return super.getMaps(port, query);
   }
 
@@ -56,7 +56,7 @@ export class Form extends Porter {
     return form;
   }
 
-  public export(form) {
+  public export(form, req?: any) {
     this.mapEntityProperty(form.submissionAccess, 'roles', this.maps.roles);
     this.mapEntityProperty(form.access, 'roles', this.maps.roles);
     this.componentMachineNameToId(form.components);

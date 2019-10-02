@@ -1,10 +1,10 @@
-const cm = require('composable-middleware');
-const Resource = require('../../src/classes/Resource');
+import * as cm from 'composable-middleware';
+import {Resource} from '../../src/classes';
 
 // @Todo
 // swagger
 
-module.exports = class Child extends Resource {
+export default class Child extends Resource {
   constructor(model, router, options) {
     super(model, router, options);
     this.register('use', this.route + '/test', 'test');

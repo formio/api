@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   log: () => {},
   get: () => {},
   put: () => {},

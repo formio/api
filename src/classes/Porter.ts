@@ -23,7 +23,7 @@ export class Porter {
   }
 
   // Load all documents from the database and create a map of them.
-  public getMaps(port, query = {}) {
+  public getMaps(port, query: any = {}) {
     return this.model.find(query)
       .then((documents) => documents.reduce((map, document) => {
         if (port === 'export') {
@@ -51,7 +51,7 @@ export class Porter {
     return document;
   }
 
-  public export(document) {
+  public export(document, req?: any) {
     return document;
   }
 

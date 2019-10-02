@@ -16,7 +16,7 @@ export class Export {
     return Promise.all(this.app.porters.map((Porter) => {
       const entity = new Porter(this.app);
       this.app.log('debug', `Build map of ${entity.key}`);
-      return entity.getMaps('export').then((map) => {
+      return entity.getMaps('export', null).then((map) => {
         maps[entity.key] = map;
         this.app.log('debug', `Map of ${entity.key} found ${Object.keys(map).length}`);
       });

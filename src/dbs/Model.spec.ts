@@ -1,12 +1,12 @@
-const assert = require('chai').assert;
-const sinon = require('sinon');
+import {assert} from 'chai';
+import * as sinon from 'sinon';
 
+import {Schema} from "../classes";
+import {Model} from "./Model";
 // A fake db wrapper for stubbing.
-const db = require('../../test/mocks/db');
-const sandbox = sinon.createSandbox();
+import db from '../../test/mocks/db';
 
-const Model = require('./Model');
-const Schema = require('../classes/Schema');
+const sandbox = sinon.createSandbox();
 
 describe('Model.js', () => {
   afterEach(() => {
