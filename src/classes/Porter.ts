@@ -124,7 +124,11 @@ export class Porter {
       }
 
       // Update the form property on the form component.
-      if ((component.type === 'form') && this.mapEntityProperty(component, 'form', { ...this.maps.resources, ...this.maps.forms })) {
+      if ((component.type === 'form') && this.mapEntityProperty(
+        component,
+        'form',
+        { ...this.maps.resources, ...this.maps.forms },
+        )) {
         changed = true;
       }
 

@@ -161,9 +161,9 @@ export class Schema {
         let i = 0;
         records.forEach((record) => {
           const parts = record.machineName.split(/(\d+)$/).filter(Boolean);
-          const number = parseInt(parts[1], 10) || 0;
-          if (number > i) {
-            i = number;
+          const num = parseInt(parts[1], 10) || 0;
+          if (num > i) {
+            i = num;
           }
         });
         document.machineName += ++i;

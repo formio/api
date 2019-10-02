@@ -1,5 +1,3 @@
-'use strict';
-
 import * as moment from 'moment';
 import * as vm from 'vm';
 import {log} from '../../log';

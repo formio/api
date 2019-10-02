@@ -1,6 +1,4 @@
-'use strict';
-
-const Resource = require('../../classes/Resource');
+import {Resource} from '../../classes';
 
 export class Role extends Resource {
   constructor(model, router, app) {

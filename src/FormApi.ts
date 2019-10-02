@@ -96,8 +96,6 @@ export class Api {
 
   /**
    * List of permissions associated with a request method.
-   *
-   * @returns {{POST: {all: string, own: string}, GET: {all: string, own: string}, PUT: {all: string, own: string}, PATCH: {all: string, own: string}, DELETE: {all: string, own: string}}}
    */
   get methodPermissions() {
     return {
@@ -341,7 +339,11 @@ export class Api {
     log('info', 'Adding resources');
     for (const resourceName of Object.keys(this.resourceClasses)) {
       log('debug', `Adding resource ${  resourceName}`);
-      this.resources[resourceName] = new this.resourceClasses[resourceName](this.models[resourceName], this.router, this);
+      this.resources[resourceName] = new this.resourceClasses[resourceName](
+        this.models[resourceName],
+        this.router,
+        this,
+      );
     }
   }
 
@@ -608,12 +610,12 @@ export class Api {
   }
 
   public createChildRes(response) {
-    response = response || (() => {});
+    response = response || (() => undefined);
     const subResponse = {
       statusCode: 200,
       send: (err) => response(err),
       json: (err) => response(err),
-      setHeader: () => {},
+      setHeader: () => undefined,
       sendStatus: (status) => {
         subResponse.statusCode = status;
         response(status);
@@ -691,13 +693,14 @@ export class Api {
 
       release();
     } catch (err) {
-      console.log('could not lock');
       // swallow the error.
+      log('error', err);
     }
   }
 
   /**
-   * This is a basic locking system. For servers it should be overridden to provide for concurrency between server instances.
+   * This is a basic locking system. For servers it should be overridden to provide for concurrency between server
+   * instances.
    *
    * @param key
    * @returns {Promise<Function>}
@@ -725,12 +728,12 @@ export class Api {
 
   public encrypt(text) {
     return new Promise((resolve, reject) => {
-      bcrypt.genSalt(10, function(err, salt) {
+      bcrypt.genSalt(10, (err, salt) => {
         if (err) {
           return reject(err);
         }
 
-        bcrypt.hash(text, salt, function(error, hash) {
+        bcrypt.hash(text, salt, (error, hash) => {
           if (error) {
             return reject(error);
           }
@@ -742,10 +745,10 @@ export class Api {
   }
 
   public generateToken(payload) {
-
+    return;
   }
 
   public tokenPayload(user, form) {
-
+    return;
   }
 }

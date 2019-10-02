@@ -1,7 +1,5 @@
 # Remaining Dev tasks:
 
-## Convert to typescript
-
 ## General
  - get makeChildRequest function to work.
  - convert /current to use makeChildRequest.

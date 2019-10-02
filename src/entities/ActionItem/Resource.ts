@@ -1,6 +1,4 @@
-'use strict';
-
-const Resource = require('../../classes/Resource');
+import {Resource} from '../../classes';
 
 export class ActionItem extends Resource {
   constructor(model, router, app) {

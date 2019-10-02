@@ -1,5 +1,3 @@
-'use strict';
-
 import {Resource} from '../../classes';
 import {lodash as _} from '../../util/lodash';
 

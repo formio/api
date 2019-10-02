@@ -1,5 +1,5 @@
 import {Schema} from '../../classes';
-const _camelCase = require('lodash/camelCase');
+import {lodash as _} from '../../util/lodash';
 
 export class Role extends Schema {
   get name() {
@@ -45,7 +45,7 @@ export class Role extends Schema {
       return Promise.resolve(document);
     }
 
-    document.machineName = _camelCase(document.title);
+    document.machineName = _.camelCase(document.title);
     return this.uniqueMachineName(document, model);
   }
 }

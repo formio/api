@@ -145,7 +145,8 @@ export class Form extends Schema {
         validate: [
           {
             message: keyError,
-            validator: (components) => componentKeys(components).reduce((valid, key) => valid && key.match(validKeyRegex), true),
+            validator: (components) =>
+              componentKeys(components).reduce((valid, key) => valid && key.match(validKeyRegex), true),
           },
           {
             message: shortcutError,
@@ -173,7 +174,8 @@ export class Form extends Schema {
               const shortcuts = componentShortcuts(components);
               const msg = 'Component shortcuts must be unique: ';
               const uniq = _.uniq(shortcuts);
-              const diff = shortcuts.filter((value, index, collection) => collection.includes(value, index + 1));
+              const diff = shortcuts.filter((value, index, collection) =>
+                collection.includes(value, index + 1));
 
               if (_.isEqual(shortcuts, uniq)) {
                 return valid(true);

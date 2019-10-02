@@ -1,9 +1,10 @@
-const vm = require('vm');
-const Joi = require('joi');
+import * as Joi from 'joi';
+import * as cache from 'memory-cache';
+import * as request from 'request-promise-native';
+import * as vm from 'vm';
+import {log} from '../../log';
+import {util} from '../../util';
 import {lodash as _} from '../../util/lodash';
-const request = require('request-promise-native');
-const cache = require('memory-cache');
-const util = require('../../util');
 
 /*
  * Returns true or false based on visibility.
@@ -37,17 +38,17 @@ export const checkConditional = (component, row, data, recurse = false) => {
         timeout: 250,
       });
 
-      if (util.isBoolean(sandbox.show)) {
-        isVisible = util.boolean(sandbox.show);
+      if (util.api.isBoolean(sandbox.show)) {
+        isVisible = util.api.getBoolean(sandbox.show);
       }
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      log('error', err);
     }
   } else {
     try {
-      isVisible = util.checkCondition(component, row, data);
+      isVisible = util.formio.checkCondition(component, row, data);
     } catch (err) {
-      console.error(err);
+      log('error', err);
     }
   }
 
@@ -77,9 +78,7 @@ const getRules = (type) => [
       }
 
       // If a component has multiple rows of data, e.g. Datagrids, validate each row of data on the backend.
-      for (let b = 0; b < row.length; b++) {
-        const _row = row[b];
-
+      for (const currentRow of row) {
         // Try a new sandboxed validation.
         try {
           // Replace with variable substitutions.
@@ -88,9 +87,9 @@ const getRules = (type) => [
 
           // Create the sandbox.
           const sandbox = vm.createContext({
-            input: _.isObject(_row) ? util.getValue({ data: _row }, component.key) : _row,
+            input: _.isObject(currentRow) ? util.formio.getValue({ data: currentRow }, component.key) : currentRow,
             data,
-            row: _row,
+            row: currentRow,
             scope: { data },
             component,
             valid,
@@ -133,13 +132,11 @@ const getRules = (type) => [
       }
 
       // If a component has multiple rows of data, e.g. Datagrids, validate each row of data on the backend.
-      for (let b = 0; b < row.length; b++) {
-        const _row = row[b];
-
+      for (const currentRow of row) {
         try {
-          valid = util.jsonLogic.apply(component.validate.json, {
+          valid = util.formio.jsonLogic.apply(component.validate.json, {
             data,
-            row: _row,
+            row: currentRow,
           });
         } catch (err) {
           valid = err.message;
@@ -228,7 +225,7 @@ const getRules = (type) => [
       const requests = params.requests;
 
       // Initialize the request options.
-      const requestOptions = {
+      const requestOptions: any = {
         url: _.get(component, 'validate.select'),
         method: 'GET',
         qs: {},
@@ -237,8 +234,8 @@ const getRules = (type) => [
       };
 
       // If the url is a boolean value.
-      if (util.isBoolean(requestOptions.url)) {
-        requestOptions.url = util.boolean(requestOptions.url);
+      if (util.api.isBoolean(requestOptions.url)) {
+        requestOptions.url = util.api.getBoolean(requestOptions.url);
         if (!requestOptions.url) {
           return value;
         }
@@ -273,13 +270,13 @@ const getRules = (type) => [
       }
 
       // Make sure to interpolate.
-      requestOptions.url = util.interpolate(requestOptions.url, {
+      requestOptions.url = util.formio.interpolate(requestOptions.url, {
         data: submission.data,
       });
 
       // Set custom headers.
       if (component.data && component.data.headers) {
-        _.each(component.data.headers, (header) => {
+        component.data.headers.forEach((header) => {
           if (header.key) {
             requestOptions.headers[header.key] = header.value;
           }
@@ -296,7 +293,7 @@ const getRules = (type) => [
         const cacheKey = `${requestOptions.method}:${requestOptions.url}?` +
           Object.keys(requestOptions.qs).map((key) => key + '=' + requestOptions.qs[key]).join('&');
         /* eslint-enable prefer-template */
-        const cacheTime = (process.env.VALIDATOR_CACHE_TIME || (3 * 60)) * 60 * 1000;
+        const cacheTime = (parseInt(process.env.VALIDATOR_CACHE_TIME, 10) || (3 * 60)) * 60 * 1000;
 
         // Check if this request was cached
         const result = cache.get(cacheKey);
@@ -368,15 +365,17 @@ const getRules = (type) => [
       }
 
       // Get the query.
-      const query: any = { form: util.idToBson(submission.form) };
+      const query: any = { form: util.formio.idToBson(submission.form) };
       if (_.isString(value)) {
-        query[path] = { $regex: new RegExp(`^${util.escapeRegExp(value)}$`), $options: 'i' };
+        query[path] = { $regex: new RegExp(`^${util.formio.escapeRegExp(value)}$`), $options: 'i' };
       } else if (
         !_.isString(value) &&
         value.hasOwnProperty('address_components') &&
         value.hasOwnProperty('place_id')
       ) {
-        query[`${path}.place_id`] = { $regex: new RegExp(`^${util.escapeRegExp(value.place_id)}$`), $options: 'i' };
+        query[`${path}.place_id`] = {
+          $regex: new RegExp(`^${util.formio.escapeRegExp(value.place_id)}$`), $options: 'i',
+        };
       } else if (Array.isArray(value)) {
         query[path] = { $all: value };
       } else if (_.isObject(value)) {

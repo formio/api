@@ -1,5 +1,3 @@
-'use strict';
-
 import {Schema} from '../classes';
 import {log} from '../log';
 import {lodash as _} from '../util/lodash';
@@ -54,7 +52,7 @@ export class Model {
           log('debug', `${this.collectionName} collection doesn't exist. Creating...`);
           return this.db.createCollection(this.collectionName)
             .then(() => log('debug', `${this.collectionName} collection created successfully`))
-            .catch((err) => console.error(err));
+            .catch((err) => log('error', err));
         }
       })
       .then(() => {
@@ -150,7 +148,7 @@ export class Model {
               }
               break;
             case 'number':
-              value = parseInt(value);
+              value = parseInt(value, 10);
               break;
             case 'boolean':
               value = !!value;
@@ -229,7 +227,8 @@ export class Model {
         field.validate.forEach((item) => {
           if (item.isAsync) {
             promises.push(new Promise((resolve) => {
-              item.validator.call(doc, value, this, (result, message) => resolve(result ? true : message || item.message));
+              item.validator.call(doc, value, this, (result, message) =>
+                resolve(result ? true : message || item.message));
             }));
           } else {
             if (!item.validator.call(doc, value, this)) {
@@ -298,7 +297,7 @@ export class Model {
         switch (key) {
           case 'limit':
           case 'skip':
-            options[key] = parseInt(query[key]);
+            options[key] = parseInt(query[key], 10);
             break;
           case 'sort':
           case 'select':

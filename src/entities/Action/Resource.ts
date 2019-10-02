@@ -1,5 +1,3 @@
-'use strict';
-
 import {Resource} from '../../classes';
 
 export class Action extends Resource {
@@ -52,7 +50,7 @@ export class Action extends Resource {
         label: component.label || component.title || component.legend,
       });
     });
-    const options = {
+    const options: any = {
       baseUrl: this.app.url(this.path('/form'), req),
       params: req.context.params,
       components,
