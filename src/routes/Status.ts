@@ -8,4 +8,4 @@ export class Status extends Route {
   public execute(req, res) {
     res.send(this.app.getStatus());
   }
-};
+}

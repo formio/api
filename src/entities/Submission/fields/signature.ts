@@ -1,4 +1,4 @@
-import {default as _} from '../../../util/lodash';
+import {lodash as _} from '../../../util/lodash';
 
 module.exports = (component, data, handler, action) => {
   if (action === 'resources.js') {

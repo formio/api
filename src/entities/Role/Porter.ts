@@ -39,4 +39,4 @@ export class Role extends Porter {
     const { title, description, admin, default: roleDefault } = document;
     return { title, description, admin, default: roleDefault };
   }
-};
+}

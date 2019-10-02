@@ -3,6 +3,7 @@ import * as uuid from 'uuid/v4';
 import * as info from '../package.json';
 import {Export as ExportClass} from './classes/Export';
 import {Import as ImportClass} from './classes/Import';
+import {Model} from './dbs/Model';
 import {porters} from './entities/porters';
 import {resources} from './entities/resources';
 import {schemas} from './entities/schemas';
@@ -14,32 +15,6 @@ import {util} from './util';
 const EVERYONE = '000000000000000000000000';
 
 export class Api {
-  public log;
-  public config;
-  public router;
-  private _db;
-  public models;
-  public resources;
-  public routes;
-  private locks;
-
-  constructor(router, db, config) {
-    this.log = log;
-    this.config = config;
-    this.router = router;
-    this._db = db;
-    this.models = {};
-    this.resources = {};
-    this.routes = {};
-    this.locks = {};
-
-    log('info', 'Starting Form Manager');
-    this.addModels();
-    this.router.use(this.beforePhases);
-    this.addResources();
-    this.addRoutes();
-    this.router.use(this.afterPhases);
-  }
 
   get isServer() {
     return true;
@@ -51,7 +26,7 @@ export class Api {
 
   set db(db) {
     this._db = db;
-    Object.values(this.models).forEach((model) => {
+    Object.values(this.models).forEach((model: Model) => {
       model.db = db;
     });
   }
@@ -134,16 +109,6 @@ export class Api {
     };
   }
 
-  /**
-   * Allow overriding available roles in a request.
-   *
-   * @param req
-   * @returns {*}
-   */
-  public getRoles(req = null) {
-    return req.context.roles.all;
-  }
-
   get actions() {
     return actions;
   }
@@ -162,6 +127,42 @@ export class Api {
 
   get ExportClass() {
     return ExportClass;
+  }
+  public log;
+  public config;
+  public router;
+  public models;
+  public resources;
+  public routes;
+  private _db;
+  private locks;
+
+  constructor(router, db, config) {
+    this.log = log;
+    this.config = config;
+    this.router = router;
+    this._db = db;
+    this.models = {};
+    this.resources = {};
+    this.routes = {};
+    this.locks = {};
+
+    log('info', 'Starting Form Manager');
+    this.addModels();
+    this.router.use(this.beforePhases);
+    this.addResources();
+    this.addRoutes();
+    this.router.use(this.afterPhases);
+  }
+
+  /**
+   * Allow overriding available roles in a request.
+   *
+   * @param req
+   * @returns {*}
+   */
+  public getRoles(req = null) {
+    return req.context.roles.all;
   }
 
   /**
@@ -345,7 +346,7 @@ export class Api {
   }
 
   public addRoutes(base = '') {
-    Object.values(this.routeClasses).forEach((Route) => {
+    Object.values(this.routeClasses).forEach((Route: any) => {
       this.log('debug', `Adding route ${Route.path}`);
       const route = new Route(this, base);
       this.routes[`${route.method}-${route.path}`] = route;
@@ -475,7 +476,7 @@ export class Api {
     return exporter.export();
   }
 
-  public getStatus(status = {}) {
+  public getStatus(status: any = {}) {
     status.api = info.version;
     return status;
   }
@@ -747,4 +748,4 @@ export class Api {
   public tokenPayload(user, form) {
 
   }
-};
+}

@@ -1,4 +1,4 @@
-import {Schema} from "../../classes";
+import {Schema} from '../../classes';
 
 export class ActionItem extends Schema {
   get name() {
@@ -57,4 +57,4 @@ export class ActionItem extends Schema {
       },
     };
   }
-};
+}

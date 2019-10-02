@@ -64,4 +64,4 @@ export class Form extends Porter {
     const { title, type, name, path, display, action, tags, settings, components, access, submissionAccess } = form;
     return { title, type, name, path, display, action, tags, settings, components, access, submissionAccess };
   }
-};
+}

@@ -30,4 +30,4 @@ export class Submission extends Porter {
     this.mapEntityProperty(submission, 'access', this.maps.roles);
     return submission;
   }
-};
+}

@@ -1,6 +1,6 @@
 const vm = require('vm');
 const Joi = require('joi');
-import {default as _} from '../../util/lodash';
+import {lodash as _} from '../../util/lodash';
 const request = require('request-promise-native');
 const cache = require('memory-cache');
 const util = require('../../util');
@@ -368,7 +368,7 @@ const getRules = (type) => [
       }
 
       // Get the query.
-      const query = { form: util.idToBson(submission.form) };
+      const query: any = { form: util.idToBson(submission.form) };
       if (_.isString(value)) {
         query[path] = { $regex: new RegExp(`^${util.escapeRegExp(value)}$`), $options: 'i' };
       } else if (
@@ -377,7 +377,7 @@ const getRules = (type) => [
         value.hasOwnProperty('place_id')
       ) {
         query[`${path}.place_id`] = { $regex: new RegExp(`^${util.escapeRegExp(value.place_id)}$`), $options: 'i' };
-      } else if (_.isArray(value)) {
+      } else if (Array.isArray(value)) {
         query[path] = { $all: value };
       } else if (_.isObject(value)) {
         query[path] = { $eq: value };
@@ -503,4 +503,3 @@ export const JoiX = Joi.extend([
     rules: getRules('date'),
   },
 ]);
-

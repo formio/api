@@ -1,7 +1,7 @@
 'use strict';
 
 const FormioUtils = require('formiojs/utils');
-import {default as _} from '../../util/lodash';
+import {lodash as _} from '../../util/lodash';
 const vm = require('vm');
 const Validator = require('./Validator');
 const Resource = require('../../classes/Resource');
@@ -414,4 +414,4 @@ export class Submission extends Resource {
       });
     });
   }
-};
+}

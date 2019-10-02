@@ -195,4 +195,4 @@ export class Schema {
   public uniqueQuery(doc, model) {
     return {};
   }
-};
+}

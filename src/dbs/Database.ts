@@ -51,4 +51,4 @@ export class Database {
   public aggregate(collection, query) {
     return Promise.resolve();
   }
-};
+}

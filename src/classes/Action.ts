@@ -1,8 +1,6 @@
-import {Api} from "../FormApi";
+import {Api} from '../FormApi';
 
 export class Action {
-  public app: Api;
-  public settings;
 
   static get serverOnly() {
     return false;
@@ -250,6 +248,8 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`,
       },
     ];
   }
+  public app: Api;
+  public settings;
   constructor(app, settings) {
     this.app = app;
     this.settings = settings;
@@ -258,4 +258,4 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`,
   public resolve({ handler, method, data, req, res }, setActionItemMessage) {
     return Promise.resolve();
   }
-};
+}

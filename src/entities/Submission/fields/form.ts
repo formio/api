@@ -1,5 +1,5 @@
-import {default as _} from '../../../util/lodash';
 import {formio} from '../../../util/formio';
+import {lodash as _} from '../../../util/lodash';
 
 module.exports = (component, data, handler, action, { req, res, app }) => {
   if (['afterValidation'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {

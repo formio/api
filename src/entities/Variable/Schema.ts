@@ -1,4 +1,4 @@
-import {Schema} from "../../classes";
+import {Schema} from '../../classes';
 
 export class Variable extends Schema {
   get name() {
@@ -21,4 +21,4 @@ export class Variable extends Schema {
       },
     };
   }
-};
+}

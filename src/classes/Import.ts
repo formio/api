@@ -11,7 +11,7 @@ export class Import {
     this.maps = {};
   }
 
-  public async import(query) {
+  public async import(query?) {
     this.app.log('debug', 'Starting import');
 
     // First load in all maps of existing entities.

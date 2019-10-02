@@ -96,4 +96,4 @@ export class SaveSubmission extends Action {
     setActionInfoMessage('Saving to original form.');
     return;
   }
-};
+}

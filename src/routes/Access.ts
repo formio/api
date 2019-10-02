@@ -35,4 +35,4 @@ export class Access extends Route {
         });
       });
   }
-};
+}

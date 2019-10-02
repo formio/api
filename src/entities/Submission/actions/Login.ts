@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcryptjs';
 import {Action} from '../../../classes';
-import {default as _} from '../../../util/lodash';
+import {lodash as _} from '../../../util/lodash';
 
 export class Login extends Action {
   public static info() {
@@ -158,4 +158,4 @@ export class Login extends Action {
           });
       });
   }
-};
+}

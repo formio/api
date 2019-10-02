@@ -38,4 +38,4 @@ export class Action extends Porter {
     const { title, name, entity, condition, settings, priority, method, handler } = action;
     return { title, name, entity, condition, settings, priority, method, handler };
   }
-};
+}

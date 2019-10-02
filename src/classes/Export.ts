@@ -1,4 +1,4 @@
-import {Api} from "../FormApi";
+import {Api} from '../FormApi';
 
 export class Export {
   public app: Api;

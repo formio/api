@@ -8,4 +8,4 @@ export class Resource extends Form {
   public getMaps(port, query = { type: 'resource' }) {
     return super.getMaps(port, query);
   }
-};
+}

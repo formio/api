@@ -1,4 +1,4 @@
-import {Api} from "../FormApi";
+import {Api} from '../FormApi';
 
 export class Route {
   public app: Api;
@@ -36,4 +36,4 @@ export class Route {
   public execute(req, res, next) {
     return next();
   }
-};
+}

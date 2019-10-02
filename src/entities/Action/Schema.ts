@@ -1,4 +1,4 @@
-import {Schema} from "../../classes";
+import {Schema} from '../../classes';
 
 export class Action extends Schema {
   get name() {
@@ -70,4 +70,4 @@ export class Action extends Schema {
         return this.uniqueMachineName(document, model);
       });
   }
-};
+}

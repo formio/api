@@ -1,7 +1,7 @@
 'use strict';
 
 const vm = require('vm');
-import {default as _} from '../../util/lodash';
+import {lodash as _} from '../../util/lodash';
 
 const { JoiX, checkConditional } = require('./JoiX');
 const util = require('../../util');

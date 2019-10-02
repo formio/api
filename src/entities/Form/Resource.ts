@@ -1,7 +1,7 @@
 'use strict';
 
-import {default as _} from '../../util/lodash';
 import {Resource} from '../../classes';
+import {lodash as _} from '../../util/lodash';
 
 export class Form extends Resource {
   constructor(model, router, app) {
@@ -74,4 +74,4 @@ export class Form extends Resource {
       });
     });
   }
-};
+}

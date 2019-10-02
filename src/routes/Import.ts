@@ -24,4 +24,4 @@ export class Import extends Route {
       })
       .catch(next);
   }
-};
+}

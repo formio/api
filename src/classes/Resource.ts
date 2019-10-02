@@ -1,8 +1,8 @@
+import {Router} from 'express';
 import * as jsonpatch from 'fast-json-patch';
 import * as moment from 'moment';
-import {Model} from "../dbs/Model";
-import {Api} from "../FormApi";
-import {Router} from 'express';
+import {Model} from '../dbs/Model';
+import {Api} from '../FormApi';
 
 export class Resource {
   public model: Model;
@@ -263,4 +263,4 @@ export class Resource {
     // TODO: Implement exists endpoint.
     res.sendStatus(405);
   }
-};
+}

@@ -124,4 +124,4 @@ export class Role extends Action {
         }
       });
   }
-};
+}

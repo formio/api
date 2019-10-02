@@ -9,4 +9,4 @@ export class Current extends Route {
     // TODO: convert this to subrequest? Need to protect password field.
     res.send(req.user);
   }
-};
+}

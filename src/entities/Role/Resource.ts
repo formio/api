@@ -6,4 +6,4 @@ export class Role extends Resource {
   constructor(model, router, app) {
     super(model, router, app);
   }
-};
+}

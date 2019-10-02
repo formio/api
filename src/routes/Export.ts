@@ -12,4 +12,4 @@ export class Export extends Route {
       })
       .catch(next);
   }
-};
+}

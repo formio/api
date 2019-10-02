@@ -1,5 +1,5 @@
 import {Model} from '../dbs/Model';
-import {Api} from "../FormApi";
+import {Api} from '../FormApi';
 
 export class Porter {
   public app: Api;
@@ -140,4 +140,4 @@ export class Porter {
 
     return changed;
   }
-};
+}

@@ -1,9 +1,9 @@
 'use strict';
 
-import {default as _} from '../util/lodash';
+import {Schema} from '../classes';
 import {log} from '../log';
-import {Schema} from "../classes";
-import {Database} from "./Database";
+import {lodash as _} from '../util/lodash';
+import {Database} from './Database';
 
 export class Model {
   public schema: Schema;
@@ -374,4 +374,4 @@ export class Model {
       return this.db.delete(this.collectionName, query);
     });
   }
-};
+}
