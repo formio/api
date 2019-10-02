@@ -6,7 +6,9 @@
     "jsRules": {},
     "rules": {
         "quotemark": [true, "single", "avoid-escape", "avoid-template"],
-        "one-line": [false, "check-catch", "check-finally", "check-else"]
+        "one-line": [false, "check-catch", "check-finally", "check-else"],
+        "object-literal-sort-keys": false,
+        "no-shadowed-variable": false
     },
     "rulesDirectory": []
 }

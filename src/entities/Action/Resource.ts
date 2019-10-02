@@ -13,7 +13,7 @@ export class Action extends Resource {
     return this.path(`/form/:formId/${this.name}`);
   }
 
-  public indexQuery(req, query = {}) {
+  public indexQuery(req, query: any = {}) {
     query.entity = this.model.toID(req.context.params.formId);
     return super.indexQuery(req, query);
   }
@@ -25,7 +25,7 @@ export class Action extends Resource {
 
   public actionsIndex(req, res) {
     const actions = [];
-    for (const key in this.app.actions) {
+    for (const key of Object.keys(this.app.actions)) {
       actions.push(this.getActionInfo(this.app.actions[key]));
     }
     res.send(actions);
@@ -46,7 +46,7 @@ export class Action extends Resource {
     const action = req.params.name;
     const components = [];
 
-    this.app.util.eachComponent(req.context.resources.form.components, (component) => {
+    this.app.util.formio.eachComponent(req.context.resources.form.components, (component) => {
       components.push({
         key: component.key,
         label: component.label || component.title || component.legend,

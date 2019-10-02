@@ -1,13 +1,11 @@
-'use strict';
-
-const FormioUtils = require('formiojs/utils');
+import * as vm from 'vm';
+import {Resource} from '../../classes';
+import {log} from '../../log';
+import {formio as FormioUtils} from '../../util/formio';
 import {lodash as _} from '../../util/lodash';
-const vm = require('vm');
-const Validator = require('./Validator');
-const Resource = require('../../classes/Resource');
-const log = require('../../log');
-const fields = require('./fields');
-const properties = require('./properties');
+import {fields} from './fields';
+import {properties} from './properties';
+import {Validator} from './Validator';
 
 export class Submission extends Resource {
   constructor(model, router, app) {
@@ -22,7 +20,7 @@ export class Submission extends Resource {
     return this.app.actions;
   }
 
-  public indexQuery(req, query = {}) {
+  public indexQuery(req, query: any = {}) {
     query.form = this.model.toID(req.context.params.formId);
     return super.indexQuery(req, query);
   }
@@ -263,6 +261,7 @@ export class Submission extends Resource {
           timeout: 500,
         });
 
+        // @ts-ignore
         return script.execute;
       } catch (err) {
         return false;
@@ -360,7 +359,10 @@ export class Submission extends Resource {
           ));
         } else if (
           ['container'].includes(component.type) ||
-          (component.tree && !['panel', 'table', 'well', 'columns', 'fieldset', 'tabs', 'form'].includes(component.type))
+          (
+            component.tree &&
+            !['panel', 'table', 'well', 'columns', 'fieldset', 'tabs', 'form'].includes(component.type)
+          )
         ) {
           promises.push(this.eachValue(
             component.components,

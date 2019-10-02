@@ -1,1 +1,1 @@
-module.exports = () => Promise.resolve();
+export const reference = () => Promise.resolve();

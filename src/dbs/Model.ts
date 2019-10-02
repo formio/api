@@ -59,7 +59,7 @@ export class Model {
       })
       .then(() => {
         const promises = [];
-        for (const name in this.schema.schema) {
+        for (const name of Object.keys(this.schema.schema)) {
           const field = this.schema.schema[name];
           if (field.index) {
             log('debug', `Ensuring index for ${this.collectionName}.${name}`);
@@ -82,7 +82,7 @@ export class Model {
       const values = _.get(input, path, []);
       values.forEach((value, index) => {
         if (typeof schema.type[0] === 'object') {
-          for (const name in schema.type[0]) {
+          for (const name of Object.keys(schema.type[0])) {
             promises.push(this.iterateFields(`${path}[${index}].${name}`, schema.type[0][name], input, doc, execute));
           }
         } else {
@@ -94,7 +94,7 @@ export class Model {
         }
       });
     } else if (typeof schema.type === 'object') {
-      for (const name in schema.type) {
+      for (const name of Object.keys(schema.type)) {
         promises.push(this.iterateFields(`${path}.${name}`, schema.type[name], input, doc, execute));
       }
     } else {
@@ -255,7 +255,7 @@ export class Model {
       return Promise.resolve(doc);
     }
     const promises = [];
-    for (const path in this.schema.schema) {
+    for (const path of Object.keys(this.schema.schema)) {
       promises.push(this.iterateFields(path, this.schema.schema[path], doc, doc, this.getField.bind(this)));
     }
     return Promise.all(promises)

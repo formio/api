@@ -1,1 +1,1 @@
-export {Utils as formio} from 'formiojs';
+export {Utils as formio} from 'formiojs/utils';

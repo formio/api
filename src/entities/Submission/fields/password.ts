@@ -1,10 +1,12 @@
 import {lodash as _} from '../../../util/lodash';
 
-module.exports = (component, data, handler, action, { req, path, app }) => {
+export const password = (component, data, handler, action, { req, path, app }) => {
   if (['afterValidate'].includes(handler)) {
     // If this is an update and no password is provided get it from the current submission.
     if (['put', 'patch'].includes(action) && !_.get(data, component.key)) {
-      const oldData = (path === '') ? req.context.resources.submission.data : _.get(req.context.resources.submission.data, path);
+      const oldData = (path === '') ?
+        req.context.resources.submission.data :
+        _.get(req.context.resources.submission.data, path);
       _.set(data, component.key, _.get(oldData, component.key));
       return Promise.resolve();
     }

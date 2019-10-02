@@ -3,9 +3,9 @@ import * as debug from 'debug';
 export const log = (type, ...args) => {
   const types = {
     debug: debug('formio:debug'),
+    error: debug('formio:error'),
     info: debug('formio:info'),
     warning: debug('formio:warning'),
-    error: debug('formio:error'),
   };
 
   // If type is not passed in.

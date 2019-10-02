@@ -1,7 +1,7 @@
 import {formio} from '../../../util/formio';
 import {lodash as _} from '../../../util/lodash';
 
-module.exports = (component, data, handler, action, { req, res, app }) => {
+export const form = (component, data, handler, action, { req, res, app }) => {
   if (['afterValidation'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
     // Get the submission object.
     const body = _.get(data, component.key);
@@ -24,7 +24,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
     // Only execute if the component should save reference and conditions do not apply.
     if (
       (component.hasOwnProperty('reference') && !component.reference) ||
-      !formio.checkCondition(component, data, req.body.data)
+      !formio.checkCondition(component, data, req.body.data, null, null)
     ) {
       return Promise.resolve();
     }
@@ -37,7 +37,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
     // Patch at this point should be a subrequest put.
     const method = (action === 'post') ? 'post' : 'put';
 
-    const params = {
+    const params: any = {
       formId: component.form,
     };
 
@@ -71,7 +71,7 @@ module.exports = (component, data, handler, action, { req, res, app }) => {
           .then((submission) => {
             let found = false;
             submission.externalIds = submission.externalIds || [];
-            submission.externalIds.forEach(function(externalId) {
+            submission.externalIds.forEach((externalId) => {
               if (externalId.type === 'parent') {
                 found = true;
               }

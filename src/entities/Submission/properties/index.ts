@@ -1,7 +1,7 @@
-const protectedAction = require('./protected');
-const reference = require('./reference');
+import {protectedAction} from './protected';
+import {reference} from './reference';
 
-module.exports = {
+export const properties = {
   protected: protectedAction,
   reference,
 };

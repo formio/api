@@ -12,23 +12,23 @@ export class Access extends Route {
     ])
       .then((results) => {
         res.send({
-          roles: results[0].reduce((result, role) => {
-            result[role.title.replace(/\s/g, '').toLowerCase()] = {
-              _id: role._id,
-              title: role.title,
-              admin: role.admin,
-              default: role.default,
-            };
-            return result;
-          }, {}),
           forms: results[1].reduce((result, form) => {
             result[form.name] = {
               _id: form._id,
-              title: form.title,
+              access: form.access,
               name: form.name,
               path: form.path,
-              access: form.access,
               submissionAccess: form.submissionAccess,
+              title: form.title,
+            };
+            return result;
+          }, {}),
+          roles: results[0].reduce((result, role) => {
+            result[role.title.replace(/\s/g, '').toLowerCase()] = {
+              _id: role._id,
+              admin: role.admin,
+              title: role.title,
+              default: role.default,
             };
             return result;
           }, {}),

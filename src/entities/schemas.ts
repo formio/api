@@ -9,7 +9,7 @@ export const schemas = {
   Action,
   ActionItem,
   Form,
-  Submission,
   Role,
+  Submission,
   Variable,
 };

@@ -1,4 +1,5 @@
 import {Action} from '../../../classes';
+import {lodash as _} from '../../../util/lodash';
 
 export class SaveSubmission extends Action {
   public static info() {
@@ -68,10 +69,9 @@ export class SaveSubmission extends Action {
       }
 
       // Map fields to resource.
-      // TODO: This should really use _.get and _.set.
-      _.each(this.settings.fields, function(field, key) {
-        if (submission.data.hasOwnProperty(field)) {
-          externalSubmission.data[key] = submission.data[field];
+      (this.settings.fields || []).each((field, key) => {
+        if (_.has(submission.data, field)) {
+          _.set(externalSubmission.data, key, _.get(submission.data, field));
         }
       });
 

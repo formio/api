@@ -1,11 +1,11 @@
 'use strict';
 
-const vm = require('vm');
+import * as moment from 'moment';
+import * as vm from 'vm';
+import {log} from '../../log';
+import {util} from '../../util';
 import {lodash as _} from '../../util/lodash';
-
-const { JoiX, checkConditional } = require('./JoiX');
-const util = require('../../util');
-const moment = require('moment');
+import {checkConditional, JoiX} from './JoiX';
 
 /**
  * @TODO: Add description.
@@ -140,7 +140,7 @@ export class Validator {
             fieldValidator = JoiX.object();
           } else {
             fieldValidator = JoiX.string().allow('');
-            for (const name in stringValidators) {
+            for (const name of Object.keys(stringValidators)) {
               const funcName = stringValidators[name];
               if (
                 component.validate &&
@@ -175,7 +175,7 @@ export class Validator {
               }
             }
 
-            _.each(['min', 'max', 'greater', 'less'], (check) => {
+            ['min', 'max', 'greater', 'less'].forEach((check) => {
               if (component.validate.hasOwnProperty(check) && _.isNumber(component.validate[check])) {
                 fieldValidator = fieldValidator[check](component.validate[check]);
               }
@@ -228,7 +228,7 @@ export class Validator {
             const regex = new RegExp(component.validate.pattern);
             fieldValidator = fieldValidator.regex(regex);
           } catch (err) {
-            console.error(err);
+            log('error', err);
           }
         }
 
@@ -288,7 +288,7 @@ export class Validator {
     }
 
     component.logic.forEach((logic) => {
-      const result = util.checkTrigger(component, logic.trigger, row, data);
+      const result = util.formio.checkTrigger(component, logic.trigger, row, data);
 
       if (result) {
         if (!Array.isArray(logic.actions)) {
@@ -297,7 +297,7 @@ export class Validator {
         logic.actions.forEach((action) => {
           switch (action.type) {
             case 'property':
-              util.setActionProperty(component, action, row, data, component, result);
+              util.formio.setActionProperty(component, action, row, data, component, result);
               break;
             case 'value':
               try {
@@ -317,8 +317,8 @@ export class Validator {
                 });
 
                 _.set(row, component.key, sandbox.value.toString());
-              } catch (e) {
-                console.error(e);
+              } catch (err) {
+                log('error', err);
               }
               break;
           }
@@ -352,7 +352,7 @@ export class Validator {
         }
       } else {
         try {
-          _.set(row, component.key, util.jsonLogic(component.calculateValue, {
+          _.set(row, component.key, util.formio.jsonLogic(component.calculateValue, {
             data,
             row,
             _,
@@ -390,7 +390,7 @@ export class Validator {
 
     // Iterate the list of components one time to build the path map.
     const components = {};
-    util.eachComponent(this.form.components, (component, path) => {
+    util.formio.eachComponent(this.form.components, (component, path) => {
       if (component.hasOwnProperty('key')) {
         components[path] = component;
       }
@@ -411,8 +411,8 @@ export class Validator {
           }
         }
         if (validateErr) {
-          // Remove any conditionally hidden validations. Joi will still throw the errors but we don't want them since the
-          // fields are hidden.
+          // Remove any conditionally hidden validations. Joi will still throw the errors but we don't want them since
+          // the fields are hidden.
           validateErr.details = validateErr.details.filter((detail) => {
             let result = {
               hidden: false,
@@ -420,8 +420,8 @@ export class Validator {
             if (detail.type.includes('.hidden')) {
               const component = components[detail.path.filter(isNaN).join('.')];
 
-              const clearOnHide = util.isBoolean(_.get(component, 'clearOnHide')) ?
-                util.boolean(_.get(component, 'clearOnHide')) : true;
+              const clearOnHide = util.api.isBoolean(_.get(component, 'clearOnHide')) ?
+                util.api.getBoolean(_.get(component, 'clearOnHide')) : true;
 
               if (clearOnHide) {
                 _.unset(value, detail.path);
@@ -441,8 +441,8 @@ export class Validator {
                     !checkConditional(component,
                       _.get(value, result.path.slice(0, result.path.length - 1)), result.submission, true);
 
-                  const clearOnHide = util.isBoolean(_.get(component, 'clearOnHide')) ?
-                    util.boolean(_.get(component, 'clearOnHide')) : true;
+                  const clearOnHide = util.api.isBoolean(_.get(component, 'clearOnHide')) ?
+                    util.api.getBoolean(_.get(component, 'clearOnHide')) : true;
 
                   if (clearOnHide && result.hidden) {
                     _.unset(value, result.path);

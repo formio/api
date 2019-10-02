@@ -1,10 +1,10 @@
-const datetime = require('./datetime');
-const file = require('./file');
-const form = require('./form');
-const password = require('./password');
-const signature = require('./signature');
+import {datetime} from './datetime';
+import {file} from './file';
+import {form} from './form';
+import {password} from './password';
+import {signature} from './signature';
 
-module.exports = {
+export const fields = {
   datetime,
   file,
   form,

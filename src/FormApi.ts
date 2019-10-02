@@ -331,7 +331,7 @@ export class Api {
   public addModels() {
     log('info', 'Adding models');
     const schemas = this.schemas;
-    for (const schema in schemas) {
+    for (const schema of Object.keys(schemas)) {
       log('debug', `Adding model ${  schema}`);
       this.models[schema] = new this.db.Model(new schemas[schema](this), this.db);
     }
@@ -339,7 +339,7 @@ export class Api {
 
   public addResources() {
     log('info', 'Adding resources');
-    for (const resourceName in this.resourceClasses) {
+    for (const resourceName of Object.keys(this.resourceClasses)) {
       log('debug', `Adding resource ${  resourceName}`);
       this.resources[resourceName] = new this.resourceClasses[resourceName](this.models[resourceName], this.router, this);
     }
@@ -524,7 +524,7 @@ export class Api {
   }
 
   public getRoute(path, params) {
-    for (const key in params) {
+    for (const key of Object.keys(params)) {
       path = path.replace(params[key], `:${key}`);
     }
     return path;

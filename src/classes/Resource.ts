@@ -62,12 +62,16 @@ export class Resource {
     });
   }
 
+  public getQuery(query, req) {
+    return query;
+  }
+
   public indexQuery(req, query = {}) {
     // @ts-ignore
     const { limit, skip, select, sort, populate, ...filters } = req.query || {};
 
     // Iterate through each filter.
-    for (const key in filters) {
+    for (const key of Object.keys(filters)) {
       let value = filters[key];
       const [name, selector] = key.split('__');
       let parts;
