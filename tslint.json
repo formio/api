@@ -15,7 +15,8 @@
                 "allow-pascal-case",
                 "ban-keywords"
             ]
-        }
+        },
+        "max-classes-per-file": [false]
     },
     "rulesDirectory": []
 }

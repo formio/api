@@ -4,18 +4,6 @@ import {lodash as _} from '../util/lodash';
 import {Database} from './Database';
 
 export class Model {
-  public schema: Schema;
-  private _db: Database;
-  private initialized: Promise<any>;
-
-  constructor(schema: Schema, db: Database) {
-    // @TODO
-    // populate (deprecate?)
-    // description (what does this do?)
-
-    this.schema = schema;
-    this.db = db;
-  }
 
   get db() {
     return this._db;
@@ -38,6 +26,18 @@ export class Model {
 
   get collectionName() {
     return `${this.name}s`;
+  }
+  public schema: Schema;
+  public initialized: Promise<any>;
+  private _db: Database;
+
+  constructor(schema: Schema, db: Database) {
+    // @TODO
+    // populate (deprecate?)
+    // description (what does this do?)
+
+    this.schema = schema;
+    this.db = db;
   }
 
   /* Private Functions */
@@ -339,7 +339,7 @@ export class Model {
     });
   }
 
-  public create(input, context) {
+  public create(input, context?) {
     return this.initialized.then(() => {
       return this.beforeSave(input, {})
         .then((doc) => {
@@ -349,14 +349,14 @@ export class Model {
     });
   }
 
-  public read(query, context) {
+  public read(query, context?) {
     return this.initialized.then(() => {
       return this.db.read(this.collectionName, query)
         .then((doc) => this.afterLoad(doc));
     });
   }
 
-  public update(input, context) {
+  public update(input, context?) {
     return this.initialized.then(() => {
       return this.read({ _id: this.toID(input._id) }, context).then((previous) => {
         return this.beforeSave(input, previous)
@@ -368,7 +368,7 @@ export class Model {
     });
   }
 
-  public delete(query, context) {
+  public delete(query, context?) {
     return this.initialized.then(() => {
       return this.db.delete(this.collectionName, query);
     });

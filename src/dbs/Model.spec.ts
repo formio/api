@@ -1,10 +1,15 @@
 import {assert} from 'chai';
 import * as sinon from 'sinon';
 
-// A fake db wrapper for stubbing.
-import db from '../../test/mocks/db';
+import {Express} from '../../test/mocks/Express';
 import {Schema} from '../classes';
+import {Database} from '../dbs/Database';
+import {Api} from '../FormApi';
 import {Model} from './Model';
+
+const router: any = new Express();
+const db: any = new Database();
+const app = new Api(router, db, {});
 
 const sandbox = sinon.createSandbox();
 
@@ -27,7 +32,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.initialized.then(() => {
         assert(db.createCollection.calledOnce, 'Should call createCollection');
@@ -49,7 +54,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.initialized.then(() => {
         assert(db.createCollection.notCalled, 'Should not call createCollection');
@@ -88,12 +93,12 @@ describe('Model.js', () => {
           };
         }
 
-        get indexes() {
+        get index() {
           return [testIndex];
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.initialized.then(() => {
         assert(db.createIndex.calledThrice, 'Should call createIndex thrice');
@@ -120,7 +125,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       const result = model.toID('test');
       assert(db.toID.calledOnce, 'Should call db id');
@@ -147,7 +152,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -179,7 +184,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).catch((error) => {
         assert.equal(error, '\'foo\' invalid type');
@@ -210,7 +215,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -236,7 +241,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({
         foo: 3,
@@ -266,7 +271,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({
         foo: '3',
@@ -296,7 +301,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({
         foo: '12-1-2018',
@@ -324,7 +329,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({
         foo: '1',
@@ -356,7 +361,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({
         foo: { bar: 3 },
@@ -390,7 +395,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({
         foo: [{ bar: 3 }, { bar: 4 }],
@@ -424,7 +429,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({
         foo: [3, 4],
@@ -460,7 +465,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({}).catch((error) => {
         assert.equal(error, '\'foo\' is required');
@@ -484,7 +489,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -510,7 +515,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar', baz: 'blah' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -537,7 +542,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({}).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -563,7 +568,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'baz' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -589,7 +594,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({}).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -615,7 +620,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'baz' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -642,7 +647,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'BAR' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -670,7 +675,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: ' BAR ' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -696,7 +701,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -723,7 +728,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -750,7 +755,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bal' }).catch((error) => {
         assert(db.create.notCalled, 'Should not call db create');
@@ -783,7 +788,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -817,7 +822,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).catch((error) => {
         assert(db.create.notCalled, 'Should not call db create');
@@ -853,7 +858,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
@@ -890,7 +895,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ foo: 'bar' }).catch((error) => {
         assert(db.create.notCalled, 'Should not call db create');
@@ -916,7 +921,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.create({ _id: '3', foo: 'baz' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db update');
@@ -944,7 +949,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.read({ _id: 'foo' }).then((doc) => {
         assert(db.read.calledOnce, 'Should call read');
@@ -973,7 +978,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.read({ _id: 3 }).then((doc) => {
         assert.isString(doc._id);
@@ -998,7 +1003,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.read(3).catch((error) => {
         assert.equal(error, 'Could not find entry');
@@ -1025,7 +1030,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.update({ _id: '3', foo: 'baz' }).then((doc) => {
         assert(db.update.calledOnce, 'Should call db update');
@@ -1053,7 +1058,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.update({ _id: '3', foo: 'baz' }).then((doc) => {
         assert(db.update.calledOnce, 'Should call db update');
@@ -1081,7 +1086,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.delete('foo').then((doc) => {
         assert(db.delete.calledOnce, 'Should call delete');
@@ -1106,7 +1111,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       return model.delete('foo').catch((error) => {
         assert.equal(error, 'Could not delete entry');
@@ -1132,7 +1137,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       const query = { foo: 'bar' };
       return model.count(query).then((result) => {
@@ -1164,7 +1169,7 @@ describe('Model.js', () => {
         }
       }
 
-      const model = new Model(new TestSchema(), db);
+      const model = new Model(new TestSchema(app), db);
 
       const query = { foo: 'bar' };
       const options = { sort: 1, limit: 10 };

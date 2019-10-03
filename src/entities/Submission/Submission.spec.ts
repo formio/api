@@ -1,14 +1,18 @@
 import {assert} from 'chai';
-import 'mocha-typescript';
 import * as sinon from 'sinon';
 
 // A fake db wrapper for stubbing.
 const sandbox = sinon.createSandbox();
 
-import app from '../../../test/mocks/app';
-import db from '../../../test/mocks/db';
+import {Express} from '../../../test/mocks/Express';
+import {Database} from '../../dbs/Database';
 import {Model} from '../../dbs/Model';
+import {Api} from '../../FormApi';
 import {Submission as Schema} from './Schema';
+
+const router: any = new Express();
+const db = new Database();
+const app = new Api(router, db, {});
 
 describe('Submission Tests', () => {
   const model = new Model(new Schema(app), db);
