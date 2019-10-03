@@ -1,6 +1,9 @@
+// We can't use import for package.json or it will mess up the lib folder.
+/* tslint:disable */
+const {version} = require('../package.json');
+/* tslint:enable */
 import * as bcrypt from 'bcryptjs';
 import * as uuid from 'uuid/v4';
-import * as info from '../package.json';
 import {Export as ExportClass} from './classes/Export';
 import {Import as ImportClass} from './classes/Import';
 import {Model} from './dbs/Model';
@@ -479,7 +482,7 @@ export class Api {
   }
 
   public getStatus(status: any = {}) {
-    status.api = info.version;
+    status.api = version;
     return status;
   }
 

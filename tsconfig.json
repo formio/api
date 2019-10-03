@@ -6,7 +6,15 @@
     "outDir": "lib",
     "noImplicitAny": false,
     "sourceMap": false,
-    "resolveJsonModule": true
+    "declaration": true,
+    "rootDir": "src"
   },
-  "include": ["*.ts\", src/*.ts", "src/**/*.ts", "src/*.js", "src/**/*.js", "src/**/*.json"]
+  "include": [
+    "src/*.ts",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
 }
