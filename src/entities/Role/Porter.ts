@@ -21,7 +21,7 @@ export class Role extends Porter {
       });
   }
 
-  public query(document) {
+  public query(document: any): any {
     return {
       $or: [
         {

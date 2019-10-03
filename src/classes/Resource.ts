@@ -79,49 +79,44 @@ export class Resource {
       // See if this parameter is defined in our model.
       const param = this.model.schema[name.split('.')[0]];
 
-      if (param) {
-        if (selector) {
-          switch (selector) {
-            case 'regex':
-              // Set the regular expression for the filter.
-              parts = value.match(/\/?([^/]+)\/?([^/]+)?/);
+      if (selector) {
+        switch (selector) {
+          case 'regex':
+            // Set the regular expression for the filter.
+            parts = value.match(/\/?([^/]+)\/?([^/]+)?/);
 
-              try {
-                value = new RegExp(parts[1], (parts[2] || 'i'));
-              } catch (err) {
-                value = null;
-              }
-              query[name] = value;
-              break;
-            case 'exists':
-              value = ((value === 'true') || (value === '1')) ? true : value;
-              value = ((value === 'false') || (value === '0')) ? false : value;
-              value = !!value;
-              query[name] = query[name] || {};
-              query[name][`$${selector}`] = value;
-              break;
-            case 'in':
-            case 'nin':
-              value = Array.isArray(value) ? value : value.split(',');
-              value = value.map((item) => {
-                return this.indexQueryValue(name, item, param);
-              });
-              query[name] = query[name] || {};
-              query[name][`$${selector}`] = value;
-              break;
-            default:
-              value = this.indexQueryValue(name, value, param);
-              query[name] = query[name] || {};
-              query[name][`$${selector}`] = value;
-              break;
-          }
-        } else {
-          // Set the find query to this value.
-          value = this.indexQueryValue(name, value, param);
-          query[name] = value;
+            try {
+              value = new RegExp(parts[1], (parts[2] || 'i'));
+            } catch (err) {
+              value = null;
+            }
+            query[name] = value;
+            break;
+          case 'exists':
+            value = ((value === 'true') || (value === '1')) ? true : value;
+            value = ((value === 'false') || (value === '0')) ? false : value;
+            value = !!value;
+            query[name] = query[name] || {};
+            query[name][`$${selector}`] = value;
+            break;
+          case 'in':
+          case 'nin':
+            value = Array.isArray(value) ? value : value.split(',');
+            value = value.map((item) => {
+              return this.indexQueryValue(name, item, param);
+            });
+            query[name] = query[name] || {};
+            query[name][`$${selector}`] = value;
+            break;
+          default:
+            value = this.indexQueryValue(name, value, param);
+            query[name] = query[name] || {};
+            query[name][`$${selector}`] = value;
+            break;
         }
       } else {
         // Set the find query to this value.
+        value = this.indexQueryValue(name, value, param);
         query[name] = value;
       }
     }
@@ -130,6 +125,9 @@ export class Resource {
   }
 
   public indexQueryValue(name, value, param) {
+    if (!param) {
+      return value;
+    }
     if (param.type === 'number') {
       return parseInt(value, 10);
     }
@@ -140,7 +138,7 @@ export class Resource {
     }
 
     // If this is an ID, and the value is a string, convert to an ObjectId.
-    if (param.type === 'id' && typeof value === 'string') {
+    if (param.type === 'id') {
       try {
         value = this.model.toID(value);
       } catch (err) {
@@ -180,7 +178,7 @@ export class Resource {
         this.app.log('debug', `resource post done for ${this.name}`);
         next();
       })
-      .catch(next);
+      .catch((err) => next(err));
   }
 
   public get(req, res, next) {

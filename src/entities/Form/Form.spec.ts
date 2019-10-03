@@ -1,14 +1,14 @@
-import 'mocha-typescript';
 import {assert} from 'chai';
+import 'mocha-typescript';
 import * as sinon from 'sinon';
 
 // A fake db wrapper for stubbing.
 const sandbox = sinon.createSandbox();
 
-import {Model} from '../../dbs/Model';
-import {Form as Schema} from './Schema';
 import app from '../../../test/mocks/app';
 import db from '../../../test/mocks/db';
+import {Model} from '../../dbs/Model';
+import {Form as Schema} from './Schema';
 
 describe('Form Tests', () => {
   const model = new Model(new Schema(app), db);
@@ -17,7 +17,7 @@ describe('Form Tests', () => {
     sandbox.restore();
   });
 
-  it('tests', done => {
+  it('tests', (done) => {
     done();
   });
 });

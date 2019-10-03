@@ -305,10 +305,10 @@ export class Model {
             options[(key === 'select' ? 'projection' : key)] = query[key].split(',')
               .map((item) => item.trim())
               .reduce((prev, item) => {
-                let val = '1';
+                let val = 1;
                 if (item.charAt(0) === '-') {
                   item = item.substring(1);
-                  val = '-1';
+                  val = -1;
                 }
                 prev[item] = val;
                 return prev;

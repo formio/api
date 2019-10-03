@@ -1,13 +1,18 @@
 import {assert} from 'chai';
 import * as sinon from 'sinon';
 
-// A fake db wrrouterer for stubbing.
-import app from '../../test/mocks/app';
-import router from '../../test/mocks/router';
-import model from '../../test/mocks/model';
-import ChildResource from '../../test/mocks/childResource';
+import {Child} from '../../test/mocks/childResource';
+import {Express} from '../../test/mocks/Express';
+import {TestSchema} from '../../test/mocks/TestSchema';
+import {Database} from '../dbs/Database';
+import {Model} from '../dbs/Model';
+import {Api} from '../FormApi';
+import {Resource} from './Resource';
 
-import {Resource} from "./Resource";
+const router: any = new Express();
+const db = new Database();
+const app = new Api(router, db, {});
+const model: any = new Model(new TestSchema(app), db);
 
 const sandbox = sinon.createSandbox();
 
@@ -17,7 +22,7 @@ describe('Resource.js', () => {
   });
 
   describe('Initialization', () => {
-    it('Adds routes to router', done => {
+    it('Adds routes to router', (done) => {
       sandbox.spy(router, 'get');
       sandbox.spy(router, 'put');
       sandbox.spy(router, 'post');
@@ -44,7 +49,7 @@ describe('Resource.js', () => {
       done();
     });
 
-    it('Adds inherited routes to router', done => {
+    it('Adds inherited routes to router', (done) => {
       sandbox.spy(router, 'get');
       sandbox.spy(router, 'put');
       sandbox.spy(router, 'post');
@@ -52,7 +57,7 @@ describe('Resource.js', () => {
       sandbox.spy(router, 'delete');
       sandbox.spy(router, 'use');
 
-      const resource = new ChildResource(model, router, app);
+      const resource = new Child(model, router, app);
 
       assert(router.get.calledTwice, 'Should call get twice');
       assert.equal(router.get.args[0][0], `/foo/${  model.name}`);
@@ -74,82 +79,92 @@ describe('Resource.js', () => {
   });
 
   describe('Handles Index Get', () => {
-    it('Calls find from index', done => {
+    it('Calls find from index', (done) => {
       sandbox.spy(model, 'find');
 
       const resource = new Resource(model, router, app);
 
       resource.index({
         context: {
-          params: { testId: 1 }
+          params: { testId: '1' },
         },
         query: {
           'data.name': 'joe',
           'data.age__gt': 20,
-          'sort': 'created'
-        }
-      }, {}, err => {
+          'sort': 'created',
+        },
+      }, {}, (err) => {
         assert(model.find.calledOnce, 'Should call index');
-        // assert.deepEqual(model.read.args[0][0], {_id: 1});
-        done(err);
+        assert.deepEqual(model.find.args[0][0], {
+          'data.name': 'joe',
+          'data.age': {
+            $gt: 20,
+          },
+        });
+        assert.deepEqual(model.find.args[0][1], {
+          sort: {
+            created: 1,
+          },
+        });
+        done();
       });
     });
   });
 
-  describe('Handles Get', done => {
-    it('Calls read from get', done => {
+  describe('Handles Get', () => {
+    it('Calls read from get', (done) => {
       sandbox.spy(model, 'read');
 
       const resource = new Resource(model, router, app);
 
-      resource.get({ context: { params: { 'testId': 1 } } }, {}, err => {
+      resource.get({ context: { params: { testId: '1' } } }, {}, (err) => {
         assert(model.read.calledOnce, 'Should call read');
-        assert.deepEqual(model.read.args[0][0], { _id: 1 });
+        assert.deepEqual(model.read.args[0][0], { _id: '1' });
         done(err);
       });
     });
 
-    it('Returns an error from get', done => {
+    it('Returns an error from get', (done) => {
       sandbox.stub(model, 'read').rejects('Not found');
 
       const resource = new Resource(model, router, app);
 
-      resource.get({ context: { params: { 'testId': 1 } } }, {}, err => {
+      resource.get({ context: { params: { testId: '1' } } }, {}, (err) => {
         assert(model.read.calledOnce, 'Should call read');
-        assert.deepEqual(model.read.args[0][0], { _id: 1 });
+        assert.deepEqual(model.read.args[0][0], { _id: '1' });
         assert.equal(err, 'Not found');
         done();
       });
     });
   });
 
-  describe('Handles Post', done => {
-    it('Calls read from post', done => {
+  describe('Handles Post', () => {
+    it('Calls read from post', (done) => {
       sandbox.spy(model, 'create');
 
       const resource = new Resource(model, router, app);
 
       const body = {
-        foo: 'bar'
+        foo: 'bar',
       };
 
-      resource.post({ body, context: { params: { 'testId': 1 } } }, {}, err => {
+      resource.post({ body, context: { params: { testId: '1' } } }, {}, (err) => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
-        done(err);
+        done();
       });
     });
 
-    it('Returns an error from post', done => {
+    it('Returns an error from post', (done) => {
       sandbox.stub(model, 'create').rejects('Not found');
 
       const resource = new Resource(model, router, app);
 
       const body = {
-        foo: 'bar'
+        foo: 'bar',
       };
 
-      resource.post({ body, context: { params: { 'testId': 1 } } }, {}, err => {
+      resource.post({ body, context: { params: { testId: 1 } } }, {}, (err) => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
         assert.equal(err, 'Not found');
@@ -157,44 +172,49 @@ describe('Resource.js', () => {
       });
     });
 
-    it('Allows overriding function', done => {
-      sandbox.spy(ChildResource.prototype, 'before');
-      sandbox.spy(ChildResource.prototype, 'post');
-      sandbox.spy(ChildResource.prototype, 'after');
+    it('Allows overriding function', (done) => {
+      sandbox.spy(Child.prototype, 'before');
+      sandbox.spy(Child.prototype, 'post');
+      sandbox.spy(Child.prototype, 'after');
       sandbox.spy(Resource.prototype, 'post');
 
-      const resource = new ChildResource(model, router, app);
+      const resource = new Child(model, router, app);
 
       const body = {
-        foo: 'bar'
+        foo: 'bar',
       };
 
-      resource.post({ body, context: { params: { 'testId': 1 } } }, {}, err => {
-        sinon.assert.callOrder(ChildResource.prototype.post, ChildResource.prototype.before, Resource.prototype.post, ChildResource.prototype.after);
+      resource.post({ body, context: { params: { testId: '1' } } }, {}, (err) => {
+        sinon.assert.callOrder(
+          Child.prototype.post as sinon.SinonSpy,
+          Child.prototype.before as sinon.SinonSpy,
+          Resource.prototype.post as sinon.SinonSpy,
+          Child.prototype.after as sinon.SinonSpy,
+        );
         done(err);
       });
     });
   });
 
-  describe('Handles Put', done => {
-    it('Calls update', done => {
+  describe('Handles Put', () => {
+    it('Calls update', (done) => {
       sandbox.spy(model, 'update');
 
       const resource = new Resource(model, router, app);
 
-      resource.put({ context: { params: { testId: 1 } }, body: { baz: 'bur' } }, {}, err => {
+      resource.put({ context: { params: { testId: '1' } }, body: { baz: 'bur' } }, {}, (err) => {
         assert(model.update.calledOnce, 'Should call update');
-        assert.deepEqual(model.update.args[0][0], { baz: 'bur', _id: 1 });
-        done(err);
+        assert.deepEqual(model.update.args[0][0], { baz: 'bur', _id: '1' });
+        done();
       });
     });
 
-    it('Returns an error from put', done => {
+    it('Returns an error from put', (done) => {
       sandbox.stub(model, 'update').rejects('Not found');
 
       const resource = new Resource(model, router, app);
 
-      resource.put({ context: { params: { testId: 1 } }, body: { baz: 'bur' } }, {}, err => {
+      resource.put({ context: { params: { testId: '1' } }, body: { baz: 'bur' } }, {}, (err) => {
         assert(model.update.calledOnce, 'Should call update');
         assert.equal(err, 'Not found');
         done();
@@ -202,9 +222,9 @@ describe('Resource.js', () => {
     });
   });
 
-  describe('Handles Patch', done => {
-    it('Calls patch', done => {
-      sandbox.stub(model, 'read').resolves({ foo: 'bar', fiz: 'buz', _id: 1 });
+  describe('Handles Patch', () => {
+    it('Calls patch', (done) => {
+      sandbox.stub(model, 'read').resolves({ foo: 'bar', fiz: 'buz', _id: '1' });
       sandbox.spy(model, 'update');
 
       const resource = new Resource(model, router, app);
@@ -212,62 +232,77 @@ describe('Resource.js', () => {
       resource.patch({
         context: {
           params: {
-            testId: 1
+            testId: '1',
           },
         },
         body: [
           {
             op: 'add',
             path: '/bing',
-            value: 'bong'
+            value: 'bong',
           },
           {
             op: 'remove',
             path: '/fiz',
-          }
-        ] }, {}, err => {
+          },
+        ] }, {}, () => {
         assert(model.update.calledOnce, 'Should call patch');
-        assert.deepEqual(model.update.args[0][0], { foo: 'bar', bing: 'bong', _id: 1 });
-        done(err);
+        assert.deepEqual(model.update.args[0][0], { foo: 'bar', bing: 'bong', _id: '1' });
+        done();
       });
     });
 
-    // it('Returns an error from patch', done => {
-    //   sandbox.stub(model, 'read').resolves({foo: 'bar'});
-    //   sandbox.stub(model, 'update').rejects('Not found');
-    //
-    //   const resource = new Resource(model, router, app);
-    //
-    //   resource.patch({params: {testId: 1}, body: {foo: 'bar'}}, {}, err => {
-    //     assert(model.patch.calledOnce, 'Should call patch');
-    //     assert.deepEqual(model.patch.args[0][0], 1);
-    //     assert.equal(err, 'Not found');
-    //     done();
-    //   });
-    // });
+    it('Returns an error from patch', (done) => {
+      sandbox.stub(model, 'read').rejects('Not found');
+
+      const resource = new Resource(model, router, app);
+
+      resource.patch({
+        context: {
+          params: {
+            testId: '1',
+          },
+        },
+        body: [
+          {
+            op: 'add',
+            path: '/bing',
+            value: 'bong',
+          },
+          {
+            op: 'remove',
+            path: '/fiz',
+          },
+        ] }, {}, (err) => {
+        assert(model.read.calledOnce, 'Should call read');
+        assert.deepEqual(model.read.args[0][0], {_id: '1'});
+        assert.equal(err, 'Not found');
+        done();
+      });
+    });
   });
 
-  describe('Handles Delete', done => {
-    it('Calls delete', done => {
+  describe('Handles Delete', () => {
+    it('Calls delete', (done) => {
       sandbox.spy(model, 'delete');
 
       const resource = new Resource(model, router, app);
 
-      resource.delete({ context: { params: { 'testId': 1 } } }, {}, err => {
+      resource.delete({ context: { params: { testId: '1' } } }, {}, (err) => {
         assert(model.delete.calledOnce, 'Should call delete');
-        assert.deepEqual(model.delete.args[0][0], {_id: 1});
+        assert.deepEqual(model.delete.args[0][0], {_id: '1'});
         done(err);
       });
     });
 
-    it('Returns an error from delete', done => {
+    it('Returns an error from delete', (done) => {
       sandbox.stub(model, 'delete').rejects('Not found');
 
       const resource = new Resource(model, router, app);
 
-      resource.delete({ context: { params: { 'testId': 1 } } }, {}, err => {
+      resource.delete({ context: { params: { testId: '1' } } }, {}, (err) => {
         assert(model.delete.calledOnce, 'Should call delete');
-        assert.deepEqual(model.delete.args[0][0], {_id: 1});
+        assert.deepEqual(model.delete.args[0][0], {_id: '1'});
         assert.equal(err, 'Not found');
         done();
       });

@@ -1,15 +1,15 @@
-import camelCase from 'lodash/camelCase';
-import capitalize from 'lodash/capitalize';
-import find from 'lodash/find';
-import get from 'lodash/get';
-import has from 'lodash/has';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isNumber from 'lodash/isNumber';
-import isString from 'lodash/isString';
-import set from 'lodash/set';
-import unset from 'lodash/unset';
-import update from 'lodash/update';
+import * as camelCase from 'lodash/camelCase';
+import * as capitalize from 'lodash/capitalize';
+import * as find from 'lodash/find';
+import * as get from 'lodash/get';
+import * as has from 'lodash/has';
+import * as isEmpty from 'lodash/isEmpty';
+import * as isEqual from 'lodash/isEqual';
+import * as isNumber from 'lodash/isNumber';
+import * as isString from 'lodash/isString';
+import * as set from 'lodash/set';
+import * as unset from 'lodash/unset';
+import * as update from 'lodash/update';
 
 /**
  * This is a wrapper around lodash functions. It allows us to optimize builds and not import all of lodash.

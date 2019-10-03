@@ -3,6 +3,7 @@
 ## General
  - get makeChildRequest function to work.
  - convert /current to use makeChildRequest.
+ - swagger
 
 ## Actions
  - Save Submission - allow saving to another form and map data

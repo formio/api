@@ -55,7 +55,7 @@ export class Porter {
     return document;
   }
 
-  public query(document: any) {
+  public query(document: any): any {
     return {
       $or: [
         {

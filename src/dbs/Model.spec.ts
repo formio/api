@@ -1,10 +1,10 @@
 import {assert} from 'chai';
 import * as sinon from 'sinon';
 
-import {Schema} from "../classes";
-import {Model} from "./Model";
 // A fake db wrapper for stubbing.
 import db from '../../test/mocks/db';
+import {Schema} from '../classes';
+import {Model} from './Model';
 
 const sandbox = sinon.createSandbox();
 
@@ -23,7 +23,7 @@ describe('Model.js', () => {
         }
 
         get schema() {
-          return {}
+          return {};
         }
       }
 
@@ -45,7 +45,7 @@ describe('Model.js', () => {
         }
 
         get schema() {
-          return {}
+          return {};
         }
       }
 
@@ -63,11 +63,11 @@ describe('Model.js', () => {
         name: 'deleted',
         spec: {
           a: 1,
-          b: 1
+          b: 1,
         },
         options: {
-          test: 1
-        }
+          test: 1,
+        },
       };
 
       class TestSchema extends Schema {
@@ -78,14 +78,14 @@ describe('Model.js', () => {
         get schema() {
           return {
             a: {
-              index: true
+              index: true,
             },
             b: {
-              index: true
+              index: true,
             },
             c: {},
-            d: {}
-          }
+            d: {},
+          };
         }
 
         get indexes() {
@@ -107,7 +107,7 @@ describe('Model.js', () => {
       });
     });
 
-    it('Provides a way to transform IDs', done => {
+    it('Provides a way to transform IDs', (done) => {
       sandbox.spy(db, 'toID');
 
       class TestSchema extends Schema {
@@ -116,7 +116,7 @@ describe('Model.js', () => {
         }
 
         get schema() {
-          return {}
+          return {};
         }
       }
 
@@ -143,13 +143,13 @@ describe('Model.js', () => {
             foo: {
               type: 'id',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).then(doc => {
+      return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.isString(db.create.args[0][1].foo);
         assert.isString(doc.foo);
@@ -161,7 +161,7 @@ describe('Model.js', () => {
 
       class ErrorClass {
         constructor(id) {
-          throw 'id is bad';
+          throw new Error('id is bad');
         }
       }
 
@@ -175,13 +175,13 @@ describe('Model.js', () => {
             foo: {
               type: ErrorClass,
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).catch(error => {
+      return model.create({ foo: 'bar' }).catch((error) => {
         assert.equal(error, '\'foo\' invalid type');
       });
     });
@@ -191,7 +191,7 @@ describe('Model.js', () => {
 
       class ErrorClass {
         constructor(id) {
-          throw 'id is bad';
+          throw new Error('id is bad');
         }
       }
 
@@ -206,13 +206,13 @@ describe('Model.js', () => {
               type: ErrorClass,
               looseType: true,
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).then(doc => {
+      return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.isString(db.create.args[0][1].foo);
         assert.isString(doc.foo);
@@ -230,17 +230,17 @@ describe('Model.js', () => {
         get schema() {
           return {
             foo: {
-              type: 'string'
+              type: 'string',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
       return model.create({
-        foo: 3
-      }).then(doc => {
+        foo: 3,
+      }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.isString(db.create.args[0][1].foo);
         assert.equal(db.create.args[0][1].foo, '3');
@@ -260,17 +260,17 @@ describe('Model.js', () => {
         get schema() {
           return {
             foo: {
-              type: 'number'
+              type: 'number',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
       return model.create({
-        foo: '3'
-      }).then(doc => {
+        foo: '3',
+      }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.isNumber(db.create.args[0][1].foo);
         assert.equal(db.create.args[0][1].foo, 3);
@@ -290,17 +290,17 @@ describe('Model.js', () => {
         get schema() {
           return {
             foo: {
-              type: 'date'
+              type: 'date',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
       return model.create({
-        foo: '12-1-2018'
-      }).then(doc => {
+        foo: '12-1-2018',
+      }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.instanceOf(db.create.args[0][1].foo, Date);
         assert.instanceOf(doc.foo, Date);
@@ -318,17 +318,17 @@ describe('Model.js', () => {
         get schema() {
           return {
             foo: {
-              type: 'boolean'
+              type: 'boolean',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
       return model.create({
-        foo: '1'
-      }).then(doc => {
+        foo: '1',
+      }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.isBoolean(db.create.args[0][1].foo, 'should be boolean');
         assert.isBoolean(doc.foo, 'should be boolean');
@@ -348,19 +348,19 @@ describe('Model.js', () => {
             foo: {
               type: {
                 bar: {
-                  type: 'string'
-                }
-              }
+                  type: 'string',
+                },
+              },
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
       return model.create({
-        foo: { bar: 3 }
-      }).then(doc => {
+        foo: { bar: 3 },
+      }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.equal(db.create.args[0][1].foo.bar, '3');
         assert.isString(db.create.args[0][1].foo.bar);
@@ -382,19 +382,19 @@ describe('Model.js', () => {
             foo: {
               type: [{
                 bar: {
-                  type: 'string'
-                }
-              }]
+                  type: 'string',
+                },
+              }],
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
       return model.create({
-        foo: [{ bar: 3 }, { bar: 4 }]
-      }).then(doc => {
+        foo: [{ bar: 3 }, { bar: 4 }],
+      }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.equal(db.create.args[0][1].foo[0].bar, '3');
         assert.isString(db.create.args[0][1].foo[0].bar);
@@ -418,17 +418,17 @@ describe('Model.js', () => {
         get schema() {
           return {
             foo: {
-              type: ['string']
+              type: ['string'],
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
       return model.create({
-        foo: [3, 4]
-      }).then(doc => {
+        foo: [3, 4],
+      }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.isString(db.create.args[0][1].foo[0]);
         assert.isString(db.create.args[0][1].foo[1]);
@@ -454,15 +454,15 @@ describe('Model.js', () => {
         get schema() {
           return {
             foo: {
-              required: true
+              required: true,
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({}).catch(error => {
+      return model.create({}).catch((error) => {
         assert.equal(error, '\'foo\' is required');
       });
     });
@@ -478,15 +478,15 @@ describe('Model.js', () => {
         get schema() {
           return {
             foo: {
-              required: true
+              required: true,
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).then(doc => {
+      return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
         assert.deepEqual(doc, { foo: 'bar' });
@@ -504,15 +504,15 @@ describe('Model.js', () => {
         get schema() {
           return {
             foo: {
-              type: 'string'
+              type: 'string',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar', baz: 'blah' }).then(doc => {
+      return model.create({ foo: 'bar', baz: 'blah' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
         assert.deepEqual(doc, { foo: 'bar' });
@@ -533,13 +533,13 @@ describe('Model.js', () => {
               type: 'string',
               default: 'bar',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({}).then(doc => {
+      return model.create({}).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
         assert.deepEqual(doc, { foo: 'bar' });
@@ -559,13 +559,13 @@ describe('Model.js', () => {
             foo: {
               default: 'bar',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'baz' }).then(doc => {
+      return model.create({ foo: 'baz' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'baz' });
         assert.deepEqual(doc, { foo: 'baz' });
@@ -585,13 +585,13 @@ describe('Model.js', () => {
             foo: {
               default: () => 'bar',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({}).then(doc => {
+      return model.create({}).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
         assert.deepEqual(doc, { foo: 'bar' });
@@ -611,13 +611,13 @@ describe('Model.js', () => {
             foo: {
               default: () => 'bar',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'baz' }).then(doc => {
+      return model.create({ foo: 'baz' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'baz' });
         assert.deepEqual(doc, { foo: 'baz' });
@@ -636,15 +636,15 @@ describe('Model.js', () => {
           return {
             foo: {
               type: 'string',
-              lowercase: true
+              lowercase: true,
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'BAR' }).then(doc => {
+      return model.create({ foo: 'BAR' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
         assert.deepEqual(doc, { foo: 'bar' });
@@ -664,15 +664,15 @@ describe('Model.js', () => {
             foo: {
               type: 'string',
               trim: true,
-              lowercase: true
+              lowercase: true,
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: ' BAR ' }).then(doc => {
+      return model.create({ foo: ' BAR ' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
         assert.deepEqual(doc, { foo: 'bar' });
@@ -692,13 +692,13 @@ describe('Model.js', () => {
             foo: {
               set: () => 'baz',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).then(doc => {
+      return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'baz' });
         assert.deepEqual(doc, { foo: 'baz' });
@@ -719,13 +719,13 @@ describe('Model.js', () => {
               type: 'string',
               enum: ['bar', 'baz'],
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).then(doc => {
+      return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
         assert.deepEqual(doc, { foo: 'bar' });
@@ -746,13 +746,13 @@ describe('Model.js', () => {
               type: 'string',
               enum: ['bar', 'baz'],
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bal' }).catch(error => {
+      return model.create({ foo: 'bal' }).catch((error) => {
         assert(db.create.notCalled, 'Should not call db create');
         assert.equal(error, 'Invalid enumerated option in \'foo\'');
       });
@@ -775,17 +775,17 @@ describe('Model.js', () => {
                   message: 'must pass sync validator',
                   validator: (val) => {
                     return true;
-                  }
-                }
+                  },
+                },
               ],
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).then(doc => {
+      return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
         assert.deepEqual(doc, { foo: 'bar' });
@@ -809,17 +809,17 @@ describe('Model.js', () => {
                   message: 'must pass sync validator',
                   validator: (val) => {
                     return false;
-                  }
-                }
+                  },
+                },
               ],
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).catch(error => {
+      return model.create({ foo: 'bar' }).catch((error) => {
         assert(db.create.notCalled, 'Should not call db create');
         assert.equal(error, 'must pass sync validator');
       });
@@ -845,17 +845,17 @@ describe('Model.js', () => {
                     setTimeout(() => {
                       done(true);
                     }, 1);
-                  }
-                }
+                  },
+                },
               ],
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).then(doc => {
+      return model.create({ foo: 'bar' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(db.create.args[0][1], { foo: 'bar' });
         assert.deepEqual(doc, { foo: 'bar' });
@@ -882,17 +882,17 @@ describe('Model.js', () => {
                     setTimeout(() => {
                       done(false);
                     }, 1);
-                  }
-                }
+                  },
+                },
               ],
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ foo: 'bar' }).catch(error => {
+      return model.create({ foo: 'bar' }).catch((error) => {
         assert(db.create.notCalled, 'Should not call db create');
         assert.equal(error, 'must pass sync validator');
       });
@@ -910,15 +910,15 @@ describe('Model.js', () => {
           return {
             foo: {
               type: 'string',
-              readOnly: true
+              readOnly: true,
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.create({ _id: '3', foo: 'baz' }).then(doc => {
+      return model.create({ _id: '3', foo: 'baz' }).then((doc) => {
         assert(db.create.calledOnce, 'Should call db update');
         assert.equal(db.create.args[0][1].foo, 'baz');
         assert.equal(doc.foo, 'baz');
@@ -940,13 +940,13 @@ describe('Model.js', () => {
             bar: {
               type: 'string',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.read({ _id: 'foo' }).then(doc => {
+      return model.read({ _id: 'foo' }).then((doc) => {
         assert(db.read.calledOnce, 'Should call read');
         assert.deepEqual(db.read.args[0][1], { _id: 'foo' });
         assert.deepEqual(doc, { _id: 'foo', bar: 'baz' });
@@ -964,18 +964,18 @@ describe('Model.js', () => {
         get schema() {
           return {
             _id: {
-              type: 'id'
+              type: 'id',
             },
             bar: {
               type: 'string',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.read({ _id: 3 }).then(doc => {
+      return model.read({ _id: 3 }).then((doc) => {
         assert.isString(doc._id);
         assert.deepEqual(doc, { _id: '3', bar: 'baz' });
       });
@@ -994,13 +994,13 @@ describe('Model.js', () => {
             bar: {
               type: 'string',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.read(3).catch(error => {
+      return model.read(3).catch((error) => {
         assert.equal(error, 'Could not find entry');
       });
     });
@@ -1021,13 +1021,13 @@ describe('Model.js', () => {
             foo: {
               type: 'string',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.update({ _id: '3', foo: 'baz' }).then(doc => {
+      return model.update({ _id: '3', foo: 'baz' }).then((doc) => {
         assert(db.update.calledOnce, 'Should call db update');
         assert.equal(db.update.args[0][1].foo, 'baz');
         assert.equal(doc.foo, 'baz');
@@ -1047,15 +1047,15 @@ describe('Model.js', () => {
           return {
             foo: {
               type: 'string',
-              readOnly: true
+              readOnly: true,
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.update({ _id: '3', foo: 'baz' }).then(doc => {
+      return model.update({ _id: '3', foo: 'baz' }).then((doc) => {
         assert(db.update.calledOnce, 'Should call db update');
         assert.equal(db.update.args[0][1].foo, 'bar');
         assert.equal(doc.foo, 'bar');
@@ -1077,13 +1077,13 @@ describe('Model.js', () => {
             bar: {
               type: 'string',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.delete('foo').then(doc => {
+      return model.delete('foo').then((doc) => {
         assert(db.delete.calledOnce, 'Should call delete');
         assert.deepEqual(db.delete.args[0][1], 'foo');
       });
@@ -1102,13 +1102,13 @@ describe('Model.js', () => {
             bar: {
               type: 'string',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
-      return model.delete('foo').catch(error => {
+      return model.delete('foo').catch((error) => {
         assert.equal(error, 'Could not delete entry');
       });
     });
@@ -1128,14 +1128,14 @@ describe('Model.js', () => {
             bar: {
               type: 'string',
             },
-          }
+          };
         }
       }
 
       const model = new Model(new TestSchema(), db);
 
       const query = { foo: 'bar' };
-      return model.count(query).then(result => {
+      return model.count(query).then((result) => {
         assert(db.count.calledOnce, 'Should call count');
         assert.deepEqual(db.count.args[0][1], query);
         assert.equal(result, 4);
@@ -1155,12 +1155,12 @@ describe('Model.js', () => {
         get schema() {
           return {
             _id: {
-              type: 'id'
+              type: 'id',
             },
             foo: {
               type: 'string',
             },
-          }
+          };
         }
       }
 
@@ -1168,7 +1168,7 @@ describe('Model.js', () => {
 
       const query = { foo: 'bar' };
       const options = { sort: 1, limit: 10 };
-      return model.find(query, options).then(result => {
+      return model.find(query, options).then((result) => {
         assert(db.find.calledOnce, 'Should call find');
         assert.deepEqual(db.find.args[0][1], query);
         assert.deepEqual(db.find.args[0][2], options);

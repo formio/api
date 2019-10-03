@@ -1,6 +1,5 @@
 import {Model} from './Model';
 
-// TODO: Convert this to an interface once we move to typescript.
 export class Database {
   public Model;
 
@@ -12,7 +11,7 @@ export class Database {
     return id;
   }
 
-  public find(collection, query, options) {
+  public find(collection, query, options?) {
     return Promise.resolve([]);
   }
 
