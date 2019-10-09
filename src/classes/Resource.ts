@@ -5,17 +5,6 @@ import {Model} from '../dbs/Model';
 import {Api} from '../FormApi';
 
 export class Resource {
-  public model: Model;
-  public router: Router;
-  public app: Api;
-
-  constructor(model: Model, router: Router, app: Api) {
-    this.model = model;
-    this.router = router;
-    this.app = app;
-
-    this.rest();
-  }
 
   get name() {
     return this.model.name.toLowerCase();
@@ -24,129 +13,16 @@ export class Resource {
   get route() {
     return this.path(`/${this.name}`);
   }
+  protected model: Model;
+  protected router: Router;
+  protected app: Api;
 
-  public path(route) {
-    return route;
-  }
+  constructor(model: Model, router: Router, app: Api) {
+    this.model = model;
+    this.router = router;
+    this.app = app;
 
-  /**
-   * Call an array of promises in series and call next() when done.
-   *
-   * @param promises
-   * @param next
-   */
-  public callPromisesAsync(promises) {
-    return promises.reduce((p, f) => p
-        .then(f)
-        .catch((err) => Promise.reject(err))
-      , Promise.resolve());
-  }
-
-  public rest() {
-    this.app.log('debug', `registering rest endpoings for ${this.name}`);
-    this.register('get', this.route, 'index');
-    this.register('post', this.route, 'post');
-    this.register('get', `${this.route}/:${this.name}Id`, 'get');
-    this.register('put', `${this.route}/:${this.name}Id`, 'put');
-    this.register('patch', `${this.route}/:${this.name}Id`, 'patch');
-    this.register('delete', `${this.route}/:${this.name}Id`, 'delete');
-    this.register('use', `${this.route}/exists`, 'exists');
-
-    return this;
-  }
-
-  public register(method, route, callback) {
-    this.app.log('debug', `Registering route ${method.toUpperCase()}: ${route}`);
-    this.router[method](route, (req, res, next) => {
-      this[callback](req, res, next);
-    });
-  }
-
-  public getQuery(query, req) {
-    return query;
-  }
-
-  public indexQuery(req, query = {}) {
-    // @ts-ignore
-    const { limit, skip, select, sort, populate, ...filters } = req.query || {};
-
-    // Iterate through each filter.
-    for (const key of Object.keys(filters)) {
-      let value = filters[key];
-      const [name, selector] = key.split('__');
-      let parts;
-
-      // See if this parameter is defined in our model.
-      const param = this.model.schema[name.split('.')[0]];
-
-      if (selector) {
-        switch (selector) {
-          case 'regex':
-            // Set the regular expression for the filter.
-            parts = value.match(/\/?([^/]+)\/?([^/]+)?/);
-
-            try {
-              value = new RegExp(parts[1], (parts[2] || 'i'));
-            } catch (err) {
-              value = null;
-            }
-            query[name] = value;
-            break;
-          case 'exists':
-            value = ((value === 'true') || (value === '1')) ? true : value;
-            value = ((value === 'false') || (value === '0')) ? false : value;
-            value = !!value;
-            query[name] = query[name] || {};
-            query[name][`$${selector}`] = value;
-            break;
-          case 'in':
-          case 'nin':
-            value = Array.isArray(value) ? value : value.split(',');
-            value = value.map((item) => {
-              return this.indexQueryValue(name, item, param);
-            });
-            query[name] = query[name] || {};
-            query[name][`$${selector}`] = value;
-            break;
-          default:
-            value = this.indexQueryValue(name, value, param);
-            query[name] = query[name] || {};
-            query[name][`$${selector}`] = value;
-            break;
-        }
-      } else {
-        // Set the find query to this value.
-        value = this.indexQueryValue(name, value, param);
-        query[name] = value;
-      }
-    }
-
-    return query;
-  }
-
-  public indexQueryValue(name, value, param) {
-    if (!param) {
-      return value;
-    }
-    if (param.type === 'number') {
-      return parseInt(value, 10);
-    }
-
-    const date = moment.utc(value, ['YYYY-MM-DD', 'YYYY-MM', moment.ISO_8601], true);
-    if (date.isValid()) {
-      return date.toDate();
-    }
-
-    // If this is an ID, and the value is a string, convert to an ObjectId.
-    if (param.type === 'id') {
-      try {
-        value = this.model.toID(value);
-      } catch (err) {
-        this.app.log('warning', `Invalid ObjectID: ${value}`);
-      }
-    }
-
-    return value;
+    this.rest();
   }
 
   public index(req, res, next) {
@@ -243,7 +119,135 @@ export class Resource {
       .catch(next);
   }
 
-  public prepare(item, req) {
+  // Return additions to the swagger specification.
+  public swagger() {
+    // TODO: Implement swagger
+  }
+
+  protected path(route) {
+    return route;
+  }
+
+  /**
+   * Call an array of promises in series and call next() when done.
+   *
+   * @param promises
+   * @param next
+   */
+  protected callPromisesAsync(promises) {
+    return promises.reduce((p, f) => p
+        .then(f)
+        .catch((err) => Promise.reject(err))
+      , Promise.resolve());
+  }
+
+  protected rest() {
+    this.app.log('debug', `registering rest endpoings for ${this.name}`);
+    this.register('get', this.route, 'index');
+    this.register('post', this.route, 'post');
+    this.register('get', `${this.route}/:${this.name}Id`, 'get');
+    this.register('put', `${this.route}/:${this.name}Id`, 'put');
+    this.register('patch', `${this.route}/:${this.name}Id`, 'patch');
+    this.register('delete', `${this.route}/:${this.name}Id`, 'delete');
+
+    return this;
+  }
+
+  protected register(method, route, callback) {
+    this.app.log('debug', `Registering route ${method.toUpperCase()}: ${route}`);
+    this.router[method](route, (req, res, next) => {
+      this[callback](req, res, next);
+    });
+  }
+
+  protected getQuery(query, req) {
+    return query;
+  }
+
+  protected indexQuery(req, query: any = {}) {
+    // @ts-ignore
+    const { limit, skip, select, sort, populate, ...filters } = req.query || {};
+
+    // Iterate through each filter.
+    for (const key of Object.keys(filters)) {
+      let value = filters[key];
+      const [name, selector] = key.split('__');
+      let parts;
+
+      // See if this parameter is defined in our model.
+      const param = this.model.schema[name.split('.')[0]];
+
+      if (selector) {
+        switch (selector) {
+          case 'regex':
+            // Set the regular expression for the filter.
+            parts = value.match(/\/?([^/]+)\/?([^/]+)?/);
+
+            try {
+              value = new RegExp(parts[1], (parts[2] || 'i'));
+            } catch (err) {
+              value = null;
+            }
+            query[name] = value;
+            break;
+          case 'exists':
+            value = ((value === 'true') || (value === '1')) ? true : value;
+            value = ((value === 'false') || (value === '0')) ? false : value;
+            value = !!value;
+            query[name] = query[name] || {};
+            query[name][`$${selector}`] = value;
+            break;
+          case 'in':
+          case 'nin':
+            value = Array.isArray(value) ? value : value.split(',');
+            value = value.map((item) => {
+              return this.indexQueryValue(name, item, param);
+            });
+            query[name] = query[name] || {};
+            query[name][`$${selector}`] = value;
+            break;
+          default:
+            value = this.indexQueryValue(name, value, param);
+            query[name] = query[name] || {};
+            query[name][`$${selector}`] = value;
+            break;
+        }
+      } else {
+        // Set the find query to this value.
+        value = this.indexQueryValue(name, value, param);
+        query[name] = value;
+      }
+    }
+
+    return query;
+  }
+
+  protected indexQueryValue(name, value, param) {
+    if (!param) {
+      return value;
+    }
+    if (param.type === 'number') {
+      return parseInt(value, 10);
+    }
+
+    const date = moment.utc(value, ['YYYY-MM-DD', 'YYYY-MM', moment.ISO_8601], true);
+    if (date.isValid()) {
+      return date.toDate();
+    }
+
+    // If this is an ID, and the value is a string, convert to an ObjectId.
+    if (param.type === 'id') {
+      try {
+        value = this.model.toID(value);
+      } catch (err) {
+        this.app.log('warning', `Invalid ObjectID: ${value}`);
+      }
+    }
+
+    return value;
+  }
+
+  protected prepare(item, req) {
     // Ensure they can't change the id.
     if (req.context.params[`${this.name}Id`]) {
       item._id = req.context.params[`${this.name}Id`];
@@ -257,12 +261,7 @@ export class Resource {
     return item;
   }
 
-  public finalize(item, req = {}) {
+  protected finalize(item, req: any = {}) {
     return item;
-  }
-
-  public exists(req, res, next) {
-    // TODO: Implement exists endpoint.
-    res.sendStatus(405);
   }
 }

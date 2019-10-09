@@ -7,6 +7,7 @@ import * as isEmpty from 'lodash/isEmpty';
 import * as isEqual from 'lodash/isEqual';
 import * as isNumber from 'lodash/isNumber';
 import * as isString from 'lodash/isString';
+import * as omit from 'lodash/omit';
 import * as set from 'lodash/set';
 import * as unset from 'lodash/unset';
 import * as update from 'lodash/update';
@@ -26,6 +27,7 @@ export const lodash = {
   isEqual,
   isEmpty,
   isNumber,
+  omit,
   isObject: (value) => {
     const type = typeof value;
     return value != null && (type === 'object' || type === 'function');

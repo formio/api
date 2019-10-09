@@ -1,8 +1,8 @@
 export class Import {
-  public app;
-  public template;
-  public req;
-  public maps;
+  protected app;
+  protected template;
+  protected req;
+  protected maps;
 
   constructor(app, template, req) {
     this.app = app;

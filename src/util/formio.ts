@@ -1,1 +1,2 @@
-export {Utils as formio} from 'formiojs/utils';
+import Utils from 'formiojs/utils';
+export const formio = Utils;

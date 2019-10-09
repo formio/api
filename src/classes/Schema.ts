@@ -1,5 +1,5 @@
 export class Schema {
-  public app;
+  protected app;
 
   constructor(app) {
     this.app = app;

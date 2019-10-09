@@ -1,8 +1,8 @@
 import {Api} from '../FormApi';
 
 export class Export {
-  public app: Api;
-  public req: Request;
+  protected app: Api;
+  protected req: Request;
 
   constructor(app: Api, req: Request) {
     this.app = app;

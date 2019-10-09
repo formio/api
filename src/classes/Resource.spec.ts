@@ -43,8 +43,6 @@ describe('Resource.js', () => {
       assert.equal(router.patch.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
       assert(router.delete.calledOnce, 'Should call delete once');
       assert.equal(router.delete.args[0][0], `/${  model.name  }/:${  model.name  }Id`);
-      assert(router.use.calledOnce, 'Should call use once');
-      assert.equal(router.use.args[0][0], `/${  model.name  }/exists`);
 
       done();
     });
@@ -70,9 +68,6 @@ describe('Resource.js', () => {
       assert.equal(router.patch.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
       assert(router.delete.calledOnce, 'Should call delete once');
       assert.equal(router.delete.args[0][0], `/foo/${  model.name  }/:${  model.name  }Id`);
-      assert(router.use.calledTwice, 'Should call use once');
-      assert.equal(router.use.args[0][0], `/foo/${  model.name  }/exists`);
-      assert.equal(router.use.args[1][0], `/foo/${  model.name  }/test`);
 
       done();
     });

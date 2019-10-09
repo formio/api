@@ -2,9 +2,12 @@ import {Model} from './Model';
 
 export class Database {
   public Model;
+  public ready: Promise<any>;
+  protected config;
 
-  constructor() {
+  constructor(config?) {
     this.Model = Model;
+    this.config = config;
   }
 
   public toID(id) {

@@ -248,8 +248,9 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`,
       },
     ];
   }
-  public app: Api;
-  public settings;
+  protected app: Api;
+  protected settings;
+
   constructor(app, settings) {
     this.app = app;
     this.settings = settings;

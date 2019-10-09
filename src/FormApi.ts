@@ -650,7 +650,7 @@ export class Api {
 
       const action = await this.models.Action.read({
         _id: this.db.toID(actionItem.action),
-      }, req.context.params);
+      }, req.context ? req.context.params : {});
 
       // Syncronously add messages to actionItem.
       let previous = Promise.resolve();

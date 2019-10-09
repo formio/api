@@ -34,7 +34,7 @@ export class Model {
   constructor(schema: Schema, db: Database) {
     // @TODO
     // populate (deprecate?)
-    // description (what does this do?)
+    // description (what does this do? - swagger)
 
     this.schema = schema;
     this.db = db;

@@ -1,8 +1,8 @@
 import {Api} from '../FormApi';
 
 export class Route {
-  public app: Api;
-  public base: string;
+  protected app: Api;
+  protected base: string;
 
   constructor(app: Api, base: string) {
     this.app = app;
@@ -35,5 +35,9 @@ export class Route {
 
   public execute(req, res, next) {
     return next();
+  }
+
+  public swagger() {
+    // TODO: Implement swagger.
   }
 }

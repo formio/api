@@ -127,7 +127,7 @@ export class Login extends Action {
       [`data.${this.settings.username}`]: _.get(submission.data, this.settings.username),
     };
 
-    return this.app.models.Submission.read(query, req.context.params)
+    return this.app.models.Submission.read(query, req.context ? req.context.params : {})
       .then((user) => {
         if (!user) {
           setActionInfoMessage('User not found');

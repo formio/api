@@ -2,8 +2,8 @@ import {Model} from '../dbs/Model';
 import {Api} from '../FormApi';
 
 export class Porter {
-  public app: Api;
-  public maps;
+  protected app: Api;
+  protected maps;
 
   constructor(app, maps?) {
     this.app = app;
