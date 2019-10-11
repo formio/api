@@ -14,43 +14,43 @@ export class Database {
     return id;
   }
 
-  public find(collection, query, options?) {
+  public find(collection, query, options?): Promise<any> {
     return Promise.resolve([]);
   }
 
-  public count(collection, query, options?) {
+  public count(collection, query, options?): Promise<any> {
     return Promise.resolve(0);
   }
 
-  public create(collection, doc) {
+  public create(collection, doc): Promise<any> {
     return Promise.resolve(doc);
   }
 
-  public read(collection, query) {
+  public read(collection, query, options?): Promise<any> {
     return Promise.resolve(query);
   }
 
-  public update(collection, doc, context?) {
+  public update(collection, doc, context?): Promise<any> {
     return Promise.resolve(doc);
   }
 
-  public delete(collection, query) {
+  public delete(collection, query): Promise<any> {
     return Promise.resolve();
   }
 
-  public getCollections(collection?) {
+  public getCollections(collection?): Promise<any> {
     return Promise.resolve([]);
   }
 
-  public createCollection(collection, doc?) {
+  public createCollection(collection, doc?): Promise<any> {
     return Promise.resolve(doc);
   }
 
-  public createIndex(collection, field, options?, database?) {
+  public createIndex(collection, field, options?, database?): Promise<any> {
     return Promise.resolve();
   }
 
-  public aggregate(collection, query) {
+  public aggregate(collection, query): Promise<any> {
     return Promise.resolve();
   }
 }

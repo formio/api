@@ -561,7 +561,25 @@ export class Api {
    * @param url
    * @param body
    */
-  public makeChildRequest({ req, url, body, method, params, query, options = {} }) {
+  public makeChildRequest({
+      req,
+      url,
+      middleware,
+      body,
+      method = 'get',
+      params = {},
+      query = {},
+      options = {},
+  }: {
+    req: Request,
+    url: string,
+    middleware: () => undefined,
+    body?: any,
+    method?: string,
+    params?: any,
+    query?: any,
+    options?: any,
+  }) {
     const childReq = this.createChildReq(req);
 
     if (!childReq) {
@@ -573,25 +591,28 @@ export class Api {
     childReq.query = query;
     childReq.method = method.toUpperCase();
     childReq.url = url;
+    childReq.path = Object.keys(params).reduce((prev, key) => prev.replace(`:${key}`, params[key]), url);
 
-    const childRes = this.createChildRes(() => {
-      if (childRes.statusCode > 299) {
-        // return reject(result);
-      }
-      // return resolve(result);
-    });
-
-    return this.executeMiddleware(childReq, childRes, [
-      ...this.beforePhases,
-      // TODO: do route call here
-      ...this.afterPhases,
-    ])
-      .then(() => {
-        // The call was a success.
-      })
-      .catch(() => {
-        // Middleware returned an error.
+    return new Promise((resolve, reject) => {
+      const childRes = this.createChildRes((result) => {
+        if (childRes.statusCode > 299) {
+          return reject(result);
+        }
+        return resolve(result);
       });
+
+      return this.executeMiddleware(childReq, childRes, [
+        ...this.beforePhases,
+        middleware,
+        ...this.afterPhases,
+      ])
+        .then(() => {
+          // The call was a success.
+        })
+        .catch((err) => {
+          // Middleware returned an error.
+        });
+    });
   }
 
   public createChildReq(req) {
@@ -612,16 +633,17 @@ export class Api {
     return childReq;
   }
 
-  public createChildRes(response) {
-    response = response || (() => undefined);
+  public createChildRes(respond) {
+    respond = respond || (() => undefined);
     const subResponse = {
       statusCode: 200,
-      send: (err) => response(err),
-      json: (err) => response(err),
+      send: (result) => respond(result),
+      json: (result) => respond(result),
       setHeader: () => undefined,
-      sendStatus: (status) => {
+      getHeader: () => undefined,
+      sendStatus: (status, result) => {
         subResponse.statusCode = status;
-        response(status);
+        respond(result);
       },
       status: (status) => {
         subResponse.statusCode = status;

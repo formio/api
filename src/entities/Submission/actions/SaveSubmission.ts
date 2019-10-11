@@ -75,17 +75,18 @@ export class SaveSubmission extends Action {
         }
       });
 
+      const method = type === 'create' ? 'POST' : 'PUT';
+
       const result = await this.app.makeChildRequest({
         req,
         url: '/form/:formId/submission' + (type === 'create' ? '' : '/:submissionId'),
+        middleware: this.app.resources.Submission[method.toLowerCase()].bind(this.app.resources.Submission),
         body: submission,
-        method: type === 'create' ? 'POST' : 'PUT',
+        method,
         params: {
           ...req.context.params,
           submissionId: submission._id,
         },
-        query: {},
-        options: {},
       });
 
       // TODO: Save submission to externalIds if create

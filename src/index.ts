@@ -7,3 +7,4 @@ export * from './entities/resources';
 export * from './entities/schemas';
 export * from './routes';
 export * from './util';
+export * from './log';

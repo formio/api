@@ -321,7 +321,7 @@ export class Model {
     return options;
   }
 
-  public find(query = {}, options = {}, context = {}) {
+  public find(query = {}, options = {}, context = {}): Promise<any> {
     return this.initialized.then(() => {
       return this.db.find(this.collectionName, query, options)
         .then((docs) => Promise.all(docs.map((doc) => this.afterLoad(doc))));

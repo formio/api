@@ -6,7 +6,26 @@ export class Current extends Route {
   }
 
   public execute(req, res) {
-    // TODO: convert this to subrequest? Need to protect password field.
-    res.send(req.user);
+    if (!req.user) {
+      res.send({});
+    }
+
+    // If external user, just send it.
+    if (req.user.external) {
+      res.send(req.user);
+    }
+
+    this.app.makeChildRequest({
+      req,
+      url: '/form/:formId/submission/:submissionId',
+      params: {
+        formId: req.user.form,
+        submissionId: req.user._id,
+      },
+      middleware: this.app.resources.Submission.get.bind(this.app.resources.Submission),
+    })
+      .then((submission) => {
+        res.send(submission);
+      });
   }
 }
