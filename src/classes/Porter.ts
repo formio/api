@@ -101,7 +101,7 @@ export class Porter {
             const key = entity[property];
             entity[property] = items[key];
 
-            // TODO: Support resetting form revision on import.
+            // TODO: Support resetting form revision on import. Move to form porter.
             // if (items[key].hasOwnProperty._vid) {
             //   entity[`${property}Revision`] = items[key];
             // }

@@ -49,7 +49,7 @@ export class SaveSubmission extends Action {
 
       const submission = req.context.resources.submission;
       let type = 'create';
-      let externalSubmission = {data: {}, roles: []};
+      let externalSubmission: any = {data: {}, roles: []};
 
       if (submission) {
         const external = _.find(submission.externalIds, {
@@ -81,11 +81,11 @@ export class SaveSubmission extends Action {
         req,
         url: '/form/:formId/submission' + (type === 'create' ? '' : '/:submissionId'),
         middleware: this.app.resources.Submission[method.toLowerCase()].bind(this.app.resources.Submission),
-        body: submission,
+        body: externalSubmission,
         method,
         params: {
           ...req.context.params,
-          submissionId: submission._id,
+          submissionId: externalSubmission._id,
         },
       });
 

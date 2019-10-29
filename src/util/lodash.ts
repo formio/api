@@ -44,6 +44,7 @@ export const lodash = {
       return self.indexOf(value) === index;
     });
   },
+  clone: (obj) => ({...obj}),
   cloneDeep: (obj) => {
     // TODO: What should we use for cloneDeep? lodash is slow but has some features over json.
     return JSON.parse(JSON.stringify(obj));

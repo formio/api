@@ -1,7 +1,6 @@
 import {Api} from '../FormApi';
 
 export class Action {
-
   static get serverOnly() {
     return false;
   }
@@ -248,8 +247,8 @@ JSON: { "in": [ "authenticated", { "var": "data.roles" } ] }`,
       },
     ];
   }
-  protected app: Api;
-  protected settings;
+  public app: Api;
+  public settings;
 
   constructor(app, settings) {
     this.app = app;
