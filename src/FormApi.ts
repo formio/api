@@ -66,11 +66,11 @@ export class Api {
     ];
   }
 
-  get schemas() {
+  get schemas(): any {
     return schemas;
   }
 
-  get porters() {
+  get porters(): any {
     // These are in import order.
     return [
       porters.Role,
@@ -82,11 +82,11 @@ export class Api {
     ];
   }
 
-  get resourceClasses() {
+  get resourceClasses(): any {
     return resources;
   }
 
-  get resourceTypes() {
+  get resourceTypes(): any {
     // These are in order of primary entity type for permissions.
     // micro -> macro level
     return [
@@ -100,7 +100,7 @@ export class Api {
   /**
    * List of permissions associated with a request method.
    */
-  get methodPermissions() {
+  get methodPermissions(): any {
     return {
       POST: { all: 'create_all', own: 'create_own' },
       GET: { all: 'read_all', own: 'read_own' },

@@ -49,7 +49,7 @@ export class Form extends Porter {
     return Promise.all(promises);
   }
 
-  public import(form) {
+  public import(form, req?) {
     this.mapEntityProperty(form.submissionAccess, 'roles', this.maps.roles);
     this.mapEntityProperty(form.access, 'roles', this.maps.roles);
     this.componentMachineNameToId(form.components);

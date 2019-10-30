@@ -43,11 +43,11 @@ export class Porter {
     return false;
   }
 
-  public import(document) {
+  public import(document, req?) {
     return document;
   }
 
-  public postImport(document) {
+  public postImport(document, req?) {
     return document;
   }
 

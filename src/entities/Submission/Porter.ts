@@ -17,7 +17,7 @@ export class Submission extends Porter {
     return Promise.resolve({});
   }
 
-  public import(submission) {
+  public import(submission, req?) {
     this.mapEntityProperty(submission, 'form', { ...this.maps.forms, ...this.maps.resources });
     this.mapEntityProperty(submission, 'roles', this.maps.roles);
     this.mapEntityProperty(submission, 'access', this.maps.roles);

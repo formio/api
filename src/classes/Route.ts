@@ -23,7 +23,7 @@ export class Route {
    * @param req
    * @returns {string}
    */
-  public authorize(req) {
+  public authorize(req): string | boolean {
     return 'pass';
   }
 

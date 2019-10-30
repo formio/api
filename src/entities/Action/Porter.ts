@@ -9,7 +9,7 @@ export class Action extends Porter {
     return this.app.models.Action;
   }
 
-  public import(action) {
+  public import(action, req?) {
     this.mapEntityProperty(action.settings, 'resource', this.maps.resources);
     this.mapEntityProperty(action.settings, 'resources', this.maps.resources);
     this.mapEntityProperty(action.settings, 'role', this.maps.roles);
