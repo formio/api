@@ -6,6 +6,7 @@ export const log = (type, ...args) => {
     error: debug('formio:error'),
     info: debug('formio:info'),
     warning: debug('formio:warning'),
+    audit: debug('formio:audit'),
   };
 
   // If type is not passed in.

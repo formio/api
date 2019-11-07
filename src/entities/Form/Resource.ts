@@ -27,7 +27,7 @@ export class Form extends Resource {
 
   public components(req, res, next) {
     if (!req.context.resources.form) {
-      return res.status(404).send('Form not foudn');
+      return res.status(404).send('Form not found');
     }
     const form = req.context.resources.form;
     // If query params present, filter components that match params

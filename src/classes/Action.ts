@@ -5,7 +5,7 @@ export class Action {
     return false;
   }
 
-  public static info() {
+  public static info(): any {
     return {
       name: 'name',
       title: 'Action Title',

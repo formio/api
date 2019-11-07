@@ -16,9 +16,9 @@ export class Action extends Resource {
     return super.indexQuery(req, query);
   }
 
-  public getQuery(query, req) {
+  public getQuery(req, query: any = {}) {
     query.entity = this.model.toID(req.context.params.formId);
-    return super.getQuery(req, query);
+    return super.getQuery(query, req);
   }
 
   public actionsIndex(req, res) {
@@ -40,8 +40,7 @@ export class Action extends Resource {
     return info;
   }
 
-  public actionSettings(req, res, next) {
-    const action = req.params.name;
+  public actionOptions(req): any {
     const components = [];
 
     this.app.util.formio.eachComponent(req.context.resources.form.components, (component) => {
@@ -50,13 +49,19 @@ export class Action extends Resource {
         label: component.label || component.title || component.legend,
       });
     });
-    const options: any = {
+
+    return {
       baseUrl: this.app.url(this.path('/form'), req),
       params: req.context.params,
       components,
       roles: Object.values(req.context.roles.all),
       componentsUrl: this.app.url(this.path('/form/:formId/components'), req),
     };
+  }
+
+  public actionSettings(req, res, next) {
+    const action = req.params.name;
+    const options = this.actionOptions(req);
     if (action && this.app.actions[action]) {
       const info = this.getActionInfo(this.app.actions[action]);
       options.info = info;
@@ -82,6 +87,7 @@ export class Action extends Resource {
     }
 
     // For now all actions are for forms.
+    item.entity = req.context.params.formId;
     item.entityType = 'form';
 
     item = super.prepare(item, req);

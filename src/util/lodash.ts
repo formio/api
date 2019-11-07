@@ -1,5 +1,6 @@
 import * as camelCase from 'lodash/camelCase';
 import * as capitalize from 'lodash/capitalize';
+import * as chunk from 'lodash/chunk';
 import * as find from 'lodash/find';
 import * as get from 'lodash/get';
 import * as has from 'lodash/has';
@@ -18,6 +19,7 @@ import * as update from 'lodash/update';
 export const lodash = {
   camelCase,
   capitalize,
+  chunk,
   find,
   get,
   set,

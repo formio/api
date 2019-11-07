@@ -605,13 +605,7 @@ export class Api {
         ...this.beforePhases,
         middleware,
         ...this.afterPhases,
-      ])
-        .then(() => {
-          // The call was a success.
-        })
-        .catch((err) => {
-          // Middleware returned an error.
-        });
+      ]);
     });
   }
 

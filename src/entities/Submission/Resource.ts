@@ -1,6 +1,7 @@
 import * as vm from 'vm';
 import {Resource} from '../../classes';
 import {log} from '../../log';
+import {util} from '../../util';
 import {formio as FormioUtils} from '../../util/formio';
 import {lodash as _} from '../../util/lodash';
 import {fields} from './fields';
@@ -25,9 +26,9 @@ export class Submission extends Resource {
     return super.indexQuery(req, query);
   }
 
-  public getQuery(query, req) {
+  public getQuery(req, query: any = {}) {
     query.form = this.model.toID(req.context.params.formId);
-    return super.getQuery(query, req);
+    return super.getQuery(req, query);
   }
 
   public index(req, res, next) {
@@ -295,7 +296,7 @@ export class Submission extends Resource {
     }
 
     return Promise.all(submissions.map((submission) => {
-      return this.eachValue(form.components, submission.data, (context) => {
+      return util.api.eachValue(form.components, submission.data, (context) => {
         const promises = [];
 
         const { component, data, handler, action, path } = context;
@@ -333,69 +334,6 @@ export class Submission extends Resource {
    * @param path
    * @returns {Promise<any[]>}
    */
-  public eachValue(components, data, fn, context, path = '') {
-    const promises = [];
-
-    components.forEach((component) => {
-      if (component.hasOwnProperty('components') && Array.isArray(component.components)) {
-        // If tree type is an array of objects like datagrid and editgrid.
-        if (['datagrid', 'editgrid'].includes(component.type) || component.arrayTree) {
-          _.get(data, component.key, []).forEach((row, index) => {
-            promises.push(this.eachValue(
-              component.components,
-              row,
-              fn,
-              context,
-              (path ? `${path}.` : '') + `${component.key}[${index}]`,
-            ));
-          });
-        } else if (['form'].includes(component.type)) {
-          promises.push(this.eachValue(
-            component.components,
-            _.get(data, `${component.key}.data`, {}),
-            fn,
-            context,
-            (path ? `${path}.` : '') + `${component.key}.data`,
-          ));
-        } else if (
-          ['container'].includes(component.type) ||
-          (
-            component.tree &&
-            !['panel', 'table', 'well', 'columns', 'fieldset', 'tabs', 'form'].includes(component.type)
-          )
-        ) {
-          promises.push(this.eachValue(
-            component.components,
-            _.get(data, component.key),
-            fn,
-            context,
-            (path ? `${path}.` : '') + `${component.key}`,
-          ));
-        } else {
-          promises.push(this.eachValue(component.components, data, fn, context, path));
-        }
-      } else if (component.hasOwnProperty('columns') && Array.isArray(component.columns)) {
-        // Handle column like layout components.
-        component.columns.forEach((column) => {
-          promises.push(this.eachValue(column.components, data, fn, context, path));
-        });
-      } else if (component.hasOwnProperty('rows') && Array.isArray(component.rows)) {
-        // Handle table like layout components.
-        component.rows.forEach((row) => {
-          if (Array.isArray(row)) {
-            row.forEach((column) => {
-              promises.push(this.eachValue(column.components, data, fn, context, path));
-            });
-          }
-        });
-      } else {
-        // If this is just a regular component, call the callback.
-        promises.push(fn({ ...context, data, component, path }));
-      }
-    });
-
-    return Promise.all(promises);
-  }
 
   public executeSuper(name, req, res) {
     log('debug', 'executeSuper', name);

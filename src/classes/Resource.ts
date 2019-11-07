@@ -59,9 +59,8 @@ export class Resource {
 
   public get(req, res, next) {
     this.app.log('debug', `resource get called for ${this.name}`);
-    this.model.read({
-      _id: this.model.toID(req.context.params[`${this.name}Id`]),
-    }, req.context.params)
+    const query = this.getQuery(req, {});
+    this.model.read(query, req.context.params)
       .then((doc) => {
         res.resource = {
           item: this.finalize(doc, req),
@@ -160,7 +159,8 @@ export class Resource {
     });
   }
 
-  protected getQuery(query, req) {
+  protected getQuery(req, query: any = {}) {
+    query._id = this.model.toID(req.context.params[`${this.name}Id`]);
     return query;
   }
 
