@@ -49,7 +49,7 @@ export class Resource {
     this.model.create(this.prepare(req.body, req), req.context.params)
       .then((doc) => {
         res.resource = {
-          item: this.finalize(doc),
+          item: this.finalize(doc, req),
         };
         this.app.log('debug', `resource post done for ${this.name}`);
         next();

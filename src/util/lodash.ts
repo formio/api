@@ -64,7 +64,6 @@ export const lodash = {
  * reduce
  * eq
  * spread
- * cloneDeep - This is actually slower than JSON.parse(JSON.stringify(obj)).
  * includes
  * isArray
  */

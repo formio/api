@@ -329,13 +329,15 @@ export class Api {
     return path;
   }
 
-  public addModels() {
+  public async addModels() {
     log('info', 'Adding models');
     const schemas = this.schemas;
     for (const schema of Object.keys(schemas)) {
-      log('debug', `Adding model ${  schema}`);
+      log('debug', `Adding model ${schema}`);
       this.models[schema] = new this.db.Model(new schemas[schema](this), this.db);
     }
+    await Promise.all(Object.values(this.models).map((model: any) => model.initialized));
+    return this.db.connect();
   }
 
   public addResources() {

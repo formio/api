@@ -17,6 +17,10 @@ export class Schema {
     return 'schema';
   }
 
+  get global() {
+    return false;
+  }
+
   get index(): any {
     return false;
   }
@@ -33,6 +37,7 @@ export class Schema {
       description: 'The date this resource was created.',
       default: Date.now,
       readonly: true,
+      index: true,
     };
   }
 
@@ -42,6 +47,7 @@ export class Schema {
       description: 'The date this resource was modified.',
       default: Date.now,
       readonly: true,
+      index: true,
     };
   }
 

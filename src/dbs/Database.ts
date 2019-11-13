@@ -10,6 +10,14 @@ export class Database {
     this.config = config;
   }
 
+  public async connect() {
+    return;
+  }
+
+  public async disconnect() {
+    return;
+  }
+
   public toID(id) {
     return id;
   }
