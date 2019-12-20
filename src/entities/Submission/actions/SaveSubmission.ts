@@ -69,15 +69,14 @@ export class SaveSubmission extends Action {
       }
 
       // Map fields to resource.
-      (this.settings.fields || []).each((field, key) => {
-        if (_.has(submission.data, field)) {
-          _.set(externalSubmission.data, key, _.get(submission.data, field));
-        }
+      const fields = this.settings.fields || {};
+      Object.keys(fields).forEach((key) => {
+        _.set(externalSubmission.data, key, _.get(req.body.data, fields[key]));
       });
 
       const method = type === 'create' ? 'POST' : 'PUT';
 
-      const result = await this.app.makeChildRequest({
+      const result: any = await this.app.makeChildRequest({
         req,
         url: '/form/:formId/submission' + (type === 'create' ? '' : '/:submissionId'),
         middleware: this.app.resources.Submission[method.toLowerCase()].bind(this.app.resources.Submission),
@@ -85,11 +84,23 @@ export class SaveSubmission extends Action {
         method,
         params: {
           ...req.context.params,
+          formId: this.settings.resource,
           submissionId: externalSubmission._id,
         },
       });
 
-      // TODO: Save submission to externalIds if create
+      if (this.settings.property) {
+        req.body.data[this.settings.property] = result;
+      }
+
+      if (type === 'create' && result) {
+        req.body.externalIds = req.body.externalIds || [];
+        req.body.externalIds.push({
+          type: 'resource',
+          resource: this.settings.resource,
+          id: result._id,
+        });
+      }
 
       return;
     }
