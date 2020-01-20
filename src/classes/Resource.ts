@@ -3,6 +3,8 @@ import * as jsonpatch from 'fast-json-patch';
 import * as moment from 'moment';
 import {Model} from '../dbs/Model';
 import {Api} from '../FormApi';
+import ResourceSwagger from './ResourceSwagger';
+import Swagger from './Swagger';
 
 export class Resource {
 
@@ -120,7 +122,10 @@ export class Resource {
 
   // Return additions to the swagger specification.
   public swagger() {
-    // TODO: Implement swagger
+    const methods = ['index', 'post', 'get', 'put', 'patch', 'delete'];
+    const swagger: Swagger = new ResourceSwagger(this.route, this.name, methods, this.model);
+
+    return swagger.getJson();
   }
 
   protected path(route) {
@@ -157,6 +162,31 @@ export class Resource {
     this.router[method](route, (req, res, next) => {
       this[callback](req, res, next);
     });
+
+    const swagger = this.swagger();
+
+    const tag = this.app.swagger.tags.find((tag: any) => {
+      return tag.name === swagger.tags.name;
+    });
+
+    if (!tag) {
+      this.app.swagger.tags.push(swagger.tags);
+    }
+
+    this.app.swagger.paths = {
+      ...this.app.swagger.paths,
+      ...swagger.paths,
+    };
+
+    this.app.swagger.components.schemas = {
+      ...this.app.swagger.components.schemas,
+      ...swagger.components.schemas,
+    };
+
+    this.app.swagger.components.requestBodies = {
+      ...this.app.swagger.components.requestBodies,
+      ...swagger.components.requestBodies,
+    };
   }
 
   protected getQuery(req, query: any = {}) {
