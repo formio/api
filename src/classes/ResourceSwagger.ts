@@ -396,7 +396,6 @@ export class ResourceSwagger extends Swagger {
     };
   }
 
-  // TODO: Implement building form components schema and make this method public
   private getResourceSchema(schema: any, modelName: string) {
     const schemas = {};
 

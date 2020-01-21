@@ -48,18 +48,7 @@ export class Route {
       return;
     }
 
-    const tag = this.app.swagger.tags.find((tag: any) => {
-      return tag.name === swagger.tags.name;
-    });
-
-    if (!tag) {
-      this.app.swagger.tags.push(swagger.tags);
-    }
-
-    this.app.swagger.paths = {
-      ...this.app.swagger.paths,
-      ...swagger.paths,
-    };
+    Swagger.extendInfo(this.app.swagger, swagger);
   }
 
   public execute(req, res, next) {

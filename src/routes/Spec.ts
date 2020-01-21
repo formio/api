@@ -2,7 +2,7 @@
 /* tslint:disable */
 const {name, version} = require('../../package.json');
 
-import {Route} from '../classes';
+import {Route, Swagger} from '../classes';
 
 export class Spec extends Route {
   get method() {
@@ -29,21 +29,9 @@ export class Spec extends Route {
   }
 
   public execute(req, res, next) {
-    const json = {
-      openapi: '3.0.0',
-      info: {
-        title: name,
-        contact: {
-          name: 'Form.io Support',
-        },
-        license: {
-          name: 'MIT',
-        },
-        version: version,
-      },
-      ...this.app.swagger,
-    }
+    const swagger = Swagger.getInfo({name, version});
+    Swagger.extendInfo(swagger, this.app.swagger);
 
-    return res.json(json).status(200);
+    return res.json(swagger).status(200);
   }
 }

@@ -165,28 +165,11 @@ export class Resource {
 
     const swagger = this.swagger();
 
-    const tag = this.app.swagger.tags.find((tag: any) => {
-      return tag.name === swagger.tags.name;
-    });
-
-    if (!tag) {
-      this.app.swagger.tags.push(swagger.tags);
+    if (!swagger) {
+      return;
     }
 
-    this.app.swagger.paths = {
-      ...this.app.swagger.paths,
-      ...swagger.paths,
-    };
-
-    this.app.swagger.components.schemas = {
-      ...this.app.swagger.components.schemas,
-      ...swagger.components.schemas,
-    };
-
-    this.app.swagger.components.requestBodies = {
-      ...this.app.swagger.components.requestBodies,
-      ...swagger.components.requestBodies,
-    };
+    Swagger.extendInfo(this.app.swagger, swagger);
   }
 
   protected getQuery(req, query: any = {}) {

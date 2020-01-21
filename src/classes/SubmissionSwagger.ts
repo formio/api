@@ -49,85 +49,17 @@ export class SubmissionSwagger extends ResourceSwagger {
       required: [],
     };
 
-    utils.eachComponent(this.form.components, (component) => {
+    utils.eachComponent(this.form.components, (component: any) => {
       if (!component.key) {
         return;
       }
 
-      let property: any;
+      const property = this.getComponentProperty(
+        component.type,
+        {multiple: component.multiple},
+      );
 
-      switch (component.type) {
-        case 'email':
-        case 'textfield':
-        case 'password':
-        case 'phonenumber':
-        case 'select':
-        case 'radio':
-        case 'textarea':
-          property = {
-            type: 'string',
-          };
-          break;
-        case 'number':
-          property = {
-            type: 'integer',
-            format: 'int64',
-          };
-          break;
-        case 'datetime':
-          property = {
-            type: 'string',
-            format: 'date',
-          };
-          break;
-        case 'address':
-          property = {
-            $ref: '#/components/schemas/address',
-          };
-          break;
-        case 'checkbox':
-          property = {
-            type: 'boolean',
-          };
-          break;
-        case 'selectboxes':
-          property = {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-          };
-          break;
-        case 'resource':
-          property = {
-            type: 'string',
-            description: 'ObjectId',
-          };
-          break;
-        case 'datagrid':
-          // TODO: finish datagrid swagger def.
-          break;
-        case 'custom':
-          property = {
-            type: 'object',
-          };
-          break;
-        case 'button':
-          property = false;
-          break;
-        default:
-          property = {
-            type: 'string',
-          };
-      }
       if (property) {
-        if (component.multiple) {
-          property = {
-            type: 'array',
-            items: property,
-          };
-        }
-
         schema.properties[component.key] = property;
       }
 
@@ -136,11 +68,90 @@ export class SubmissionSwagger extends ResourceSwagger {
       }
     });
 
+    // We should delete it because OpenAPI spec doesn't allow empty array of require
     if (schema.required.length === 0) {
       delete schema.required;
     }
 
     return schema;
+  }
+
+  private getComponentProperty(type: string, options: any) {
+    let property: any;
+
+    switch (type) {
+      case 'email':
+      case 'textfield':
+      case 'password':
+      case 'phonenumber':
+      case 'select':
+      case 'radio':
+      case 'textarea':
+        property = {
+          type: 'string',
+        };
+        break;
+      case 'number':
+        property = {
+          type: 'integer',
+          format: 'int64',
+        };
+        break;
+      case 'datetime':
+        property = {
+          type: 'string',
+          format: 'date',
+        };
+        break;
+      case 'address':
+        property = {
+          $ref: '#/components/schemas/address',
+        };
+        break;
+      case 'checkbox':
+        property = {
+          type: 'boolean',
+        };
+        break;
+      case 'selectboxes':
+        property = {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        };
+        break;
+      case 'resource':
+        property = {
+          type: 'string',
+          description: 'ObjectId',
+        };
+        break;
+      case 'datagrid':
+        // TODO: finish datagrid swagger def.
+        break;
+      case 'custom':
+        property = {
+          type: 'object',
+        };
+        break;
+      case 'button':
+        property = false;
+        break;
+      default:
+        property = {
+          type: 'string',
+        };
+    }
+
+    if (property && options.multiple) {
+      property = {
+        type: 'array',
+        items: property,
+      };
+    }
+
+    return property;
   }
 
   private getAddressComponentSchemas() {
