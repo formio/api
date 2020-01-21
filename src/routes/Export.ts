@@ -5,6 +5,21 @@ export class Export extends Route {
     return `${super.path}/export`;
   }
 
+  get description() {
+    return 'Export template';
+  }
+
+  get responses() {
+    return {
+      200: {
+        description: 'Template',
+        content: {
+          'application/json': {},
+        },
+      },
+    };
+  }
+
   public execute(req, res, next) {
     this.app.exportTemplate(req)
       .then((result) => {

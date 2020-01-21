@@ -5,6 +5,21 @@ export class Access extends Route {
     return `${super.path}/access`;
   }
 
+  get description() {
+    return 'Access endpoint';
+  }
+
+  get responses() {
+    return {
+      200: {
+        description: 'Access results',
+        content: {
+          'application/json': {},
+        },
+      },
+    };
+  }
+
   public execute(req, res) {
     Promise.all([
       this.app.models.Role.find({}),

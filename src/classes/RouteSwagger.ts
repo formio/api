@@ -1,7 +1,12 @@
-import Swagger from './Swagger';
+import {Swagger} from './Swagger';
 
-export default class RouteSwagger extends Swagger {
-  constructor(baseRoute: string, private method: string) {
+export class RouteSwagger extends Swagger {
+  constructor(
+    baseRoute: string,
+    protected method: string,
+    protected description: string,
+    protected responses: any,
+  ) {
     super(baseRoute);
   }
 
@@ -32,9 +37,10 @@ export default class RouteSwagger extends Swagger {
     return {
       [this.method]: {
         tags: [this.baseRoute],
-        description: `${this.method.toUpperCase()} request to ${this.baseRoute}`,
+        description: this.description || `${this.method.toUpperCase()} request to ${this.baseRoute}`,
         operationId: `${this.method}${this.baseRoute}`,
         summary: `${this.method.toUpperCase()} ${this.baseRoute}`,
+        responses: this.responses,
       },
     };
   }

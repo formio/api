@@ -1,7 +1,7 @@
-import { Model } from '../dbs';
-import Swagger from './Swagger';
+import {Model} from '../dbs';
+import {Swagger} from './Swagger';
 
-export default class ResourceSwagger extends Swagger {
+export class ResourceSwagger extends Swagger {
   get defaultPathParams(): any[] {
     if (this.id) {
       return [];
@@ -9,9 +9,9 @@ export default class ResourceSwagger extends Swagger {
 
     return [
       {
-        name: `${this.name}Id`,
+        name: `${this.model.name}Id`,
         in: 'path',
-        description: `The ID of the ${this.name}.`,
+        description: `The ID of the ${this.model.name}.`,
         schema: {
           type: 'string',
         },
@@ -80,10 +80,10 @@ export default class ResourceSwagger extends Swagger {
 
   constructor(
     baseRoute: string,
-    private name: string,
-    private methods: string[],
-    private model: Model,
-    private id: string = null,
+    protected name: string,
+    protected methods: string[],
+    protected model: Model,
+    protected id: string = null,
   ) {
     super(baseRoute);
 
@@ -103,7 +103,7 @@ export default class ResourceSwagger extends Swagger {
         },
         schemas: {
           ...this.getSchema(),
-          ...this.getResourceListSchema(),
+          ...this.getListSchema(),
         },
       },
     };
@@ -111,7 +111,7 @@ export default class ResourceSwagger extends Swagger {
 
   protected getPaths() {
     const listPath = this.baseRoute;
-    const itemPath = this.id ? `${this.baseRoute}/${this.id}` : this.baseRoute;
+    const itemPath = this.id ? `${this.baseRoute}/${this.id}` : `${this.baseRoute}/{${this.model.name}Id}`;
 
     return {
       [listPath]: {
@@ -385,7 +385,7 @@ export default class ResourceSwagger extends Swagger {
     return paths;
   }
 
-  private getResourceListSchema() {
+  private getListSchema() {
     return {
       [this.resourceListName]: {
         type: 'array',
@@ -461,7 +461,7 @@ export default class ResourceSwagger extends Swagger {
           type: 'array',
           title: this.name,
           items: {
-            $ref: `#components/schemas/${name}`,
+            $ref: `#/components/schemas/${name}`,
           },
           definitions: this.getResourceSchema(options.type[0], name),
         };
@@ -478,7 +478,7 @@ export default class ResourceSwagger extends Swagger {
     if (options.type.constructor.name === 'Schema') {
       if (options.type.hasOwnProperty('paths')) {
         return {
-          $ref: `#components/schemas/${name}`,
+          $ref: `#/components/schemas/${name}`,
           definitions: this.getResourceSchema(options.type, name),
         };
       }

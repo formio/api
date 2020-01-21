@@ -1,4 +1,4 @@
-export default abstract class Swagger {
+export abstract class Swagger {
   get baseRoute() {
     return this._baseRoute;
   }

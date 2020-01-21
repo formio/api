@@ -3,8 +3,8 @@ import * as jsonpatch from 'fast-json-patch';
 import * as moment from 'moment';
 import {Model} from '../dbs/Model';
 import {Api} from '../FormApi';
-import ResourceSwagger from './ResourceSwagger';
-import Swagger from './Swagger';
+import {ResourceSwagger} from './ResourceSwagger';
+import {Swagger} from './Swagger';
 
 export class Resource {
 

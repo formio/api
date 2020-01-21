@@ -13,20 +13,31 @@ export class Spec extends Route {
     return '/spec.json';
   }
 
+  get description() {
+    return 'OpenAPI 3.0 spec';
+  }
+
+  get responses() {
+    return {
+      200: {
+        description: 'OK',
+        content: {
+          'application/json': {},
+        },
+      },
+    };
+  }
+
   public execute(req, res, next) {
     const json = {
       openapi: '3.0.0',
       info: {
         title: name,
-        // termsOfService: 'http://blog.form.io/form-terms-of-use',
         contact: {
           name: 'Form.io Support',
-          // url: 'http://help.form.io/',
-          // email: 'support@form.io',
         },
         license: {
           name: 'MIT',
-          // url: 'http://opensource.org/licenses/MIT',
         },
         version: version,
       },

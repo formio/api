@@ -1,6 +1,6 @@
 import {Api} from '../FormApi';
-import RouteSwagger from './RouteSwagger';
-import Swagger from './Swagger';
+import {RouteSwagger} from './RouteSwagger';
+import {Swagger} from './Swagger';
 
 export class Route {
   protected app: Api;
@@ -17,6 +17,14 @@ export class Route {
 
   get path() {
     return this.base;
+  }
+
+  get description() {
+    return '';
+  }
+
+  get responses() {
+    return {};
   }
 
   /**
@@ -59,7 +67,13 @@ export class Route {
   }
 
   public swagger() {
-    const swagger: Swagger = new RouteSwagger(this.path, this.method);
+    const swagger: Swagger = new RouteSwagger(
+      this.path,
+      this.method,
+      this.description,
+      this.responses,
+    );
+
     return swagger.getJson();
   }
 }
