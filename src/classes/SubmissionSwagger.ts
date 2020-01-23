@@ -68,7 +68,7 @@ export class SubmissionSwagger extends ResourceSwagger {
       }
     });
 
-    // We should delete it because OpenAPI spec doesn't allow empty array of require
+    // We should delete it because OpenAPI spec doesn't allow empty array of required
     if (schema.required.length === 0) {
       delete schema.required;
     }

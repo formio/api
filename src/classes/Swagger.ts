@@ -37,8 +37,6 @@ export abstract class Swagger {
   }
 
   public static extendInfo(info: any, ...extend: any[]) {
-    const infoTagNames = info.tags.map((tag: any) => tag.name);
-
     extend.forEach((extendItem) => {
       if (!extendItem) {
         return;
@@ -49,6 +47,7 @@ export abstract class Swagger {
         extendItem.tags = [extendItem.tags];
       }
 
+      const infoTagNames = info.tags.map((tag: any) => tag.name);
       const uniqueTags = extendItem.tags.filter(({name}) => !infoTagNames.includes(name));
       extendItem.components = extendItem.components || {schemas: {}, requestBodies: {}};
 
