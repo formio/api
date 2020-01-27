@@ -135,6 +135,7 @@ export class Api {
   public models;
   public resources;
   public routes;
+  public swagger;
   private _db;
   private locks;
 
@@ -147,6 +148,10 @@ export class Api {
     this.resources = {};
     this.routes = {};
     this.locks = {};
+    this.swagger = {
+      components: {},
+      tags: [],
+    };
 
     log('info', 'Starting Form Manager');
     this.addModels();

@@ -1,4 +1,6 @@
 import {Api} from '../FormApi';
+import {RouteSwagger} from './RouteSwagger';
+import {Swagger} from './Swagger';
 
 export class Route {
   protected app: Api;
@@ -17,6 +19,14 @@ export class Route {
     return this.base;
   }
 
+  get description() {
+    return '';
+  }
+
+  get responses() {
+    return {};
+  }
+
   /**
    * Return either true, false or pass. Pass continues with normal authorization checks.
    *
@@ -31,6 +41,14 @@ export class Route {
     router[this.method](this.path, (req, res, next) => {
       return this.execute(req, res, next);
     });
+
+    const swagger = this.swagger();
+
+    if (!swagger) {
+      return;
+    }
+
+    Swagger.extendInfo(this.app.swagger, swagger);
   }
 
   public execute(req, res, next) {
@@ -38,6 +56,13 @@ export class Route {
   }
 
   public swagger() {
-    // TODO: Implement swagger.
+    const swagger: Swagger = new RouteSwagger(
+      this.path,
+      this.method,
+      this.description,
+      this.responses,
+    );
+
+    return swagger.getJson();
   }
 }

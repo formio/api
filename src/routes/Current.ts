@@ -5,6 +5,21 @@ export class Current extends Route {
     return `${super.path}/current`;
   }
 
+  get description() {
+    return 'Current submission';
+  }
+
+  get responses() {
+    return {
+      200: {
+        description: 'Current submission',
+        content: {
+          'application/json': {},
+        },
+      },
+    };
+  }
+
   public execute(req, res) {
     if (!req.user) {
       res.send({});

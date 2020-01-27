@@ -9,6 +9,26 @@ export class Import extends Route {
     return `${super.path}/import`;
   }
 
+  get description() {
+    return 'Import template';
+  }
+
+  get responses() {
+    return {
+      200: {
+        description: 'Template imported',
+        content: {
+          'text/plain': {
+            schema: {
+              type: 'string',
+              example: 'Ok',
+            },
+          },
+        },
+      },
+    };
+  }
+
   public execute(req, res, next) {
     let template = req.body;
     if (typeof req.body === 'object' && req.body.hasOwnProperty('template')) {

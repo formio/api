@@ -3,6 +3,8 @@ import * as jsonpatch from 'fast-json-patch';
 import * as moment from 'moment';
 import {Model} from '../dbs/Model';
 import {Api} from '../FormApi';
+import {ResourceSwagger} from './ResourceSwagger';
+import {Swagger} from './Swagger';
 
 export class Resource {
 
@@ -120,7 +122,10 @@ export class Resource {
 
   // Return additions to the swagger specification.
   public swagger() {
-    // TODO: Implement swagger
+    const methods = ['index', 'post', 'get', 'put', 'patch', 'delete'];
+    const swagger: Swagger = new ResourceSwagger(this.route, this.name, methods, this.model);
+
+    return swagger.getJson();
   }
 
   protected path(route) {
@@ -157,6 +162,14 @@ export class Resource {
     this.router[method](route, (req, res, next) => {
       this[callback](req, res, next);
     });
+
+    const swagger = this.swagger();
+
+    if (!swagger) {
+      return;
+    }
+
+    Swagger.extendInfo(this.app.swagger, swagger);
   }
 
   protected getQuery(req, query: any = {}) {
