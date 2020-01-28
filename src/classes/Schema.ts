@@ -17,7 +17,7 @@ export class Schema {
     return 'schema';
   }
 
-  get global() {
+  public get global() {
     return false;
   }
 

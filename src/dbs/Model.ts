@@ -43,18 +43,9 @@ export class Model {
   /* Private Functions */
 
   public initialize() {
-    return this.db.getCollections()
-      .then((collections) => {
-        if (collections.includes(this.collectionName)) {
-          log('debug', `${this.collectionName} collection already exists`);
-          return Promise.resolve();
-        } else {
-          log('debug', `${this.collectionName} collection doesn't exist. Creating...`);
-          return this.db.createCollection(this.collectionName)
-            .then(() => log('debug', `${this.collectionName} collection created successfully`))
-            .catch((err) => log('error', err));
-        }
-      })
+    log('debug', `${this.collectionName} Ensuring collection is created`);
+    return this.db.ensureCollection(this.collectionName, this.schema)
+      .catch((err) => log('error', err))
       .then(() => {
         const promises = [];
         for (const name of Object.keys(this.schema.schema)) {

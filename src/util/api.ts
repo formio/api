@@ -38,7 +38,7 @@ export const eachValue = (components, data, fn, context, path = '') => {
       // If tree type is an array of objects like datagrid and editgrid.
       if (['datagrid', 'editgrid'].includes(component.type) || component.arrayTree) {
         _.get(data, component.key, []).forEach((row, index) => {
-          promises.push(this.eachValue(
+          promises.push(eachValue(
             component.components,
             row,
             fn,
@@ -85,10 +85,9 @@ export const eachValue = (components, data, fn, context, path = '') => {
           });
         }
       });
-    } else {
-      // If this is just a regular component, call the callback.
-      promises.push(fn({ ...context, data, component, path }));
     }
+    // Call the callback for each component.
+    promises.push(fn({ ...context, data, component, path }));
   });
 
   return Promise.all(promises);

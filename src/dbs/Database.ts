@@ -46,12 +46,19 @@ export class Database {
     return Promise.resolve();
   }
 
-  public getCollections(collection?): Promise<any> {
+  public getCollections(database?): Promise<any> {
     return Promise.resolve([]);
   }
 
-  public createCollection(collection, doc?): Promise<any> {
-    return Promise.resolve(doc);
+  public createCollection(collection, schema?, database?): Promise<any> {
+    return Promise.resolve();
+  }
+
+  public async ensureCollection(name, schema, database = this.config.database) {
+    const collections = await this.getCollections(database);
+    if (!collections.includes(name)) {
+      return await this.createCollection(name, schema, database);
+    }
   }
 
   public createIndex(collection, field, options?, database?): Promise<any> {
