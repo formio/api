@@ -1,4 +1,4 @@
-import {ReferenceHandler} from '../../../classes';
+import {ReferenceHandler, ReferenceHandlerParams} from './ReferenceHandler';
 
 export const reference = (
   component: any,
@@ -7,21 +7,21 @@ export const reference = (
   action: string,
   {path, req, res, app}: any,
 ) => {
-  const referenceHandler = new ReferenceHandler(component, path, req, res, app);
-
   if (handler !== 'afterValidate' && handler !== 'afterActions') {
     return Promise.resolve();
   }
 
+  const params: ReferenceHandlerParams = {app, component, path, req, res};
+
   switch (action) {
     case 'get':
-      return referenceHandler.onGet(handler);
+      return ReferenceHandler.onGet(params, handler);
     case 'post':
-      return referenceHandler.onPost(handler);
+      return ReferenceHandler.onPost(params, handler);
     case 'put':
-      return referenceHandler.onPut(handler);
+      return ReferenceHandler.onPut(params, handler);
     case 'index':
-      return referenceHandler.onIndex(handler);
+      return ReferenceHandler.onIndex(params, handler);
     default:
       return Promise.resolve();
   }
