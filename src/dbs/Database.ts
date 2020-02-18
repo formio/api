@@ -7,7 +7,7 @@ export class Database {
 
   constructor(config?) {
     this.Model = Model;
-    this.config = config;
+    this.config = config || {};
   }
 
   public async connect() {

@@ -144,7 +144,8 @@ export class Model {
   public update(input, context?) {
     return this.initialized.then(() => {
       return this.read({ _id: this.toID(input._id) }, context).then((previous) => {
-        return this.beforeSave(input, previous)
+        const doc = previous || {};
+        return this.beforeSave(input, doc)
           .then((doc) => {
             return this.db.update(this.collectionName, doc, context)
               .then((doc) => this.afterLoad(doc));
@@ -300,7 +301,7 @@ export class Model {
         return reject(`'${path}' is required`);
       }
 
-      // Enumarated values.
+      // Enumerated values.
       if (value && field.hasOwnProperty('enum')) {
         if (!field.enum.includes(value)) {
           return reject(`Invalid enumerated option in '${path}'`);

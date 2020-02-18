@@ -154,9 +154,8 @@ export class Api {
     };
 
     log('info', 'Starting Form Manager');
-    this.addModels();
+    this.addModels().then(() => this.addResources());
     this.router.use(this.beforePhases);
-    this.addResources();
     this.addRoutes();
     this.router.use(this.afterPhases);
   }
