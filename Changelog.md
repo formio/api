@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.3
+### Added
+ - Save as reference.
+ 
+### Fixed
+ - Support for multiple databases.
+
+## 0.3.2
+### Added
+ - Save to submission.
+
 ## 0.3.1
 ### Fixed
  - Numerous bugs and improvements.
