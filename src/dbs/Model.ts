@@ -43,18 +43,9 @@ export class Model {
   /* Private Functions */
 
   public initialize() {
-    return this.db.getCollections()
-      .then((collections) => {
-        if (collections.includes(this.collectionName)) {
-          log('debug', `${this.collectionName} collection already exists`);
-          return Promise.resolve();
-        } else {
-          log('debug', `${this.collectionName} collection doesn't exist. Creating...`);
-          return this.db.createCollection(this.collectionName)
-            .then(() => log('debug', `${this.collectionName} collection created successfully`))
-            .catch((err) => log('error', err));
-        }
-      })
+    log('debug', `${this.collectionName} Ensuring collection is created`);
+    return this.db.ensureCollection(this.collectionName, this.schema)
+      .catch((err) => log('error', err))
       .then(() => {
         const promises = [];
         for (const name of Object.keys(this.schema.schema)) {
@@ -153,7 +144,8 @@ export class Model {
   public update(input, context?) {
     return this.initialized.then(() => {
       return this.read({ _id: this.toID(input._id) }, context).then((previous) => {
-        return this.beforeSave(input, previous)
+        const doc = previous || {};
+        return this.beforeSave(input, doc)
           .then((doc) => {
             return this.db.update(this.collectionName, doc, context)
               .then((doc) => this.afterLoad(doc));
@@ -309,7 +301,7 @@ export class Model {
         return reject(`'${path}' is required`);
       }
 
-      // Enumarated values.
+      // Enumerated values.
       if (value && field.hasOwnProperty('enum')) {
         if (!field.enum.includes(value)) {
           return reject(`Invalid enumerated option in '${path}'`);
