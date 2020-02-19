@@ -300,11 +300,12 @@ export class Submission extends Resource {
         const promises = [];
 
         const { component, data, handler, action, path } = context;
+        const componentPath = `${path}${path ? '.' : ''}${component.key}`;
 
         // Execute field actions
         if (fields.hasOwnProperty(component.type)) {
           promises.push(fields[component.type](component, data, handler, action, {
-            path,
+            path: componentPath,
             req,
             res,
             app: this.app,
@@ -314,7 +315,12 @@ export class Submission extends Resource {
         // Execute property actions.
         Object.keys(properties).forEach((property) => {
           if (component.hasOwnProperty(property) && component[property]) {
-            promises.push(properties[property](component, data, handler, action, { req, res, app: this }));
+            promises.push(properties[property](component, data, handler, action, {
+              path: componentPath,
+              req,
+              res,
+              app: this.app,
+            }));
           }
         });
 
