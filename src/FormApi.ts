@@ -268,7 +268,7 @@ export class Api {
   public loadActions(req, query) {
     return this.models.Action.find(query, {}, req.context.params)
       .then((actions) => {
-        req.context.actions = actions.sort((a, b) => b.priory - a.priority);
+        req.context.actions = actions.sort((a, b) => b.priority - a.priority);
       });
   }
 
@@ -665,15 +665,29 @@ export class Api {
     }, Promise.resolve());
   }
 
+  public getActionFromContext(req, actionItem) {
+    return req.context.actions.find((action) => {
+      return actionItem.action.toString() === action._id.toString();
+    });
+  }
+
   public async executeAction(actionItem, req, res) {
     log('info', 'Execute action', req.uuid, actionItem.action);
 
     try {
       const release = await this.lock(actionItem._id);
 
-      const action = await this.models.Action.read({
-        _id: this.db.toID(actionItem.action),
-      }, req.context ? req.context.params : {});
+      let action: any;
+
+      if (req.context.actions) {
+        action = this.getActionFromContext(req, actionItem);
+      }
+
+      if (!action) {
+        action = await this.models.Action.read({
+          _id: this.db.toID(actionItem.action),
+        }, req.context ? req.context.params : {});
+      }
 
       // Syncronously add messages to actionItem.
       let previous = Promise.resolve();
