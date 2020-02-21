@@ -146,7 +146,7 @@ export class Resource {
   }
 
   protected rest() {
-    this.app.log('debug', `registering rest endpoings for ${this.name}`);
+    this.app.log('debug', `Registering rest endpoings for ${this.name}`);
     this.register('get', this.route, 'index');
     this.register('post', this.route, 'post');
     this.register('get', `${this.route}/:${this.name}Id`, 'get');

@@ -154,8 +154,9 @@ export class Api {
     };
 
     log('info', 'Starting Form Manager');
-    this.addModels().then(() => this.addResources());
+    this.addModels();
     this.router.use(this.beforePhases);
+    this.addResources();
     this.addRoutes();
     this.router.use(this.afterPhases);
   }
@@ -358,8 +359,8 @@ export class Api {
 
   public addRoutes(base = '') {
     Object.values(this.routeClasses).forEach((Route: any) => {
-      this.log('debug', `Adding route ${Route.path}`);
       const route = new Route(this, base);
+      this.log('debug', `Registering route ${route.method.toUpperCase()}: ${route.path}`);
       this.routes[`${route.method}-${route.path}`] = route;
       route.register(this.router);
     });
@@ -380,6 +381,7 @@ export class Api {
     req.context.params = req.context.params || {};
     req.context.roles = req.context.roles || {};
     const loads = [];
+    const route = [''];
 
     // Load any resources listed in path.
     const parts = req.path.split('/');
@@ -388,6 +390,8 @@ export class Api {
 
     parts.forEach((part, index) => {
       if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
+        route.push(part);
+        route.push(`:${part}Id`);
         req.context.params[`${part}Id`] = parts[index + 1];
         const modelName = part.charAt(0).toUpperCase() + part.slice(1);
         loads.push(this.models[modelName].read({
@@ -397,7 +401,13 @@ export class Api {
             req.context.resources[part] = doc;
           }));
       }
+      else {
+        if (index === 0 || !this.resourceTypes.includes(parts[index - 1])) {
+          route.push(part);
+        }
+      }
     });
+    req.context.route = route.join('/');
 
     // Load all, admin, and default roles.
     loads.push(this.loadRoles(req, 'all', {}));
