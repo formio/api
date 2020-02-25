@@ -188,7 +188,7 @@ export class Resource {
       let parts;
 
       // See if this parameter is defined in our model.
-      const param = this.model.schema[name.split('.')[0]];
+      const param = this.model.schema.schema[name.split('.')[0]];
 
       if (selector) {
         switch (selector) {
