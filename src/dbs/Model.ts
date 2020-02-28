@@ -154,7 +154,7 @@ export class Model {
     });
   }
 
-  public delete(query, context?) {
+  public delete(query, context?, options?) {
     return this.initialized.then(() => {
       return this.db.delete(this.collectionName, query);
     });
