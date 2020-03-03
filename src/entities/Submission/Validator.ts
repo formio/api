@@ -35,8 +35,8 @@ global.window            = {
 
 import {Displays, Formio} from 'formiojs/formio.form.js';
 import Evaluator from 'formiojs/utils/Evaluator.js';
-import _ from 'lodash';
 import * as vm from 'vm';
+import {lodash as _} from '../../util/lodash';
 
 Evaluator.evaluator = (func, args) => {
   return () => {
@@ -78,7 +78,21 @@ export class Validator {
   public token: any;
 
   constructor(form, model, token) {
-    this.model = model;
+    // Wrap the model since formio.js expects a callback function and the server provides a promise.
+    this.model = Object.assign(
+      Object.create( Object.getPrototypeOf(model)),
+      model,
+      {
+        findOne: async (query = {}, next) => {
+          try {
+            const result = await model.findOne(query);
+            next(null, result);
+          } catch (err) {
+            next(err);
+          }
+        },
+      },
+  );
     this.form = form;
     this.token = token;
   }
