@@ -81,13 +81,13 @@ export class Action extends Resource {
       item = item.data;
     }
 
-    // Ensure they cannot reset the submission id.
+    // Ensure they cannot reset the action id.
     if (req.params.hasOwnProperty('actionId')) {
       item._id = req.params.actionId;
     }
 
     // For now all actions are for forms.
-    item.entity = req.context.params.formId;
+    item.entity = item.entity || req.context.params.formId;
     item.entityType = 'form';
 
     item = super.prepare(item, req);

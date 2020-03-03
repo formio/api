@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### Fixed
+ - Isomorphic validator in formio.js expects model to be different signature.
+ - Creation of default actions.
+
 ## 0.3.5
 ### Fixed
  - Signature of delete in model class.
