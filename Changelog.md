@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.7
+### Changed
+ - Unify load entities so it can be overridden.
+
 ## 0.3.6
 ### Fixed
  - Isomorphic validator in formio.js expects model to be different signature.
