@@ -22,12 +22,12 @@ export class Current extends Route {
 
   public execute(req, res) {
     if (!req.user) {
-      res.send({});
+      return res.send({});
     }
 
     // If external user, just send it.
     if (req.user.external) {
-      res.send(req.user);
+      return res.send(req.user);
     }
 
     this.app.makeChildRequest({

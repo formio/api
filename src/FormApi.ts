@@ -250,26 +250,12 @@ export class Api {
     ];
   }
 
-  /**
-   * Load a role into context
-   *
-   * @param req
-   * @param roleName
-   * @param query
-   * @returns {*|PromiseLike<T>|Promise<T>}
-   */
-  public loadRoles(req, type, query) {
-    return this.models.Role.find(query, {}, req.context.params)
-      .then((roles) => {
-        req.context.roles[type] = roles;
-      });
+  public loadEntities(req, model, query) {
+    return this.models[model].find(query, {}, req.context ? req.context.params : {});
   }
 
-  public loadActions(req, query) {
-    return this.models.Action.find(query, {}, req.context.params)
-      .then((actions) => {
-        req.context.actions = actions.sort((a, b) => b.priority - a.priority);
-      });
+  public loadEntity(req, model, query) {
+    return this.loadEntities(req, model, query).then((docs) => Array.isArray(docs) ? docs[0] : docs);
   }
 
   public query(query) {
@@ -302,9 +288,9 @@ export class Api {
       return next();
     }
 
-    this.models.Form.find({
+    this.loadEntities(req, 'Form', {
       path: alias,
-    }, {}, req.context.params)
+    })
       .then((forms) => {
         // If no form was found, continue.
         if (!forms.length) {
@@ -373,7 +359,7 @@ export class Api {
     this.alias(req, '', next);
   }
 
-  public context(req, res, next) {
+  public async context(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'context');
 
     req.context = req.context || {};
@@ -394,9 +380,9 @@ export class Api {
         route.push(`:${part}Id`);
         req.context.params[`${part}Id`] = parts[index + 1];
         const modelName = part.charAt(0).toUpperCase() + part.slice(1);
-        loads.push(this.models[modelName].read({
+        loads.push(this.loadEntity(req, modelName, {
           _id: this.db.toID(parts[index + 1]),
-        }, req.context.params)
+        })
           .then((doc) => {
             req.context.resources[part] = doc;
           }));
@@ -410,16 +396,23 @@ export class Api {
     req.context.route = route.join('/');
 
     // Load all, admin, and default roles.
-    loads.push(this.loadRoles(req, 'all', {}));
-    loads.push(this.loadRoles(req, 'admin', { admin: true }));
-    loads.push(this.loadRoles(req, 'default', { default: true }));
+    loads.push(this.loadEntities(req, 'Role', {})
+      .then((roles) => req.context.roles.all = roles));
+    loads.push(this.loadEntities(req, 'Role', { admin: true })
+      .then((roles) => req.context.roles.admin = roles));
+    loads.push(this.loadEntities(req, 'Role', { default: true })
+      .then((roles) => req.context.roles.default = roles));
 
     // Load actions associated with a form if we have a submission.
     if (req.context.params.hasOwnProperty('formId')) {
-      loads.push(this.loadActions(req, {
+      loads.push(this.loadEntities(req, 'Action', {
         entity: this.db.toID(req.context.params.formId),
         entityType: 'form',
-      }));
+      })
+        .then((actions) => {
+          req.context.actions = actions.sort((a, b) => b.priority - a.priority);
+        }),
+      );
     }
 
     Promise.all(loads)
@@ -674,12 +667,6 @@ export class Api {
     }, Promise.resolve());
   }
 
-  public getActionFromContext(req, actionItem) {
-    return req.context.actions.find((action) => {
-      return actionItem.action.toString() === action._id.toString();
-    });
-  }
-
   public async executeAction(actionItem, req, res) {
     log('info', 'Execute action', req.uuid, actionItem.action);
 
@@ -688,14 +675,10 @@ export class Api {
 
       let action: any;
 
-      if (req.context.actions) {
-        action = this.getActionFromContext(req, actionItem);
-      }
-
       if (!action) {
-        action = await this.models.Action.read({
+        action = await this.loadEntity(req, 'Action', {
           _id: this.db.toID(actionItem.action),
-        }, req.context ? req.context.params : {});
+        });
       }
 
       // Syncronously add messages to actionItem.
