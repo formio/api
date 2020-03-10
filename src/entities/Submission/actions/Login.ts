@@ -150,9 +150,9 @@ export class Login extends Action {
               return Promise.reject('User or password was incorrect.');
             }
             setActionInfoMessage('Password matched. Setting response data');
-            return this.app.models.Form.read({
+            return this.app.loadEntity(req, 'Form', {
               _id: this.app.db.toID(user.form),
-            }, req.context.params)
+            })
               .then((form) => {
                 req.user = user;
                 res.token = this.app.generateToken(this.app.tokenPayload(user, form));

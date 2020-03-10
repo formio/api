@@ -760,6 +760,10 @@ export class Api {
 
   public encrypt(text) {
     return new Promise((resolve, reject) => {
+      // Check if it is already encrypted.
+      if (text.match(/\$2a\$\d\d\$[.\/0-9A-Za-z]{53}/g)) {
+        return resolve(text);
+      }
       bcrypt.genSalt(10, (err, salt) => {
         if (err) {
           return reject(err);

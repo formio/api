@@ -42,10 +42,10 @@ export class SaveSubmission extends Action {
       // Skip this resource.
       req.skipResource = true;
 
-      const resource = await this.app.models.Form.findOne({
+      const resource = await this.app.loadEntity(req, 'Form', {
         type: 'resource',
         _id: this.app.db.toID(this.settings.resource),
-      }, null, req.context.params);
+      });
 
       const submission = req.context.resources.submission;
       let type = 'create';
