@@ -18,7 +18,7 @@ export class Action extends Resource {
 
   public getQuery(req, query: any = {}) {
     query.entity = this.model.toID(req.context.params.formId);
-    return super.getQuery(query, req);
+    return super.getQuery(req, query);
   }
 
   public actionsIndex(req, res) {
