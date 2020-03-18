@@ -1,6 +1,6 @@
 {
   "name": "@formio/api",
-  "version": "0.3.9",
+  "version": "0.4.0",
   "description": "A form API library that creates rest endpoints and database integrations for forms.",
   "main": "lib/index.js",
   "scripts": {
