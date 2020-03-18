@@ -8,7 +8,7 @@
     "test": "mocha --require ts-node/register --reporter spec './{,!(node_modules)/**/}*.spec.ts'",
     "watch": "tsc -w",
     "build": "tsc",
-    "lint": "tslint -p .",
+    "lint": "tslint -p . --fix",
     "prepublish": "npm run build"
   },
   "keywords": [

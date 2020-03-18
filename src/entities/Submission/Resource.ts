@@ -21,6 +21,14 @@ export class Submission extends Resource {
     return this.app.actions;
   }
 
+  get properties() {
+    return properties;
+  }
+
+  get fields() {
+    return fields;
+  }
+
   public indexQuery(req, query: any = {}) {
     query.form = this.model.toID(req.context.params.formId);
     return super.indexQuery(req, query);
@@ -303,8 +311,8 @@ export class Submission extends Resource {
         const componentPath = `${path}${path ? '.' : ''}${component.key}`;
 
         // Execute field actions
-        if (fields.hasOwnProperty(component.type)) {
-          promises.push(fields[component.type](component, data, handler, action, {
+        if (this.fields.hasOwnProperty(component.type)) {
+          promises.push(this.fields[component.type](component, data, handler, action, {
             path: componentPath,
             req,
             res,
@@ -313,9 +321,9 @@ export class Submission extends Resource {
         }
 
         // Execute property actions.
-        Object.keys(properties).forEach((property) => {
+        Object.keys(this.properties).forEach((property) => {
           if (component.hasOwnProperty(property) && component[property]) {
-            promises.push(properties[property](component, data, handler, action, {
+            promises.push(this.properties[property](component, data, handler, action, {
               path: componentPath,
               req,
               res,
