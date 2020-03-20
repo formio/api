@@ -39,7 +39,7 @@ export class Submission extends Resource {
     return super.getQuery(req, query);
   }
 
-  public index(req, res, next) {
+  public async index(req, res, next) {
     log('debug', 'submission index called');
     this.callPromisesAsync([
       this.executeSuper.bind(this, 'index', req, res),
@@ -52,7 +52,7 @@ export class Submission extends Resource {
       .catch((err) => next(err));
   }
 
-  public post(req, res, next) {
+  public async post(req, res, next) {
     log('debug', 'submission post called');
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
@@ -71,7 +71,7 @@ export class Submission extends Resource {
       .catch((err) => next(err));
   }
 
-  public get(req, res, next) {
+  public async get(req, res, next) {
     log('debug', 'submission get called');
     this.callPromisesAsync([
       this.executeSuper.bind(this, 'get', req, res),
@@ -84,7 +84,7 @@ export class Submission extends Resource {
       .catch((err) => next(err));
   }
 
-  public put(req, res, next) {
+  public async put(req, res, next) {
     log('debug', 'submission put called');
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
@@ -103,7 +103,7 @@ export class Submission extends Resource {
       .catch((err) => next(err));
   }
 
-  public patch(req, res, next) {
+  public async patch(req, res, next) {
     log('debug', 'submission patch called');
     this.callPromisesAsync([
       this.initializeSubmission.bind(this, req, res),
@@ -122,7 +122,7 @@ export class Submission extends Resource {
       .catch((err) => next(err));
   }
 
-  public delete(req, res, next) {
+  public async delete(req, res, next) {
     log('debug', 'submission delete called');
     this.callPromisesAsync([
       this.executeSuper.bind(this, 'delete', req, res),
@@ -334,6 +334,58 @@ export class Submission extends Resource {
 
         return Promise.all(promises);
       }, { handler, action, req, res });
+    }));
+  }
+
+  /**
+   * Loads sub submissions from a nested subform hierarchy.
+   *
+   * @param form
+   * @param submission
+   * @param req
+   * @param next
+   * @param depth
+   * @return {*}
+   */
+  public async loadSubSubmissions(form, submission, req, depth) {
+    depth = depth || 0;
+
+    // Only allow 5 deep.
+    if (depth >= 5) {
+      return;
+    }
+
+    // Get all the subform data.
+    const subs = {};
+    util.formio.eachComponent(form.components, (component, path) => {
+      if (component.type === 'form') {
+        const subData = _.get(submission.data, path);
+        if (subData && subData._id) {
+          subs[subData._id.toString()] = {component, path, data: subData.data};
+        }
+      }
+    }, true);
+
+    // Load all the submissions within this submission.
+    const submissions = await this.app.loadEntities(req, 'Submission', {
+      _id: {$in: Object.keys(subs).map((subId) => this.app.db.toID(subId))},
+    });
+
+    if (!submissions || !submissions.length){
+      return;
+    }
+
+    await Promise.all(submissions.map(async (sub) => {
+      const subId = sub._id.toString();
+      if (subs[subId]) {
+        // Set the subform data if it contains more data... legacy renderers don't fare well with sub-data.
+        if (!subs[subId].data || (Object.keys(sub.data).length > Object.keys(subs[subId].data).length)) {
+          _.set(submission.data, subs[subId].path, sub);
+        }
+
+        // Load all subdata within this submission.
+        await this.loadSubSubmissions(subs[subId].component, sub, req, depth + 1);
+      }
     }));
   }
 

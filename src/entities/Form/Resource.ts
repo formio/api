@@ -7,7 +7,7 @@ export class Form extends Resource {
     super(model, router, app);
   }
 
-  public post(req, res, next) {
+  public async post(req, res, next) {
     this.callPromisesAsync([
       () => this.callSuper('post', req, res),
       () => this.createDefaultActions(req, res),
@@ -16,7 +16,7 @@ export class Form extends Resource {
       .catch(next);
   }
 
-  public put(req, res, next) {
+  public async put(req, res, next) {
     this.callPromisesAsync([
       () => this.checkModifiedDate(req, res),
       () => this.callSuper('put', req, res),
@@ -77,6 +77,74 @@ export class Form extends Resource {
         return resolve();
       });
     });
+  }
+
+  public async finalize(form, req) {
+    if (req.query.full) {
+      await this.loadSubForms(form, req);
+    }
+    return form;
+  }
+
+  /**
+   * Load all subforms in a form recursively.
+   *
+   * @param form
+   * @param req
+   * @param next
+   * @param depth
+   * @returns {*}
+   */
+  public async loadSubForms(form, req, depth = 0, forms = {}) {
+    // Only allow 5 deep.
+    if (depth >= 5) {
+      return;
+    }
+
+    // Get all of the form components.
+    const comps = {};
+    const formIds = [];
+    const formRevs = [];
+    formio.eachComponent(form.components, (component) => {
+      if ((component.type === 'form') && component.form) {
+        const formId = component.form.toString();
+        if (!comps[formId]) {
+          comps[formId] = [];
+          formIds.push(formId);
+          if (component.formRevision) {
+            formRevs.push(component);
+          }
+        }
+        comps[formId].push(component);
+      }
+    }, true);
+
+    // Only proceed if we have form components.
+    if (!formIds.length) {
+      return;
+    }
+
+    // Load all subforms in this form.
+    const loadedForms = await this.app.loadEntities(req, 'Form', {
+      _id: { $in: formIds.map((id) => this.app.db.toID(id))},
+    });
+
+    await Promise.all(loadedForms.map(async (subForm) => {
+      const formId = subForm._id;
+      if (!comps[formId]) {
+        return;
+      }
+      comps[formId].forEach((comp) => {
+        if (!comp.components || !comp.components.length) {
+          comp.components = subForm.components;
+        }
+      });
+      if (forms[formId]) {
+        return;
+      }
+      forms[formId] = true;
+      return this.loadSubForms(subForm, req, depth + 1, forms);
+    }));
   }
 
   protected rest() {

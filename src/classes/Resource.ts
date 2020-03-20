@@ -27,97 +27,105 @@ export class Resource {
     this.rest();
   }
 
-  public index(req, res, next) {
-    this.app.log('debug', `resource index called for ${this.name}`);
-    const query = this.indexQuery(req);
-    const options = this.model.indexOptions(req.query);
-    Promise.all([
-      this.model.count(query, {}, req.context.params),
-      this.model.find(query, options, req.context.params),
-    ])
-      .then(([count, docs]) => {
-        res.resource = {
-          count,
-          items: docs.map((doc) => this.finalize(doc, req)),
-        };
-        this.app.log('debug', `resource index done for ${this.name}`);
-        next();
-      })
-      .catch(next);
+  public async index(req, res, next) {
+    try {
+      this.app.log('debug', `resource index called for ${this.name}`);
+      const query = this.indexQuery(req);
+      const options = this.model.indexOptions(req.query);
+      const count = await this.model.count(query, {}, req.context.params);
+      const docs = await this.model.find(query, options, req.context.params);
+      res.resource = {
+        count,
+        items: await Promise.all(docs.map(async (doc) => await this.finalize(doc, req))),
+      };
+      this.app.log('debug', `resource index done for ${this.name}`);
+      next();
+    }
+    catch (err) {
+      next(err);
+    }
   }
 
-  public post(req, res, next) {
-    this.app.log('debug', `resource post called for ${this.name}`);
-    this.model.create(this.prepare(req.body, req), req.context.params)
-      .then((doc) => {
-        res.resource = {
-          item: this.finalize(doc, req),
-        };
-        this.app.log('debug', `resource post done for ${this.name}`);
-        next();
-      })
-      .catch((err) => next(err));
+  public async post(req, res, next) {
+    try {
+      this.app.log('debug', `resource post called for ${this.name}`);
+      const doc = await this.model.create(this.prepare(req.body, req), req.context.params);
+      res.resource = {
+        item: await this.finalize(doc, req),
+      };
+      this.app.log('debug', `resource post done for ${this.name}`);
+      next();
+    }
+    catch (err) {
+      next(err);
+    }
   }
 
-  public get(req, res, next) {
-    this.app.log('debug', `resource get called for ${this.name}`);
-    const query = this.getQuery(req, {});
-    this.model.read(query, req.context.params)
-      .then((doc) => {
-        res.resource = {
-          item: this.finalize(doc, req),
-        };
-        this.app.log('debug', `resource get done for ${this.name}`);
-        next();
-      })
-      .catch(next);
+  public async get(req, res, next) {
+    try {
+      this.app.log('debug', `resource get called for ${this.name}`);
+      const query = this.getQuery(req, {});
+      const doc = await this.model.read(query, req.context.params);
+      res.resource = {
+        item: await this.finalize(doc, req),
+      };
+      this.app.log('debug', `resource get done for ${this.name}`);
+      next();
+    }
+    catch (err) {
+      next(err);
+    }
   }
 
-  public put(req, res, next) {
-    this.app.log('debug', `resource put called for ${this.name}`);
-    this.model.update(this.prepare(req.body, req), req.context.params)
-      .then((doc) => {
-        res.resource = {
-          item: this.finalize(doc, req),
-        };
-        this.app.log('debug', `resource put done for ${this.name}`);
-        next();
-      })
-      .catch(next);
+  public async put(req, res, next) {
+    try {
+      this.app.log('debug', `resource put called for ${this.name}`);
+      const doc = await this.model.update(this.prepare(req.body, req), req.context.params);
+      res.resource = {
+        item: await this.finalize(doc, req),
+      };
+      this.app.log('debug', `resource put done for ${this.name}`);
+      next();
+    }
+    catch (err) {
+      next(err);
+    }
   }
 
-  public patch(req, res, next) {
-    this.app.log('debug', `resource patch called for ${this.name}`);
-    this.model.read({
-      _id: this.model.toID(req.context.params[`${this.name}Id`]),
-    }, req.context.params)
-      .then((doc) => {
-        const patched = jsonpatch.applyPatch(doc, req.body);
-        this.model.update(this.prepare(patched.newDocument, req), req.context.params)
-          .then((doc) => {
-            res.resource = {
-              item: this.finalize(doc, req),
-            };
-            this.app.log('debug', `resource patch done for ${this.name}`);
-            next();
-          });
-      })
-      .catch(next);
+  public async patch(req, res, next) {
+    try {
+      this.app.log('debug', `resource patch called for ${this.name}`);
+      const prev = await this.model.read({
+        _id: this.model.toID(req.context.params[`${this.name}Id`]),
+      }, req.context.params);
+      const patched = jsonpatch.applyPatch(prev, req.body);
+      const doc = await this.model.update(this.prepare(patched.newDocument, req), req.context.params);
+      res.resource = {
+        item: await this.finalize(doc, req),
+      };
+      this.app.log('debug', `resource patch done for ${this.name}`);
+      next();
+    }
+    catch (err) {
+      next(err);
+    }
   }
 
-  public delete(req, res, next) {
-    this.app.log('debug', `resource delete called for ${this.name}`);
-    this.model.delete({
-      _id: this.model.toID(req.context.params[`${this.name}Id`]),
-    }, req.context.params)
-      .then((doc) => {
-        res.resource = {
-          item: this.finalize(doc, req),
-        };
-        this.app.log('debug', `resource delete done for ${this.name}`);
-        next();
-      })
-      .catch(next);
+  public async delete(req, res, next) {
+    try {
+      this.app.log('debug', `resource delete called for ${this.name}`);
+      const doc = await this.model.delete({
+        _id: this.model.toID(req.context.params[`${this.name}Id`]),
+      }, req.context.params);
+      res.resource = {
+        item: await this.finalize(doc, req),
+      };
+      this.app.log('debug', `resource delete done for ${this.name}`);
+      next();
+    }
+    catch (err) {
+      next(err);
+    }
   }
 
   // Return additions to the swagger specification.
@@ -274,7 +282,7 @@ export class Resource {
     return item;
   }
 
-  protected finalize(item, req: any = {}) {
+  protected async finalize(item, req: any = {}) {
     return item;
   }
 }

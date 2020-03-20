@@ -26,7 +26,7 @@ export class Child extends Resource {
     next();
   }
 
-  public post(req, res, next) {
+  public async post(req, res, next) {
     cm(this.before, super.post, this.after).call(this, req, res, next);
   }
 }
