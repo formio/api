@@ -47,7 +47,7 @@ export const form = async (component, data, handler, action, { req, res, app }) 
       middleware: app.resources.Submission[method.toLowerCase()].bind(app.resources.Submission),
       body,
       method,
-      params
+      params,
     });
     _.set(data, component.key, {
       _id: app.db.toID(childSubmission._id),

@@ -1,4 +1,4 @@
-import {lodash as _} from "../../../util/lodash";
+import {lodash as _} from '../../../util/lodash';
 
 export const reference = async (
   component: any,
