@@ -337,6 +337,11 @@ export class Submission extends Resource {
     }));
   }
 
+  public async finalize(submission, req) {
+    await this.loadReferences(req.context.resources.form, submission, req);
+    return super.finalize(submission, req);
+  }
+
   /**
    * Loads sub submissions from a nested subform hierarchy.
    *
@@ -347,28 +352,28 @@ export class Submission extends Resource {
    * @param depth
    * @return {*}
    */
-  public async loadSubSubmissions(form, submission, req, depth) {
-    depth = depth || 0;
-
+  public async loadReferences(form, submission, req, depth = 0) {
     // Only allow 5 deep.
     if (depth >= 5) {
       return;
     }
-
-    // Get all the subform data.
     const subs = {};
-    util.formio.eachComponent(form.components, (component, path) => {
-      if (component.type === 'form') {
-        const subData = _.get(submission.data, path);
-        if (subData && subData._id) {
-          subs[subData._id.toString()] = {component, path, data: subData.data};
+    // First load sub forms.
+    await this.app.resources.Form.loadSubForms(form, req);
+
+    util.api.eachValue(form.components, submission.data, (context) => {
+      const {component, data, path} = context;
+      if (!('reference' in component) || component.reference) {
+        const value = _.get(data, component.key);
+        if (value && value._id) {
+          subs[value._id] = {component, path, value: value.data, data};
         }
       }
-    }, true);
+    }, {});
 
     // Load all the submissions within this submission.
     const submissions = await this.app.loadEntities(req, 'Submission', {
-      _id: {$in: Object.keys(subs).map((subId) => this.app.db.toID(subId))},
+      _id: {$in: Object.keys(subs).map(this.app.db.toID)},
     });
 
     if (!submissions || !submissions.length){
@@ -376,15 +381,16 @@ export class Submission extends Resource {
     }
 
     await Promise.all(submissions.map(async (sub) => {
-      const subId = sub._id.toString();
+      const subId = sub._id;
       if (subs[subId]) {
         // Set the subform data if it contains more data... legacy renderers don't fare well with sub-data.
-        if (!subs[subId].data || (Object.keys(sub.data).length > Object.keys(subs[subId].data).length)) {
-          _.set(submission.data, subs[subId].path, sub);
+        if (!subs[subId].value || (Object.keys(sub.data).length > Object.keys(subs[subId].value).length)) {
+          _.set(subs[subId].data, subs[subId].component.key, sub);
+          // Load all subdata within this submission if it is a form.
+          if (subs[subId].component.type === 'form') {
+            await this.loadReferences(subs[subId].component, sub, req, depth + 1);
+          }
         }
-
-        // Load all subdata within this submission.
-        await this.loadSubSubmissions(subs[subId].component, sub, req, depth + 1);
       }
     }));
   }

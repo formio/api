@@ -46,7 +46,7 @@ export const eachValue = (components, data, fn, context, path = '') => {
             (path ? `${path}.` : '') + `${component.key}[${index}]`,
           ));
         });
-      } else if (['form'].includes(component.type)) {
+      } else if (['form'].includes(component.type) && _.has(data, `${component.key}.data`)) {
         promises.push(eachValue(
           component.components,
           _.get(data, `${component.key}.data`, {}),

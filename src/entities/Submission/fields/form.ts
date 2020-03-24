@@ -1,8 +1,8 @@
 import {formio} from '../../../util/formio';
 import {lodash as _} from '../../../util/lodash';
 
-export const form = (component, data, handler, action, { req, res, app }) => {
-  if (['afterValidation'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
+export const form = async (component, data, handler, action, { req, res, app }) => {
+  if (['afterValidate'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
     // Get the submission object.
     const body = _.get(data, component.key);
 
@@ -18,7 +18,7 @@ export const form = (component, data, handler, action, { req, res, app }) => {
       (req.method === 'PATCH' && !body._id) ||
       (req.method === 'PUT' && !body._id)
     ) {
-      return Promise.resolve();
+      return;
     }
 
     // Only execute if the component should save reference and conditions do not apply.
@@ -26,18 +26,14 @@ export const form = (component, data, handler, action, { req, res, app }) => {
       (component.hasOwnProperty('reference') && !component.reference) ||
       !formio.checkCondition(component, data, req.body.data, null, null)
     ) {
-      return Promise.resolve();
-    }
-
-    let url = '/form/:formId/submission';
-    if (action === 'put' || action === 'patch') {
-      url += '/:submissionId';
+      return;
     }
 
     // Patch at this point should be a subrequest put.
     const method = (action === 'post') ? 'post' : 'put';
 
     const params: any = {
+      ...req.context.params,
       formId: component.form,
     };
 
@@ -45,10 +41,18 @@ export const form = (component, data, handler, action, { req, res, app }) => {
       params.submissionId = body._id;
     }
 
-    return app.makeChildRequest({ url, method, body, params, req, res })
-      .then((childRes) => {
-        _.set(data, component.key, childRes.resource.item);
-      });
+    const childSubmission = await app.makeChildRequest({
+      req,
+      url: '/form/:formId/submission' + (['put', 'patch'].includes(action) ? '/:submissionId' : ''),
+      middleware: app.resources.Submission[method.toLowerCase()].bind(app.resources.Submission),
+      body,
+      method,
+      params
+    });
+    _.set(data, component.key, {
+      _id: app.db.toID(childSubmission._id),
+    });
+    return;
   }
 
   if (['afterActions'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
@@ -63,36 +67,33 @@ export const form = (component, data, handler, action, { req, res, app }) => {
 
       // Fetch the child form's submission
       if (compValue && compValue._id) {
-        return app.models.Submission.findOne({
+        const submission = await app.models.Submission.findOne({
           _id: app.db.toID(compValue._id),
           deleted: { $eq: null },
-        })
-          .catch((err) => app.log('info', err))
-          .then((submission) => {
-            let found = false;
-            submission.externalIds = submission.externalIds || [];
-            submission.externalIds.forEach((externalId) => {
-              if (externalId.type === 'parent') {
-                found = true;
-              }
-            });
-            if (found) {
-              // externalId already set.
-              return Promise.resolve();
-            } else {
-              // Set new externalId and save.
-              submission.externalIds.push({
-                type: 'parent',
-                id: res.resource.item._id,
-              });
-              return app.models.Submission.update(submission);
-            }
+        });
+        let found = false;
+        submission.externalIds = submission.externalIds || [];
+        submission.externalIds.forEach((externalId) => {
+          if (externalId.type === 'parent') {
+            found = true;
+          }
+        });
+        if (found) {
+          // externalId already set.
+          return;
+        } else {
+          // Set new externalId and save.
+          submission.externalIds.push({
+            type: 'parent',
+            id: res.resource.item._id,
           });
+          return app.models.Submission.update(submission);
+        }
       }
     }
   }
 
   // TODO: May want to also implement delete action to delete sub forms.
 
-  return Promise.resolve();
+  return;
 };

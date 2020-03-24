@@ -106,7 +106,7 @@ export class Form extends Resource {
     const formIds = [];
     const formRevs = [];
     formio.eachComponent(form.components, (component) => {
-      if ((component.type === 'form') && component.form) {
+      if ((component.type === 'form') && component.form && !('components' in component)) {
         const formId = component.form.toString();
         if (!comps[formId]) {
           comps[formId] = [];
@@ -135,9 +135,7 @@ export class Form extends Resource {
         return;
       }
       comps[formId].forEach((comp) => {
-        if (!comp.components || !comp.components.length) {
-          comp.components = subForm.components;
-        }
+        comp.components = subForm.components;
       });
       if (forms[formId]) {
         return;

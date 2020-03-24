@@ -1,28 +1,25 @@
-import {ReferenceHandler, ReferenceHandlerParams} from './ReferenceHandler';
+import {lodash as _} from "../../../util/lodash";
 
-export const reference = (
+export const reference = async (
   component: any,
-  __data: any,
+  data: any,
   handler: string,
   action: string,
-  {path, req, res, app}: any,
+  {app}: any,
 ) => {
-  if (handler !== 'afterValidate' && handler !== 'afterActions') {
-    return Promise.resolve();
+  if (handler === 'afterValidate' && ['post', 'put', 'patch'].includes(action)) {
+    const compValue = _.get(data, component.key);
+
+    if (compValue && compValue._id) {
+      // Ensure we only set the _id of the resource.
+      _.set(data, component.key, {
+        _id: app.db.toID(compValue._id),
+      });
+    }
   }
 
-  const params: ReferenceHandlerParams = {app, component, path, req, res};
-
-  switch (action) {
-    case 'get':
-      return ReferenceHandler.onGet(params, handler);
-    case 'post':
-      return ReferenceHandler.onPost(params, handler);
-    case 'put':
-      return ReferenceHandler.onPut(params, handler);
-    case 'index':
-      return ReferenceHandler.onIndex(params, handler);
-    default:
-      return Promise.resolve();
+  if (handler === 'afterActions') {
+    // Loading reference values is in Submission/Resources.ts as loadReferences().
+    // This was for performance reasons so they can all be loaded at once instead of individual requests.
   }
 };
