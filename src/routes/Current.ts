@@ -20,6 +20,10 @@ export class Current extends Route {
     };
   }
 
+  public authorize(req): string | boolean {
+    return !!req.user;
+  }
+
   public execute(req, res) {
     if (!req.user) {
       return res.send({});
@@ -38,9 +42,15 @@ export class Current extends Route {
         submissionId: req.user._id,
       },
       middleware: this.app.resources.Submission.get.bind(this.app.resources.Submission),
+      options: {
+        permissionsChecked: true,
+      }
     })
       .then((submission) => {
         res.send(submission);
+      })
+      .catch((err) => {
+        res.status(400).send(err);
       });
   }
 }

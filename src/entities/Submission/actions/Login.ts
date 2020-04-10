@@ -131,12 +131,12 @@ export class Login extends Action {
       .then((user) => {
         if (!user) {
           setActionInfoMessage('User not found');
-          return Promise.reject('User or password was incorrect.');
+          return res.status(401).send('User or password was incorrect.');
         }
 
         if (!_.get(user.data, this.settings.password)) {
           setActionInfoMessage('Password not set');
-          return Promise.reject('User account does not have a password. You must reset your password to login.');
+          return res.status(401).send('User account does not have a password. You must reset your password to login.');
         }
 
         // Need to use req.submission.data for password as it hasn't been encrypted yet.
@@ -147,16 +147,16 @@ export class Login extends Action {
           .then((value) => {
             if (!value) {
               setActionInfoMessage('Password did not match');
-              return Promise.reject('User or password was incorrect.');
+              return res.status(401).send('User or password was incorrect.');
             }
             setActionInfoMessage('Password matched. Setting response data');
             return this.app.loadEntity(req, 'Form', {
               _id: this.app.db.toID(user.form),
             })
-              .then((form) => {
+              .then(async (form) => {
                 req.user = user;
                 res.token = this.app.generateToken(this.app.tokenPayload(user, form));
-                res.resource.item = user;
+                res.resource.item = await this.app.resources.Submission.finalize(user, req);
               });
           });
       });

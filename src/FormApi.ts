@@ -181,7 +181,7 @@ export class Api {
   public primaryEntity(req) {
     let entity = null;
     this.resourceTypes.forEach((type) => {
-      if (req.context.hasOwnProperty(type) && !entity) {
+      if (req.context.resources.hasOwnProperty(type) && !entity) {
         entity = {
           type,
           id: req.context.resources[type]._id,
@@ -200,9 +200,15 @@ export class Api {
    */
   public entityPermissionRoles(req, info, method) {
     const entity = req.context.resources[info.type];
-    const accessKey = info.type === 'submission' ? 'submissionAccess' : 'access';
+    const accessKey = (
+      info.type === 'submission' ||
+      (info.type === 'form' && method === 'POST')
+    ) ? 'submissionAccess' : 'access';
     let roles = [];
 
+    if (!entity || !entity[accessKey] || !Array.isArray(entity[accessKey])) {
+      return roles;
+    }
     entity[accessKey].forEach((access) => {
       // Handle "all" permission
       if (access.type === this.methodPermissions[method].all) {
@@ -210,7 +216,10 @@ export class Api {
       }
       // Handle "own" permission
       if (access.type === this.methodPermissions[method].own) {
-        if (req.user && entity.owner === req.user._id) {
+        if (
+          (req.user && entity.owner === req.user._id) ||
+          method === 'POST'
+        ) {
           roles = [...roles, ...access.roles];
         }
       }
@@ -433,6 +442,11 @@ export class Api {
   public authorize(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'authorize');
 
+    if (req.permissionsChecked) {
+      log('info', req.uuid, 'Permissions already checked');
+      return next();
+    }
+
     if (this.config.adminKey) {
       // If admin key is set in config and matches what is sent in the header,
       if (req.headers['x-admin-key'] && this.config.adminKey === req.headers['x-admin-key']) {
@@ -601,6 +615,9 @@ export class Api {
     childReq.method = method.toUpperCase();
     childReq.url = url;
     childReq.path = Object.keys(params).reduce((prev, key) => prev.replace(`:${key}`, params[key]), url);
+    if (options.permissionsChecked) {
+      childReq.permissionsChecked = true;
+    }
 
     return new Promise((resolve, reject) => {
       const childRes = this.createChildRes((result) => {
