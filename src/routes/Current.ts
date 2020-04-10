@@ -44,7 +44,7 @@ export class Current extends Route {
       middleware: this.app.resources.Submission.get.bind(this.app.resources.Submission),
       options: {
         permissionsChecked: true,
-      }
+      },
     })
       .then((submission) => {
         res.send(submission);
