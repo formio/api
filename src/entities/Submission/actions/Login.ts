@@ -141,7 +141,7 @@ export class Login extends Action {
 
         // Need to use req.submission.data for password as it hasn't been encrypted yet.
         return bcrypt.compare(
-          _.get(req.submission.data, this.settings.password),
+          _.get(req.submission.data, this.settings.password, ''),
           _.get(user.data, this.settings.password),
         )
           .then((value) => {
