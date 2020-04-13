@@ -204,7 +204,7 @@ export class Api {
     let accessKey = 'access';
     // Submissions check their permissions against the form so use it instead.
     if (info.type === 'submission') {
-      permissionEntity = req.context.resources['form'];
+      permissionEntity = req.context.resources.form;
       accessKey = 'submissionAccess';
     }
     // When creating a new submission, the type is form but the method is post.
