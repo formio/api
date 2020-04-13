@@ -338,6 +338,11 @@ export class Submission extends Resource {
   }
 
   public async finalize(submission, req) {
+    // If this is a newly created submission without an owner (like during registration), set the owner to itself.
+    if (!submission.owner) {
+      submission.owner = submission._id;
+      await this.model.update(submission);
+    }
     await this.loadReferences(req.context.resources.form, submission, req);
     return super.finalize(submission, req);
   }

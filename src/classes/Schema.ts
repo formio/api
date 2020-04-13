@@ -36,7 +36,7 @@ export class Schema {
       type: 'date',
       description: 'The date this resource was created.',
       default: Date.now,
-      readonly: true,
+      readOnly: true,
       index: true,
     };
   }
@@ -45,8 +45,7 @@ export class Schema {
     return {
       type: 'date',
       description: 'The date this resource was modified.',
-      default: Date.now,
-      readonly: true,
+      set: () => Date.now(),
       index: true,
     };
   }

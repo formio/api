@@ -200,16 +200,23 @@ export class Api {
    */
   public entityPermissionRoles(req, info, method) {
     const entity = req.context.resources[info.type];
-    const accessKey = (
-      info.type === 'submission' ||
-      (info.type === 'form' && method === 'POST')
-    ) ? 'submissionAccess' : 'access';
+    let permissionEntity = entity;
+    let accessKey = 'access';
+    // Submissions check their permissions against the form so use it instead.
+    if (info.type === 'submission') {
+      permissionEntity = req.context.resources['form'];
+      accessKey = 'submissionAccess';
+    }
+    // When creating a new submission, the type is form but the method is post.
+    if (info.type === 'form' && method === 'POST') {
+      accessKey = 'submissionAccess';
+    }
     let roles = [];
 
-    if (!entity || !entity[accessKey] || !Array.isArray(entity[accessKey])) {
+    if (!permissionEntity || !permissionEntity[accessKey] || !Array.isArray(permissionEntity[accessKey])) {
       return roles;
     }
-    entity[accessKey].forEach((access) => {
+    permissionEntity[accessKey].forEach((access) => {
       // Handle "all" permission
       if (access.type === this.methodPermissions[method].all) {
         roles = [...roles, ...access.roles];

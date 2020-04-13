@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - Login action returning the wrong results.
  - Current not checking access to deny anonymous.
  - Fixes to entity permissions roles.
+ - Fixed Permission checks for submissions
+ - Fixed new submissions not having owner if created by anonymous during registration.
+ - Fixed created and modified persistance.
 
 ## 0.4.2
 ### Fixed
