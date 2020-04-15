@@ -113,8 +113,7 @@ export class Schema {
           required: 'A permission type is required to associate an available permission with a given role.',
         },
         roles: {
-          type: 'id',
-          ref: 'role',
+          type: ['id'],
         },
       },
     ];

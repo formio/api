@@ -162,17 +162,18 @@ export class Model {
 
   protected iterateFields(path, schema, input, doc, execute) {
     const promises = [];
-    if (Array.isArray(schema.type) && schema.type.length >= 1) {
+    if (Array.isArray(schema) || (Array.isArray(schema.type) && schema.type.length >= 1)) {
+      const type = Array.isArray(schema) ? schema : schema.type;
       const values = _.get(input, path, []);
       values.forEach((value, index) => {
-        if (typeof schema.type[0] === 'object') {
-          for (const name of Object.keys(schema.type[0])) {
-            promises.push(this.iterateFields(`${path}[${index}].${name}`, schema.type[0][name], input, doc, execute));
+        if (typeof type[0] === 'object') {
+          for (const name of Object.keys(type[0])) {
+            promises.push(this.iterateFields(`${path}[${index}].${name}`, type[0][name], input, doc, execute));
           }
         } else {
           const field = {
             ...schema,
-            type: schema.type[0],
+            type: type[0],
           };
           promises.push(this.iterateFields(`${path}[${index}]`, field, input, doc, execute));
         }

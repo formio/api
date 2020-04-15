@@ -447,6 +447,53 @@ describe('Model.js', () => {
     });
   });
 
+    it('Access types', () => {
+      sandbox.spy(db, 'create');
+
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            access: [
+              {
+                type: {
+                  type: 'string',
+                  enum: this.enumPermissions,
+                  required: 'A permission type is required to associate an available permission with a given role.',
+                },
+                roles: {
+                  type: ['id']
+                },
+              }
+            ]
+          };
+        }
+      }
+
+      const model = new Model(new TestSchema(app), db);
+
+      const data = {
+        access: [
+          {
+            type: 'read_all',
+            roles: ['0000000000000000', '0000000000000001']
+          },
+          {
+            type: 'create_all',
+            roles: ['0000000000000002', '0000000000000003']
+          },
+        ],
+      }
+
+      return model.create(data).then((doc) => {
+        assert(db.create.calledOnce, 'Should call db create');
+        assert.deepEqual(doc, data);
+    });
+  });
+
   describe('Create Tests', () => {
     it('Fails required field when missing', () => {
       sandbox.stub(db, 'create').resolves({});
