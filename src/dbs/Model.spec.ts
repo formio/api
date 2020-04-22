@@ -445,7 +445,6 @@ describe('Model.js', () => {
         assert.equal(doc.foo[1], '4');
       });
     });
-  });
 
     it('Access types', () => {
       sandbox.spy(db, 'create');
@@ -464,10 +463,11 @@ describe('Model.js', () => {
                   enum: this.enumPermissions,
                   required: 'A permission type is required to associate an available permission with a given role.',
                 },
-                roles: {
-                  type: ['id']
-                },
-              }
+                roles: [{
+                  type: 'id',
+                  ref: 'role',
+                }],
+              },
             ]
           };
         }
@@ -491,6 +491,37 @@ describe('Model.js', () => {
       return model.create(data).then((doc) => {
         assert(db.create.calledOnce, 'Should call db create');
         assert.deepEqual(doc, data);
+      });
+    });
+
+    it('Array Objects', () => {
+      sandbox.spy(db, 'create');
+
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            handler: [{
+              type: 'string',
+              require: true,
+            }],
+          };
+        }
+      }
+
+      const model = new Model(new TestSchema(app), db);
+
+      const data = {
+        handler: ['update'],
+      };
+
+      return model.create(data).then((doc) => {
+        assert(db.create.calledOnce, 'Should call db create');
+        assert.deepEqual(doc, data);
+      });
     });
   });
 

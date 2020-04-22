@@ -165,12 +165,20 @@ export class Model {
     if (Array.isArray(schema) || (Array.isArray(schema.type) && schema.type.length >= 1)) {
       const type = Array.isArray(schema) ? schema : schema.type;
       const values = _.get(input, path, []);
+
+      // Pass array base to setField so it can be initialized.
+      promises.push(execute(path, {type}, _.get(input, path), doc));
+
       values.forEach((value, index) => {
-        if (typeof type[0] === 'object') {
+        if (typeof type[0] === 'object' && (!('type' in type[0]) || typeof type[0].type === 'object')) {
           for (const name of Object.keys(type[0])) {
             promises.push(this.iterateFields(`${path}[${index}].${name}`, type[0][name], input, doc, execute));
           }
-        } else {
+        }
+        else if (typeof type[0] === 'object' && 'type' in type[0]) {
+          promises.push(this.iterateFields(`${path}[${index}]`, type[0], input, doc, execute));
+        }
+        else {
           const field = {
             ...schema,
             type: type[0],
@@ -206,6 +214,11 @@ export class Model {
 
   protected setField(path, field, value, doc) {
     return new Promise((resolve, reject) => {
+      if (Array.isArray(field.type)) {
+        _.set(doc, path, Array.isArray(value) && value.length ? [] : _.get(doc, path, []));
+        return resolve();
+      }
+
       // Set default value
       if ((value === null || value === undefined) && field.hasOwnProperty('default')) {
         if (typeof field.default === 'function') {

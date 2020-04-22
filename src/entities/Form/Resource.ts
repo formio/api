@@ -8,6 +8,19 @@ export class Form extends Resource {
   }
 
   public async post(req, res, next) {
+    // Default to all roles can read the form.
+    req.body.access = (
+      'access' in req.body &&
+      Array.isArray(req.body.access) &&
+      req.body.access.length > 0
+    ) ?
+      req.body.access :
+      [
+        {
+          type: 'read_all',
+          roles: req.context.roles.all.map((role) => role._id),
+        },
+      ];
     this.callPromisesAsync([
       () => this.callSuper('post', req, res),
       () => this.createDefaultActions(req, res),
@@ -35,16 +48,16 @@ export class Form extends Resource {
     const components = formio.flattenComponents(form.components);
 
     return res.json(
-      Object.values(components).filter((key) => {
-        const component = components[key];
+      Object.values(components).filter((component) => {
         if (!filter) {
           return true;
         }
-        return Object.keys(filter).reduce((prev, value, prop) => {
+        return Object.keys(filter).reduce((prev, prop) => {
+          const value = filter[prop];
           if (!value) {
             return prev && _.has(component, prop);
           }
-          const actualValue = _.get(component, prop);
+          const actualValue = _.get(component, prop, '');
           return prev && actualValue.toString() === value.toString();
         }, true);
       }),
@@ -150,6 +163,71 @@ export class Form extends Resource {
     this.register('get', `${this.route}/:${this.name}Id/components`, 'components');
     this.register('get', `${this.route}/:${this.name}Id/exists`, 'exists');
     return this;
+  }
+
+  protected prepare(item, req) {
+    if (item.path) {
+      const fragments = item.path.split('/');
+      const index = this.app.config.reservedForms.indexOf(fragments[0]);
+      if (index !== -1) {
+        throw new Error('Form path cannot start with ' + this.app.config.reservedForms[index]);
+      }
+    }
+
+    const badCharacters = /^[^A-Za-z_]+|[^A-Za-z0-9\-\._]+/g;
+    /* eslint-enable no-useless-escape */
+    let error = false;
+    formio.eachComponent(req.body.components, (component) => {
+      // Remove all unsupported characters from api keys.
+      if (component.hasOwnProperty('key')) {
+        component.key = component.key.replace(badCharacters, '');
+      }
+      if (component.key === '' && !formio.isLayoutComponent(component)) {
+        error = true;
+      }
+    }, true);
+
+    if (error) {
+      throw new Error('All non-layout Form components must have a non-empty API Key.');
+    }
+
+    const dedupe = (access) => {
+      return Object.values(access.reduce((prev, item) => {
+        if (!item || typeof item !== 'object' || !item.type || !item.roles || !Array.isArray(item.roles)) {
+          return prev;
+        }
+        // Dedupe types.
+        if (!prev[item.type]) {
+          prev[item.type] = item;
+        }
+        else {
+          prev[item.type].roles = [...prev[item.type].roles, ...item.roles];
+        }
+
+        // Dedupe roles.
+        prev[item.type].roles = prev[item.type].roles.filter((role, index) => {
+          try {
+            this.app.db.toID(role);
+          }
+          catch (err) {
+            return false;
+          }
+          return prev[item.type].roles.indexOf(role) === index;
+        });
+
+        return prev;
+      }, {}));
+    };
+
+    if (item.access && Array.isArray(item.access)) {
+      item.access = dedupe(item.access);
+    }
+
+    if (item.submissionAccess && Array.isArray(item.submissionAccess)) {
+      item.submissionAccess = dedupe(item.submissionAccess);
+    }
+
+    return super.prepare(item, req);
   }
 
   private createDefaultActions(req, res) {

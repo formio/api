@@ -35,18 +35,7 @@ export class Api {
   }
 
   get reservedForms() {
-    return [
-      'submission',
-      'exists',
-      'export',
-      'role',
-      'current',
-      'logout',
-      'form',
-      'access',
-      'token',
-      'recaptcha',
-    ];
+    return this.config.reservedForms;
   }
 
   get beforePhases() {
@@ -242,7 +231,7 @@ export class Api {
       }
     });
 
-    return roles.map((role) => role.toString());
+    return roles.filter((role) => role).map((role) => role.toString());
   }
 
   /**
@@ -390,45 +379,51 @@ export class Api {
     // Throw away the first empty item.
     parts.shift();
 
-    parts.forEach((part, index) => {
-      if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
-        route.push(part);
-        route.push(`:${part}Id`);
-        req.context.params[`${part}Id`] = parts[index + 1];
-        const modelName = part.charAt(0).toUpperCase() + part.slice(1);
-        loads.push(this.loadEntity(req, modelName, {
-          _id: this.db.toID(parts[index + 1]),
-        })
-          .then((doc) => {
-            req.context.resources[part] = doc;
-          }));
-      }
-      else {
-        if (index === 0 || !this.resourceTypes.includes(parts[index - 1])) {
+    try {
+      parts.forEach((part, index) => {
+        if (this.resourceTypes.includes(part) && (index + 2) <= parts.length) {
           route.push(part);
+          route.push(`:${part}Id`);
+          req.context.params[`${part}Id`] = parts[index + 1];
+          const modelName = part.charAt(0).toUpperCase() + part.slice(1);
+          loads.push(this.loadEntity(req, modelName, {
+            _id: this.db.toID(parts[index + 1]),
+          })
+            .then((doc) => {
+              req.context.resources[part] = doc;
+            }));
         }
+        else {
+          if (index === 0 || !this.resourceTypes.includes(parts[index - 1])) {
+            route.push(part);
+          }
+        }
+      });
+      req.context.route = route.join('/');
+
+      // Load all, admin, and default roles.
+      loads.push(this.loadEntities(req, 'Role', {})
+        .then((roles) => req.context.roles.all = roles));
+      loads.push(this.loadEntities(req, 'Role', { admin: true })
+        .then((roles) => req.context.roles.admin = roles));
+      loads.push(this.loadEntities(req, 'Role', { default: true })
+        .then((roles) => req.context.roles.default = roles));
+
+      // Load actions associated with a form if we have a submission.
+      if (req.context.params.hasOwnProperty('formId')) {
+        loads.push(this.loadEntities(req, 'Action', {
+            entity: this.db.toID(req.context.params.formId),
+            entityType: 'form',
+          })
+            .then((actions) => {
+              req.context.actions = actions.sort((a, b) => b.priority - a.priority);
+            }),
+        );
       }
-    });
-    req.context.route = route.join('/');
+    }
 
-    // Load all, admin, and default roles.
-    loads.push(this.loadEntities(req, 'Role', {})
-      .then((roles) => req.context.roles.all = roles));
-    loads.push(this.loadEntities(req, 'Role', { admin: true })
-      .then((roles) => req.context.roles.admin = roles));
-    loads.push(this.loadEntities(req, 'Role', { default: true })
-      .then((roles) => req.context.roles.default = roles));
-
-    // Load actions associated with a form if we have a submission.
-    if (req.context.params.hasOwnProperty('formId')) {
-      loads.push(this.loadEntities(req, 'Action', {
-        entity: this.db.toID(req.context.params.formId),
-        entityType: 'form',
-      })
-        .then((actions) => {
-          req.context.actions = actions.sort((a, b) => b.priority - a.priority);
-        }),
-      );
+    catch (err) {
+      return res.status(400).send(err);
     }
 
     Promise.all(loads)
@@ -552,7 +547,7 @@ export class Api {
     }
     if (res.resource.item) {
       res.setHeader('Access-Control-Expose-Headers', headers.join(', '));
-      return res.send(res.resource.item);
+      return res.status(res.resource.status || 200).send(res.resource.item);
     }
     res.setHeader('Access-Control-Expose-Headers', headers.join(', '));
     res.status(404).send('Not found');

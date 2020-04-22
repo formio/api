@@ -52,12 +52,13 @@ export class Resource {
       const doc = await this.model.create(this.prepare(req.body, req), req.context.params);
       res.resource = {
         item: await this.finalize(doc, req),
+        status: 201,
       };
       this.app.log('debug', `resource post done for ${this.name}`);
       next();
     }
     catch (err) {
-      next(err);
+      res.status(400).send(err);
     }
   }
 
@@ -73,7 +74,7 @@ export class Resource {
       next();
     }
     catch (err) {
-      next(err);
+      res.status(400).send(err);
     }
   }
 
@@ -88,7 +89,7 @@ export class Resource {
       next();
     }
     catch (err) {
-      next(err);
+      res.status(400).send(err);
     }
   }
 
@@ -107,7 +108,7 @@ export class Resource {
       next();
     }
     catch (err) {
-      next(err);
+      res.status(400).send(err);
     }
   }
 
@@ -124,7 +125,7 @@ export class Resource {
       next();
     }
     catch (err) {
-      next(err);
+      res.status(400).send(err);
     }
   }
 

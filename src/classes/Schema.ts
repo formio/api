@@ -112,9 +112,10 @@ export class Schema {
           enum: this.enumPermissions,
           required: 'A permission type is required to associate an available permission with a given role.',
         },
-        roles: {
-          type: ['id'],
-        },
+        roles: [{
+          type: 'id',
+          ref: 'role',
+        }],
       },
     ];
   }

@@ -124,12 +124,19 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, router, app);
 
-      resource.get({ context: { params: { testId: '1' } } }, {}, (err) => {
-        assert(model.read.calledOnce, 'Should call read');
-        assert.deepEqual(model.read.args[0][0], { _id: '1' });
-        assert.equal(err, 'Not found');
-        done();
-      });
+      resource.get({ context: { params: { testId: '1' } } }, {
+        status: (status) => {
+          return {
+            send: (err) => {
+              assert(model.read.calledOnce, 'Should call read');
+              assert.deepEqual(model.read.args[0][0], { _id: '1' });
+              assert.equal(status, 400);
+              assert.equal(err, 'Not found');
+              done();
+            }
+          }
+        },
+      }, () => {});
     });
   });
 
@@ -143,7 +150,7 @@ describe('Resource.js', () => {
         foo: 'bar',
       };
 
-      resource.post({ body, context: { params: { testId: '1' } } }, {}, (err) => {
+      resource.post({ body, context: { params: { testId: '1' } } }, {}, () => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
         done();
@@ -159,12 +166,19 @@ describe('Resource.js', () => {
         foo: 'bar',
       };
 
-      resource.post({ body, context: { params: { testId: 1 } } }, {}, (err) => {
-        assert(model.create.calledOnce, 'Should call create');
-        assert.deepEqual(model.create.args[0][0], body);
-        assert.equal(err, 'Not found');
-        done();
-      });
+      resource.post({ body, context: { params: { testId: 1 } } }, {
+        status: (status) => {
+          return {
+            send: (err) => {
+              assert(model.create.calledOnce, 'Should call create');
+              assert.deepEqual(model.create.args[0][0], body);
+              assert.equal(status, 400);
+              assert.equal(err, 'Not found');
+              done();
+            }
+          }
+        },
+      }, () => {});
     });
 
     it('Allows overriding function', (done) => {
@@ -209,11 +223,18 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, router, app);
 
-      resource.put({ context: { params: { testId: '1' } }, body: { baz: 'bur' } }, {}, (err) => {
-        assert(model.update.calledOnce, 'Should call update');
-        assert.equal(err, 'Not found');
-        done();
-      });
+      resource.put({ context: { params: { testId: '1' } }, body: { baz: 'bur' } }, {
+        status: (status) => {
+          return {
+            send: (err) => {
+              assert(model.update.calledOnce, 'Should call update');
+              assert.equal(status, 400);
+              assert.equal(err, 'Not found');
+              done();
+            }
+          }
+        },
+      }, () => {});
     });
   });
 
@@ -268,12 +289,19 @@ describe('Resource.js', () => {
             op: 'remove',
             path: '/fiz',
           },
-        ] }, {}, (err) => {
-        assert(model.read.calledOnce, 'Should call read');
-        assert.deepEqual(model.read.args[0][0], {_id: '1'});
-        assert.equal(err, 'Not found');
-        done();
-      });
+        ] }, {
+        status: (status) => {
+          return {
+            send: (err) => {
+              assert(model.read.calledOnce, 'Should call read');
+              assert.deepEqual(model.read.args[0][0], {_id: '1'});
+              assert.equal(status, 400);
+              assert.equal(err, 'Not found');
+              done();
+            }
+          }
+        },
+      }, () => {});
     });
   });
 
@@ -295,12 +323,19 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, router, app);
 
-      resource.delete({ context: { params: { testId: '1' } } }, {}, (err) => {
-        assert(model.delete.calledOnce, 'Should call delete');
-        assert.deepEqual(model.delete.args[0][0], {_id: '1'});
-        assert.equal(err, 'Not found');
-        done();
-      });
+      resource.delete({ context: { params: { testId: '1' } } }, {
+        status: (status) => {
+          return {
+            send: (err) => {
+              assert(model.delete.calledOnce, 'Should call delete');
+              assert.deepEqual(model.delete.args[0][0], {_id: '1'});
+              assert.equal(status, 400);
+              assert.equal(err, 'Not found');
+              done();
+            }
+          }
+        },
+      }, () => {});
     });
   });
 });

@@ -87,6 +87,9 @@ export class SaveSubmission extends Action {
           formId: this.settings.resource,
           submissionId: externalSubmission._id,
         },
+        options: {
+          permissionsChecked: true,
+        },
       });
 
       if (this.settings.property) {
