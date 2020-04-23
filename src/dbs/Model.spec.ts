@@ -546,7 +546,14 @@ describe('Model.js', () => {
       const model = new Model(new TestSchema(app), db);
 
       return model.create({}).catch((error) => {
-        assert.equal(error, '\'foo\' is required');
+        assert.deepEqual(error, {
+          errors: {
+            foo: {
+              message: '\'foo\' is required',
+              path: 'foo'
+            }
+          }
+        });
       });
     });
 
@@ -837,7 +844,14 @@ describe('Model.js', () => {
 
       return model.create({ foo: 'bal' }).catch((error) => {
         assert(db.create.notCalled, 'Should not call db create');
-        assert.equal(error, 'Invalid enumerated option in \'foo\'');
+        assert.deepEqual(error, {
+          errors: {
+            foo: {
+              message: 'Invalid enumerated option in \'foo\'',
+              path: 'foo'
+            }
+          }
+        });
       });
     });
 
@@ -904,7 +918,14 @@ describe('Model.js', () => {
 
       return model.create({ foo: 'bar' }).catch((error) => {
         assert(db.create.notCalled, 'Should not call db create');
-        assert.equal(error, 'must pass sync validator');
+        assert.deepEqual(error, {
+          errors: {
+            foo: {
+              message: 'must pass sync validator',
+              path: 'foo',
+            }
+          }
+        });
       });
     });
 
@@ -977,7 +998,14 @@ describe('Model.js', () => {
 
       return model.create({ foo: 'bar' }).catch((error) => {
         assert(db.create.notCalled, 'Should not call db create');
-        assert.equal(error, 'must pass sync validator');
+        assert.deepEqual(error, {
+          errors: {
+            foo: {
+              message: 'must pass sync validator',
+              path: 'foo',
+            }
+          }
+        });
       });
     });
 

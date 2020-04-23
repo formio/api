@@ -160,59 +160,64 @@ export class Model {
     });
   }
 
-  protected iterateFields(path, schema, input, doc, execute) {
-    const promises = [];
+  protected async iterateFields(path, schema, input, result, execute) {
     if (Array.isArray(schema) || (Array.isArray(schema.type) && schema.type.length >= 1)) {
       const type = Array.isArray(schema) ? schema : schema.type;
       const values = _.get(input, path, []);
 
       // Pass array base to setField so it can be initialized.
-      promises.push(execute(path, {type}, _.get(input, path), doc));
+      await execute(path, {type}, input, result);
 
-      values.forEach((value, index) => {
+      await values.map(async (value, index) => {
         if (typeof type[0] === 'object' && (!('type' in type[0]) || typeof type[0].type === 'object')) {
           for (const name of Object.keys(type[0])) {
-            promises.push(this.iterateFields(`${path}[${index}].${name}`, type[0][name], input, doc, execute));
+            await this.iterateFields(`${path}[${index}].${name}`, type[0][name], input, result, execute);
           }
         }
         else if (typeof type[0] === 'object' && 'type' in type[0]) {
-          promises.push(this.iterateFields(`${path}[${index}]`, type[0], input, doc, execute));
+          await this.iterateFields(`${path}[${index}]`, type[0], input, result, execute);
         }
         else {
           const field = {
             ...schema,
             type: type[0],
           };
-          promises.push(this.iterateFields(`${path}[${index}]`, field, input, doc, execute));
+          await this.iterateFields(`${path}[${index}]`, field, input, result, execute);
         }
       });
     } else if (typeof schema.type === 'object') {
       for (const name of Object.keys(schema.type)) {
-        promises.push(this.iterateFields(`${path}.${name}`, schema.type[name], input, doc, execute));
+        await this.iterateFields(`${path}.${name}`, schema.type[name], input, result, execute);
       }
     } else {
-      promises.push(execute(path, schema, _.get(input, path), doc));
+      await execute(path, schema, input, result);
     }
-    return Promise.all(promises).then(() => doc);
+    return result;
   }
 
   protected async beforeSave(input, doc) {
     input = await this.schema.preSave(input, this);
 
     // Ensure all fields are set first.
-    await Promise.all(Object.keys(this.schema.schema).map((path) => {
-      return this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this));
-    }));
+    for (const path of Object.keys(this.schema.schema)) {
+      await this.iterateFields(path, this.schema.schema[path], input, doc, this.setField.bind(this));
+    }
 
     // Run validations.
-    await Promise.all(Object.keys(this.schema.schema).map((path) => {
-      return this.iterateFields(path, this.schema.schema[path], doc, doc, this.validateField.bind(this));
-    }));
+    const errors = {};
+    for (const path of Object.keys(this.schema.schema)) {
+      await this.iterateFields(path, this.schema.schema[path], doc, errors, this.validateField.bind(this));
+    }
+
+    if (Object.keys(errors).length) {
+      throw {errors};
+    }
 
     return doc;
   }
 
-  protected setField(path, field, value, doc) {
+  protected setField(path, field, input, doc) {
+    let value = _.get(input, path);
     return new Promise((resolve, reject) => {
       if (Array.isArray(field.type)) {
         _.set(doc, path, Array.isArray(value) && value.length ? [] : _.get(doc, path, []));
@@ -306,47 +311,52 @@ export class Model {
     });
   }
 
-  protected validateField(path, field, value, doc) {
-    return new Promise((resolve, reject) => {
-      const promises = [];
+  protected async validateField(path, field, input, errors) {
+    const value = _.get(input, path);
 
-      // Required
-      if (!value && value !== 0 && field.required) {
-        return reject(`'${path}' is required`);
+    // Required
+    if (!value && value !== 0 && field.required) {
+      errors[path] = {
+        path,
+        message: `'${path}' is required`,
+      };
+    }
+
+    // Enumerated values.
+    if (value && field.hasOwnProperty('enum')) {
+      if (!field.enum.includes(value)) {
+        errors[path] = {
+          path,
+          message: `Invalid enumerated option in '${path}'`,
+        };
       }
+    }
 
-      // Enumerated values.
-      if (value && field.hasOwnProperty('enum')) {
-        if (!field.enum.includes(value)) {
-          return reject(`Invalid enumerated option in '${path}'`);
-        }
-      }
-
-      // Validate the value
-      if (field.hasOwnProperty('validate') && Array.isArray(field.validate)) {
-        field.validate.forEach((item) => {
-          if (item.isAsync) {
-            promises.push(new Promise((resolve) => {
-              item.validator.call(doc, value, this, (result, message) =>
-                resolve(result ? true : message || item.message));
-            }));
-          } else {
-            if (!item.validator.call(doc, value, this)) {
-              return reject(item.message);
-            }
+    // Validate the value
+    if (field.hasOwnProperty('validate') && Array.isArray(field.validate)) {
+      for (const item of field.validate) {
+        if (item.isAsync) {
+          await new Promise((resolve) => {
+            item.validator.call(input, value, this, (result, message) => {
+              if (!result) {
+                errors[path] = {
+                  path,
+                  message: message || item.message,
+                };
+              }
+              resolve();
+            });
+          });
+        } else {
+          if (!item.validator.call(input, value, this)) {
+            errors[path] = {
+              path,
+              message: item.message,
+            };
           }
-        });
-      }
-
-      // Wait for async and check for errors.
-      return Promise.all(promises).then((result) => {
-        result = result.filter((item) => item !== true);
-        if (result.length) {
-          return reject(result[0]);
         }
-        return resolve(doc);
-      });
-    });
+      }
+    }
   }
 
   protected afterLoad(doc) {
@@ -361,7 +371,9 @@ export class Model {
       .then(() => doc);
   }
 
-  protected getField(path, field, value, doc) {
+  protected getField(path, field, input, doc) {
+    let value = _.get(input, path);
+
     // Use get function
     if (field.hasOwnProperty('get') && typeof field.set === 'function') {
       value = field.get(value);
