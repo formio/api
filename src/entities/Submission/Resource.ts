@@ -1,3 +1,4 @@
+import * as jsonpatch from 'fast-json-patch';
 import * as vm from 'vm';
 import {Resource} from '../../classes';
 import {log} from '../../log';
@@ -7,7 +8,6 @@ import {lodash as _} from '../../util/lodash';
 import {fields} from './fields';
 import {properties} from './properties';
 import {Validator} from './Validator';
-import * as jsonpatch from "fast-json-patch";
 
 export class Submission extends Resource {
   constructor(model, router, app) {
@@ -138,9 +138,10 @@ export class Submission extends Resource {
   }
 
   public getBody(req) {
-    const { data, owner, access, metadata } = req.body;
+    const { state, data, owner, access, metadata } = req.body;
 
     return {
+      state,
       data,
       owner,
       access,
