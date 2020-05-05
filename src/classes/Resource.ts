@@ -96,11 +96,14 @@ export class Resource {
   public async patch(req, res, next) {
     try {
       this.app.log('debug', `resource patch called for ${this.name}`);
-      const prev = await this.model.read({
-        _id: this.model.toID(req.context.params[`${this.name}Id`]),
-      }, req.context.params);
-      const patched = jsonpatch.applyPatch(prev, req.body);
-      const doc = await this.model.update(this.prepare(patched.newDocument, req), req.context.params);
+      let patched = req.body;
+      if (!req.patchApplied) {
+        const prev = await this.model.read({
+          _id: this.model.toID(req.context.params[`${this.name}Id`]),
+        }, req.context.params);
+        patched = jsonpatch.applyPatch(prev, req.body).newDocument;
+      }
+      const doc = await this.model.update(this.prepare(patched, req), req.context.params);
       res.resource = {
         item: await this.finalize(doc, req),
       };
@@ -273,6 +276,9 @@ export class Resource {
     // Ensure they can't change the id.
     if (req.context.params[`${this.name}Id`]) {
       item._id = req.context.params[`${this.name}Id`];
+    }
+    else {
+      delete item._id;
     }
 
     // TODO: Fix this so only those with "create_own" can set or change the owner.

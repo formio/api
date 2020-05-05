@@ -75,26 +75,37 @@ for (const display of Object.keys(Displays.displays)) {
 export class Validator {
   public model: any;
   public form: any;
+  public req: any;
   public token: any;
 
-  constructor(form, model, token) {
+  constructor(form, model, req) {
     // Wrap the model since formio.js expects a callback function and the server provides a promise.
     this.model = Object.assign(
       Object.create( Object.getPrototypeOf(model)),
       model,
       {
-        findOne: async (query = {}, next) => {
+        findOne: async (query: any = {}, next) => {
+          // Remove legacy deleted option. (Handled by Model now)
+          delete query.deleted;
+
+          // Convert form to ID.
+          if (query.form) {
+            query.form = this.model.db.toID(query.form);
+          }
+
           try {
-            const result = await model.findOne(query);
+            const result = await model.findOne(query, {}, req.context.params);
             next(null, result);
-          } catch (err) {
+          }
+          catch (err) {
             next(err);
           }
         },
       },
   );
     this.form = form;
-    this.token = token;
+    this.req = req;
+    this.token = req.token;
   }
 
   /**

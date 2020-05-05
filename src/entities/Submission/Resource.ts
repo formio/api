@@ -7,6 +7,7 @@ import {lodash as _} from '../../util/lodash';
 import {fields} from './fields';
 import {properties} from './properties';
 import {Validator} from './Validator';
+import * as jsonpatch from "fast-json-patch";
 
 export class Submission extends Resource {
   constructor(model, router, app) {
@@ -106,6 +107,7 @@ export class Submission extends Resource {
   public async patch(req, res, next) {
     log('debug', 'submission patch called');
     this.callPromisesAsync([
+      this.initializePatch.bind(this, req, res),
       this.initializeSubmission.bind(this, req, res),
       this.executeFieldHandlers.bind(this, 'beforeValidate', 'patch', req, res),
       this.validateSubmission.bind(this, req, res),
@@ -180,10 +182,22 @@ export class Submission extends Resource {
     return Promise.resolve();
   }
 
+  public async initializePatch(req, res) {
+    log('initializePatch');
+    req.patchApplied = true;
+    const prev = await this.model.read({
+      _id: this.model.toID(req.context.params[`${this.name}Id`]),
+    }, req.context.params);
+    req.body = jsonpatch.applyPatch(prev, req.body).newDocument;
+  }
+
   public validateSubmission(req, res) {
     log('debug', 'validateSubmission');
-    return new Promise((resolve) => {
-      const validator = new Validator(req.context.resources.form, this.app.models.Submission, req.token);
+    return new Promise(async (resolve) => {
+      const form = _.cloneDeep(req.context.resources.form);
+      await this.app.resources.Form.loadSubForms(form, req);
+
+      const validator = new Validator(form, this.app.models.Submission, req);
       validator.validate(req.body, (err, data) => {
         if (err) {
           return res.status(400).json(err);

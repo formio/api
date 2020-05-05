@@ -4,7 +4,7 @@ import {lodash as _} from '../../../util/lodash';
 export const form = async (component, data, handler, action, { req, res, app }) => {
   if (['afterValidate'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {
     // Get the submission object.
-    const body = _.get(data, component.key);
+    const body = _.get(data, component.key, {});
 
     // Make sure to pass along the submission state to the subforms.
     if (req.body.state) {
@@ -52,7 +52,6 @@ export const form = async (component, data, handler, action, { req, res, app }) 
     _.set(data, component.key, {
       _id: app.db.toID(childSubmission._id),
     });
-    return;
   }
 
   if (['afterActions'].includes(handler) && ['put', 'patch', 'post'].includes(action)) {

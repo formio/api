@@ -105,7 +105,7 @@ export class Action {
                   title: 'Delete',
                 },
                 {
-                  name: 'resources.js',
+                  name: 'index',
                   title: 'Index',
                 },
               ]) },
