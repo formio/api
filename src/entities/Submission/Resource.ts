@@ -138,10 +138,9 @@ export class Submission extends Resource {
   }
 
   public getBody(req) {
-    const { state, data, owner, access, metadata } = req.body;
+    const { data, owner, access, metadata } = req.body;
 
     return {
-      state,
       data,
       owner,
       access,
