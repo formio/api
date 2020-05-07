@@ -11,6 +11,11 @@ export const form = async (component, data, handler, action, { req, res, app }) 
       body.state = req.body.state;
     }
 
+    // If there is no data to submit (like a hidden form), don't submit.
+    if (!body.data) {
+      return;
+    }
+
     // if there isn't a sub-submission or the sub-submission has an _id, don't submit.
     // Should be submitted from the frontend.
     if (
