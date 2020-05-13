@@ -67,10 +67,14 @@ export class Form extends Resource {
   public async exists(req, res, next) {
     const query = this.indexQuery(req);
 
+    if (Object.keys(_.omit(query, ['project'])).length === 0) {
+      return res.status(400).send('Query required');
+    }
+
     // Make sure we can only query the current form.
     query.form = this.app.db.toID(req.context.params.formId);
 
-    const submission = await this.app.models.Submission.findOne(query, null, req.context.params);
+    const submission = await this.app.models.Submission.findOne(query, {}, req.context.params);
 
     if (!submission || !submission._id) {
       return res.status(404).send('Not found');

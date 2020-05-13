@@ -20,6 +20,7 @@ export class Submission extends Schema {
       owner: {
         index: true,
         default: null,
+        type: 'id',
         looseType: true,
         get: (owner) => {
           return owner ? owner.toString() : owner;

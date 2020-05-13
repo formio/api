@@ -36,6 +36,11 @@ export class SaveSubmission extends Action {
   }
 
   public async resolve({ req }, setActionInfoMessage) {
+    // Don't run the action if dryrun is set.
+    if (req.query && req.query.dryrun) {
+      return;
+    }
+
     req.skipResource = false;
 
     if (this.settings && this.settings.resource) {

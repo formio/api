@@ -138,7 +138,27 @@ export class Submission extends Resource {
   }
 
   public getBody(req) {
-    const { data, owner, access, metadata } = req.body;
+    let { data, owner, access, metadata } = req.body;
+
+    // Only allow setting owner if has "all" type permission.
+    if (req.permissionType !== 'all') {
+      owner = undefined;
+    }
+
+    if (req.context.resources.submission) {
+      if (!data) {
+        data = req.context.resources.submission.data;
+      }
+      if (!owner) {
+        owner = req.context.resources.submission.owner;
+      }
+      if (!access) {
+        access = req.context.resources.submission.access;
+      }
+      if (!metadata) {
+        metadata = req.context.resources.submission.metadata;
+      }
+    }
 
     return {
       data,
@@ -154,7 +174,6 @@ export class Submission extends Resource {
 
     req.body = this.getBody(req);
 
-    // Ensure there is always a data body.
     req.body.data = req.body.data || {};
 
     // Ensure they cannot reset the submission id.

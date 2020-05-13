@@ -244,6 +244,16 @@ export class Resource {
       }
     }
 
+    if (req.permissionType === 'owner') {
+      if (req.user) {
+        query.owner = this.app.db.toID(req.user._id);
+      }
+      else {
+        // This is anonymous when owner filter is used. Create a query that returns nothing.
+        query.owner = false;
+      }
+    }
+
     return query;
   }
 
@@ -281,8 +291,7 @@ export class Resource {
       delete item._id;
     }
 
-    // TODO: Fix this so only those with "create_own" can set or change the owner.
-    if (!item.owner && req.user) {
+    if (req.method.toUpperCase() === 'POST' && !item.owner && req.user) {
       item.owner = req.user._id;
     }
 

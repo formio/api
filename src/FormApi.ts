@@ -91,6 +91,7 @@ export class Api {
    */
   get methodPermissions(): any {
     return {
+      INDEX: { all: 'read_all', own: 'read_own' },
       POST: { all: 'create_all', own: 'create_own' },
       GET: { all: 'read_all', own: 'read_own' },
       PUT: { all: 'update_all', own: 'update_own' },
@@ -170,9 +171,10 @@ export class Api {
   public primaryEntity(req) {
     let entity = null;
     this.resourceTypes.forEach((type) => {
-      if (req.context.resources.hasOwnProperty(type) && !entity) {
+      if (req.context.resources.hasOwnProperty(type) && req.context.resources[type] && !entity) {
         entity = {
           type,
+          owner: req.context.resources[type].owner,
           id: req.context.resources[type]._id,
         };
       }
@@ -187,47 +189,29 @@ export class Api {
    * @param info
    * @param method
    */
-  public entityPermissionRoles(req, info, method) {
+  public entityPermissionRoles(req, info, method, type) {
     const entity = req.context.resources[info.type];
     let permissionEntity = entity;
     let accessKey = 'access';
+
     // Submissions check their permissions against the form so use it instead.
-    if (info.type === 'submission') {
+    if (
+      (info.type === 'submission') ||
+      (info.type === 'form' && method === 'POST') ||
+      (info.type === 'form' && method === 'INDEX')
+    ) {
       permissionEntity = req.context.resources.form;
       accessKey = 'submissionAccess';
     }
-    // When creating a new submission, the type is form but the method is post.
-    if (info.type === 'form' && method === 'POST') {
-      accessKey = 'submissionAccess';
-    }
+
     let roles = [];
 
     if (!permissionEntity || !permissionEntity[accessKey] || !Array.isArray(permissionEntity[accessKey])) {
       return roles;
     }
     permissionEntity[accessKey].forEach((access) => {
-      // Handle "all" permission
-      if (access.type === this.methodPermissions[method].all) {
+      if (access.type === type) {
         roles = [...roles, ...access.roles];
-      }
-      // Handle "own" permission
-      if (access.type === this.methodPermissions[method].own) {
-        if (
-          (req.user && entity.owner === req.user._id) ||
-          method === 'POST'
-        ) {
-          roles = [...roles, ...access.roles];
-        }
-      }
-      // Handle "self" permission
-      if (access.type === 'self') {
-        if (req.user._id === entity._id) {
-          // Find *_own permission again.
-          const ownAccess = entity[accessKey].filter((access) => access.type === this.methodPermissions[method].own);
-          if (ownAccess.length) {
-            roles = [...roles, ...ownAccess[0].roles];
-          }
-        }
       }
     });
 
@@ -479,16 +463,52 @@ export class Api {
     if (!entity) {
       return next();
     }
-    const method = req.method.toUpperCase();
-    const entityPermissionRoles = this.entityPermissionRoles(req, entity, method);
+    let method = req.method.toUpperCase();
+
+    // TODO: Get a better way of determining index requests.
+    // Index requests will do the filtering on the query so allow use of own permissions even if they aren't the
+    // owner of the current entity.
+    const lastPart = req.path.split('/').slice(-1)[0];
+    if (method === 'GET' && this.resourceTypes.includes(lastPart)) {
+      method = 'INDEX';
+    }
+
+    const allRoles = this.entityPermissionRoles(req, entity, method, this.methodPermissions[method].all);
+    const ownRoles = this.entityPermissionRoles(req, entity, method, this.methodPermissions[method].own);
     const userRoles = this.userRoles(req);
 
-    // Determine if there is an intersection of the user roles and roles that have permission to access the entity.
+    // Determine if there is an intersection of the user roles and roles that have permission to access the entity
+    // regardless of owner.
     if (
-      (userRoles.filter((role) => -1 !== entityPermissionRoles.indexOf(role))).length !== 0
+      (userRoles.filter((role) => -1 !== allRoles.indexOf(role))).length !== 0
     ) {
+      req.permissionType = 'all';
       return next();
     }
+
+    // Determine if there is an intersection of the user roles and roles that have permission to access only own items.
+    if (
+      (
+        (req.user && entity.owner === req.user._id) ||
+        method === 'POST' ||
+        (req.user && method === 'INDEX')
+      ) &&
+      (userRoles.filter((role) => -1 !== ownRoles.indexOf(role))).length !== 0
+    ) {
+      req.permissionType = 'owner';
+      return next();
+    }
+
+    // TODO: Handle "self" permission
+    // if (access.type === 'self') {
+    //   if (req.user._id === entity._id) {
+    //     // Find *_own permission again.
+    //     const ownAccess = entity[accessKey].filter((access) => access.type === this.methodPermissions[method].own);
+    //     if (ownAccess.length) {
+    //       roles = [...roles, ...ownAccess[0].roles];
+    //     }
+    //   }
+    // }
 
     // If they don't have access by now, they don't have access.
     return res.status(401).send('Unauthorized');

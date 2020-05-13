@@ -150,7 +150,7 @@ describe('Resource.js', () => {
         foo: 'bar',
       };
 
-      resource.post({ body, context: { params: { testId: '1' } } }, {}, () => {
+      resource.post({ body, context: { params: { testId: '1' } }, method: 'POST' }, {}, () => {
         assert(model.create.calledOnce, 'Should call create');
         assert.deepEqual(model.create.args[0][0], body);
         done();
@@ -166,7 +166,7 @@ describe('Resource.js', () => {
         foo: 'bar',
       };
 
-      resource.post({ body, context: { params: { testId: 1 } } }, {
+      resource.post({ body, context: { params: { testId: 1 } }, method: 'POST' }, {
         status: (status) => {
           return {
             send: (err) => {
@@ -193,7 +193,7 @@ describe('Resource.js', () => {
         foo: 'bar',
       };
 
-      resource.post({ body, context: { params: { testId: '1' } } }, {}, (err) => {
+      resource.post({ body, context: { params: { testId: '1' } }, method: 'POST' }, {}, (err) => {
         sinon.assert.callOrder(
           Child.prototype.post as sinon.SinonSpy,
           Child.prototype.before as sinon.SinonSpy,
@@ -211,7 +211,7 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, router, app);
 
-      resource.put({ context: { params: { testId: '1' } }, body: { baz: 'bur' } }, {}, (err) => {
+      resource.put({ context: { params: { testId: '1' } }, body: { baz: 'bur' }, method: 'PUT' }, {}, (err) => {
         assert(model.update.calledOnce, 'Should call update');
         assert.deepEqual(model.update.args[0][0], { baz: 'bur', _id: '1' });
         done();
@@ -223,7 +223,7 @@ describe('Resource.js', () => {
 
       const resource = new Resource(model, router, app);
 
-      resource.put({ context: { params: { testId: '1' } }, body: { baz: 'bur' } }, {
+      resource.put({ context: { params: { testId: '1' } }, body: { baz: 'bur' }, method: 'PUT' }, {
         status: (status) => {
           return {
             send: (err) => {
@@ -246,6 +246,7 @@ describe('Resource.js', () => {
       const resource = new Resource(model, router, app);
 
       resource.patch({
+        method: 'PATCH',
         context: {
           params: {
             testId: '1',
@@ -274,6 +275,7 @@ describe('Resource.js', () => {
       const resource = new Resource(model, router, app);
 
       resource.patch({
+        method: 'PATCH',
         context: {
           params: {
             testId: '1',
