@@ -114,7 +114,7 @@ export class Model {
   }
 
   public findOne(query = {}, options = {}, context = {}) {
-    return this.find(query, context, options)
+    return this.find(query, options, context)
       .then((docs) => docs[0]);
   }
 

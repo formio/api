@@ -22,8 +22,8 @@ export class Access extends Route {
 
   public execute(req, res) {
     Promise.all([
-      this.app.models.Role.find({}),
-      this.app.models.Form.find({}),
+      this.app.models.Role.find({}, {}, req.context.params),
+      this.app.models.Form.find({}, {}, req.context.params),
     ])
       .then((results) => {
         res.send({

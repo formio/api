@@ -74,7 +74,7 @@ export const form = async (component, data, handler, action, { req, res, app }) 
         const submission = await app.models.Submission.findOne({
           _id: app.db.toID(compValue._id),
           deleted: { $eq: null },
-        });
+        }, {}, req.context.params);
         let found = false;
         submission.externalIds = submission.externalIds || [];
         submission.externalIds.forEach((externalId) => {
