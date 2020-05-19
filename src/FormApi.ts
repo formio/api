@@ -427,6 +427,7 @@ export class Api {
 
   public authorize(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'authorize');
+    req.isAdmin = false;
 
     if (req.permissionsChecked) {
       log('info', req.uuid, 'Permissions already checked');
@@ -435,6 +436,7 @@ export class Api {
 
     if (this.config.adminKey) {
       // If admin key is set in config and matches what is sent in the header,
+      req.isAdmin = true;
       if (req.headers['x-admin-key'] && this.config.adminKey === req.headers['x-admin-key']) {
         return next();
       }
@@ -469,7 +471,10 @@ export class Api {
     // Index requests will do the filtering on the query so allow use of own permissions even if they aren't the
     // owner of the current entity.
     const lastPart = req.path.split('/').slice(-1)[0];
-    if (method === 'GET' && this.resourceTypes.includes(lastPart)) {
+    if (
+      method === 'GET' && this.resourceTypes.includes(lastPart) ||
+      method === 'GET' && lastPart === 'export'
+    ) {
       method = 'INDEX';
     }
 

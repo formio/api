@@ -85,6 +85,84 @@ export class Form extends Resource {
     });
   }
 
+  public async export(req, res, next) {
+    const form = req.context.resources.form;
+    const exporters = {
+      json: {
+        extension: 'json',
+        contentType: 'application/json',
+      },
+      csv: {
+        extension: 'csv',
+        contentType: 'text/csv',
+      },
+    };
+
+    // Don't allow anonymous access to export.
+    if (!req.isAdmin && !req.user) {
+      return res.sendStatus(400);
+    }
+
+    // Get the export format.
+    const format = (req.query && req.query.format)
+      ? req.query.format.toLowerCase()
+      : 'json';
+
+    const exporter = exporters[format];
+
+    // Handle unknown formats.
+    if (!exporters.hasOwnProperty(format)) {
+      return res.status(400).send('Unknown format');
+    }
+
+    // Allow them to provide a query.
+    let query: any = {};
+    if (req.headers.hasOwnProperty('x-query')) {
+      try {
+        query = JSON.parse(req.headers['x-query']);
+      }
+      catch (err) {
+        res.status(400).send(err);
+      }
+    }
+    else {
+      query = this.indexQuery(req);
+    }
+
+    // Enforce the form.
+    query.form = this.app.db.toID(req.context.params.formId);
+
+    // Skip this owner filter, if the user is the admin or owner.
+    if (req.permissionType !== 'all' && !req.isAdmin) {
+      // The default ownerFilter query.
+      query.owner = this.app.db.toID(req.token.user._id);
+    }
+
+    // Load sub forms.
+    await this.app.resources.Form.loadSubForms(form, req);
+
+    // TODO: Need to use a cursor or limit in a cross database compatible way.
+    const submissions = await this.app.models.Submission.find(query, {}, req.context.params);
+
+    Promise.all(submissions.map(async (submission) => {
+      // Load sub submissions.
+      await this.app.resources.Submission.loadReferences(form, submission, req);
+    }));
+
+    res.resource = {
+      items: submissions,
+    };
+
+    // Perform after actions like remove protected fields.
+    await this.app.resources.Submission.executeFieldHandlers('afterActions', 'index', req, res);
+
+    // TODO Implement exporters.
+    res.setHeader('Content-Disposition', `attachment; filename=export.${exporter.extension}`);
+    res.setHeader('Content-Type', exporter.contentType);
+
+    res.send(res.resource.items);
+  }
+
   public callSuper(method, req, res) {
     return new Promise((resolve, reject) => {
       super[method](req, res, (err) => {
@@ -166,6 +244,7 @@ export class Form extends Resource {
     super.rest();
     this.register('get', `${this.route}/:${this.name}Id/components`, 'components');
     this.register('get', `${this.route}/:${this.name}Id/exists`, 'exists');
+    this.register('get', `${this.route}/:${this.name}Id/export`, 'export');
     return this;
   }
 
