@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.6.0
+### Added
+ - Export endpoint for forms
+ 
+### Changed
+ - Upgrade formio.js to 4.10.0-beta.20
+
 ## 0.5.2
 ### Fixed
  - Many bug fixes and refactors to pass form tests.
