@@ -290,7 +290,8 @@ export class Form extends Resource {
         // Dedupe roles.
         prev[item.type].roles = prev[item.type].roles.filter((role, index) => {
           try {
-            this.app.db.toID(role);
+            // This is a little weird but we need to test if the value will convert to the id but store as string.
+            role = this.app.db.toID(role).toString();
           }
           catch (err) {
             return false;
