@@ -374,6 +374,9 @@ export class Api {
             _id: this.db.toID(parts[index + 1]),
           })
             .then((doc) => {
+              if (!doc) {
+                throw new Error(`Could not find ${part} ${parts[index + 1]}`);
+              }
               req.context.resources[part] = doc;
             }));
         }
@@ -415,7 +418,7 @@ export class Api {
         next();
       })
       .catch((err) => {
-        next(err);
+        res.status(400).send(err);
       });
   }
 

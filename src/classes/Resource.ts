@@ -209,11 +209,14 @@ export class Resource {
             parts = value.match(/\/?([^/]+)\/?([^/]+)?/);
 
             try {
-              value = new RegExp(parts[1], (parts[2] || 'i'));
+              value = new RegExp(parts[1]);
             } catch (err) {
               value = null;
             }
-            query[name] = value;
+            query[name] = {
+              $regex: value,
+              $options: parts[2] || 'i',
+            };
             break;
           case 'exists':
             value = ((value === 'true') || (value === '1')) ? true : value;

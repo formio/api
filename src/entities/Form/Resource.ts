@@ -295,6 +295,10 @@ export class Form extends Resource {
           catch (err) {
             return false;
           }
+          // Filter out common problems.
+          if (!role || role === 'undefined' || role === 'null' || role === '{}' || role === '[object Object]') {
+            return false;
+          }
           return prev[item.type].roles.indexOf(role) === index;
         });
 
