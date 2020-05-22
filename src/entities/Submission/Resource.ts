@@ -141,7 +141,7 @@ export class Submission extends Resource {
     let { data, owner, access, metadata } = req.body;
 
     // Only allow setting owner if has "all" type permission.
-    if (req.permissionType !== 'all') {
+    if (!req.permissions.all && !req.permissions.admin) {
       owner = undefined;
     }
 

@@ -247,13 +247,24 @@ export class Resource {
       }
     }
 
-    if (req.permissionType === 'owner') {
-      if (req.user) {
-        query.owner = this.app.db.toID(req.user._id);
-      }
-      else {
-        // This is anonymous when owner filter is used. Create a query that returns nothing.
+    // If user has all or admin, don't add an owner query.
+    if (!req.permissions.all && !req.permissions.admin && req.permissions.owner) {
+      // This is anonymous when owner filter is used. Create a query that returns nothing.
+      if (!req.user) {
         query.owner = false;
+      }
+      else if (req.permissions.owner && req.permissions.self) {
+        query.$or = [
+          {
+            owner: this.app.db.toID(req.user._id),
+          },
+          {
+            _id: this.app.db.toID(req.user._id),
+          },
+        ];
+      }
+      else if (req.permissions.owner) {
+        query.owner = this.app.db.toID(req.user._id);
       }
     }
 

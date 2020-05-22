@@ -99,7 +99,7 @@ export class Form extends Resource {
     };
 
     // Don't allow anonymous access to export.
-    if (!req.isAdmin && !req.user) {
+    if (!req.permissions.admin && !req.user) {
       return res.sendStatus(400);
     }
 
@@ -133,7 +133,7 @@ export class Form extends Resource {
     query.form = this.app.db.toID(req.context.params.formId);
 
     // Skip this owner filter, if the user is the admin or owner.
-    if (req.permissionType !== 'all' && !req.isAdmin) {
+    if (!req.permissions.all && !req.permissions.admin) {
       // The default ownerFilter query.
       query.owner = this.app.db.toID(req.token.user._id);
     }

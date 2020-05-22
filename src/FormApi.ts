@@ -209,6 +209,12 @@ export class Api {
     if (!permissionEntity || !permissionEntity[accessKey] || !Array.isArray(permissionEntity[accessKey])) {
       return roles;
     }
+
+    // Exception for "self" access.
+    if (type === 'self') {
+      return permissionEntity[accessKey].reduce((hasSelf, access) => hasSelf || access.type === 'self', false);
+    }
+
     permissionEntity[accessKey].forEach((access) => {
       if (access.type === type) {
         roles = [...roles, ...access.roles];
@@ -358,6 +364,13 @@ export class Api {
     const loads = [];
     const route = [''];
 
+    req.permissions = {
+      all: false,
+      own: false,
+      self: false,
+      admin: false,
+    };
+
     // Load any resources listed in path.
     const parts = req.path.split('/');
     // Throw away the first empty item.
@@ -430,7 +443,6 @@ export class Api {
 
   public authorize(req, res, next) {
     log('info', req.uuid, req.method, req.path, 'authorize');
-    req.isAdmin = false;
 
     if (req.permissionsChecked) {
       log('info', req.uuid, 'Permissions already checked');
@@ -439,7 +451,7 @@ export class Api {
 
     if (this.config.adminKey) {
       // If admin key is set in config and matches what is sent in the header,
-      req.isAdmin = true;
+      req.permissions.admin = true;
       if (req.headers['x-admin-key'] && this.config.adminKey === req.headers['x-admin-key']) {
         return next();
       }
@@ -490,33 +502,25 @@ export class Api {
     if (
       (userRoles.filter((role) => -1 !== allRoles.indexOf(role))).length !== 0
     ) {
-      req.permissionType = 'all';
+      req.permissions.all = true;
       return next();
     }
+
+    req.permissions.self = this.entityPermissionRoles(req, entity, method, 'self');
 
     // Determine if there is an intersection of the user roles and roles that have permission to access only own items.
     if (
       (
         (req.user && entity.owner === req.user._id) ||
+        (req.user && req.permissions.self && entity.id === req.user._id) ||
         method === 'POST' ||
         (req.user && method === 'INDEX')
       ) &&
       (userRoles.filter((role) => -1 !== ownRoles.indexOf(role))).length !== 0
     ) {
-      req.permissionType = 'owner';
+      req.permissions.owner = true;
       return next();
     }
-
-    // TODO: Handle "self" permission
-    // if (access.type === 'self') {
-    //   if (req.user._id === entity._id) {
-    //     // Find *_own permission again.
-    //     const ownAccess = entity[accessKey].filter((access) => access.type === this.methodPermissions[method].own);
-    //     if (ownAccess.length) {
-    //       roles = [...roles, ...ownAccess[0].roles];
-    //     }
-    //   }
-    // }
 
     // If they don't have access by now, they don't have access.
     return res.status(401).send('Unauthorized');
