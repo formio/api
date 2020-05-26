@@ -260,10 +260,10 @@ export class Resource {
 
     const userRoles = [
       this.app.db.toID(req.user._id),
-      ...(req.user.roles || []).map(entity => this.app.db.toID(entity)),
+      ...(req.user.roles || []).map((entity) => this.app.db.toID(entity)),
     ];
 
-    let or: any = [
+    const or: any = [
       {
         owner: this.app.db.toID(req.user._id),
       },
@@ -279,7 +279,7 @@ export class Resource {
       });
     }
 
-    query['$or'] = or;
+    query.$or = or;
     return query;
   }
 

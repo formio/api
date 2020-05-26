@@ -202,18 +202,18 @@ export class Submission extends Resource {
           const ids = value.map((item) => item && item._id ? item._id : false).filter((item) => item);
           if (ids.length) {
             const perm = _.find(req.body.access, {
-              type: component.defaultPermission
+              type: component.defaultPermission,
             });
             if (perm) {
               perm.resources = [
                 ...perm.resources,
                 ...ids,
-              ]
+              ];
             }
             else {
               req.body.access.push({
                 type: component.defaultPermission,
-                resources: ids
+                resources: ids,
               });
             }
           }
@@ -222,7 +222,7 @@ export class Submission extends Resource {
     }, {});
 
     // Only allow valid permissions
-    req.body.access = req.body.access.filter(access => ['create', 'read', 'write', 'admin'].includes(access.type));
+    req.body.access = req.body.access.filter((access) => ['create', 'read', 'write', 'admin'].includes(access.type));
 
     // Ensure response is set.
     res.resource = {

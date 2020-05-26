@@ -508,7 +508,7 @@ export class Api {
     let fieldAdmins = [];
     if (entity.type === 'submission') {
       const permissions = [];
-      switch(method) {
+      switch (method) {
         case 'GET':
         case 'INDEX':
           permissions.push('read');
@@ -533,7 +533,7 @@ export class Api {
             fieldAdmins = [
               ...fieldAdmins,
               ...access.resources,
-            ]
+            ];
           }
         }
       });
