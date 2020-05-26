@@ -83,7 +83,7 @@ describe('Resource.js', () => {
         context: {
           params: { testId: '1' },
         },
-        permissions: {},
+        permissions: { admin: { all: true } },
         query: {
           'data.name': 'joe',
           'data.age__gt': 20,

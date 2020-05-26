@@ -220,7 +220,7 @@ export class Model {
     let value = _.get(input, path);
     return new Promise((resolve, reject) => {
       if (Array.isArray(field.type)) {
-        _.set(doc, path, Array.isArray(value) && value.length ? [] : _.get(doc, path, []));
+        _.set(doc, path, Array.isArray(value) && value.length ? [] : _.get(input, path, []));
         return resolve();
       }
 

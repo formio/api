@@ -54,22 +54,22 @@ export class Schema {
     // Define the available permissions for a submission.
     const available = [
       'read',
+      'create',
       'write',
       'admin',
     ];
 
     return [
       {
-        _id: false,
         type: {
           type: 'string',
           enum: available,
           required: 'A permission type is required to associate an available permission with a Resource.',
         },
-        resources: {
+        resources: [{
           type: 'id',
           ref: 'form',
-        },
+        }],
       },
     ];
   }

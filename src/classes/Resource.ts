@@ -247,27 +247,39 @@ export class Resource {
       }
     }
 
-    // If user has all or admin, don't add an owner query.
-    if (!req.permissions.all && !req.permissions.admin && req.permissions.owner) {
-      // This is anonymous when owner filter is used. Create a query that returns nothing.
-      if (!req.user) {
-        query.owner = false;
-      }
-      else if (req.permissions.owner && req.permissions.self) {
-        query.$or = [
-          {
-            owner: this.app.db.toID(req.user._id),
-          },
-          {
-            _id: this.app.db.toID(req.user._id),
-          },
-        ];
-      }
-      else if (req.permissions.owner) {
-        query.owner = this.app.db.toID(req.user._id);
-      }
+    // If all or admin, don't impose owner filters.
+    if (req.permissions.all || req.permissions.admin) {
+      return query;
     }
 
+    // Anonymous is not allowed to use owner permissions
+    if (!req.user) {
+      query.owner = false;
+      return query;
+    }
+
+    const userRoles = [
+      this.app.db.toID(req.user._id),
+      ...(req.user.roles || []).map(entity => this.app.db.toID(entity)),
+    ];
+
+    let or: any = [
+      {
+        owner: this.app.db.toID(req.user._id),
+      },
+      {
+        'access.type': { $in: ['read', 'write', 'admin'] },
+        'access.resources': { $in: userRoles },
+      },
+    ];
+
+    if (req.permissions.self) {
+      or.push({
+        _id: this.app.db.toID(req.user._id),
+      });
+    }
+
+    query['$or'] = or;
     return query;
   }
 

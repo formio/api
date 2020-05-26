@@ -241,6 +241,7 @@ export class Api {
 
     return [
       ...req.user.roles,
+      req.user._id, // Used by field based resource access.
       EVERYONE,
     ];
   }
@@ -493,17 +494,70 @@ export class Api {
       method = 'INDEX';
     }
 
+    // Special case to prevent filtering of /exists endpoint
+    if (lastPart === 'exists') {
+      req.permissions.all = true;
+    }
+
     const allRoles = this.entityPermissionRoles(req, entity, method, this.methodPermissions[method].all);
     const ownRoles = this.entityPermissionRoles(req, entity, method, this.methodPermissions[method].own);
     const userRoles = this.userRoles(req);
 
+    // Handle field based resource access.
+    let fieldEntities = [];
+    let fieldAdmins = [];
+    if (entity.type === 'submission') {
+      const permissions = [];
+      switch(method) {
+        case 'GET':
+        case 'INDEX':
+          permissions.push('read');
+        case 'POST':
+          permissions.push('create');
+        case 'PUT':
+        case 'PATCH':
+          permissions.push('write');
+        case 'DELETE':
+          permissions.push('admin');
+      }
+
+      const { submission } = req.context.resources;
+      submission.access.forEach((access) => {
+        if (permissions.includes(access.type)) {
+          fieldEntities = [
+            ...fieldEntities,
+            ...access.resources,
+          ];
+          // Save admins separately so we can check to see if they have admin permissions as well.
+          if (access.type === 'admin') {
+            fieldAdmins = [
+              ...fieldAdmins,
+              ...access.resources,
+            ]
+          }
+        }
+      });
+    }
+
     // Determine if there is an intersection of the user roles and roles that have permission to access the entity
     // regardless of owner.
-    if (
-      (userRoles.filter((role) => -1 !== allRoles.indexOf(role))).length !== 0
-    ) {
+    if ((userRoles.filter((role) => -1 !== allRoles.indexOf(role))).length !== 0) {
       req.permissions.all = true;
-      return next();
+    }
+
+    // Check if the user has been granted field based resource access.
+    if (
+      req.user &&
+      ((userRoles.filter((role) => -1 !== fieldEntities.indexOf(role))).length !== 0)
+    ) {
+      req.permissions.field = true;
+    }
+
+    if (
+      req.user &&
+      ((userRoles.filter((role) => -1 !== fieldAdmins.indexOf(role))).length !== 0)
+    ) {
+      req.permissions.fieldAdmin = true;
     }
 
     req.permissions.self = this.entityPermissionRoles(req, entity, method, 'self');
@@ -519,6 +573,10 @@ export class Api {
       (userRoles.filter((role) => -1 !== ownRoles.indexOf(role))).length !== 0
     ) {
       req.permissions.owner = true;
+    }
+
+    // If they have been granted a permission, allow them to continue.
+    if (Object.values(req.permissions).reduce((prev, val) => prev || val, false)) {
       return next();
     }
 

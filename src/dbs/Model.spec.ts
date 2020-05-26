@@ -494,6 +494,108 @@ describe('Model.js', () => {
       });
     });
 
+    it('Access null', () => {
+      const prev = [
+        {
+          type: 'read_all',
+          roles: ['0000000000000001', '0000000000000002']
+        },
+        {
+          type: 'create_all',
+          roles: ['0000000000000001', '0000000000000002']
+        },
+      ];
+      sandbox.stub(db, 'read').resolves({
+        access: prev,
+      });
+      sandbox.spy(db, 'update');
+
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            access: [
+              {
+                type: {
+                  type: 'string',
+                  enum: this.enumPermissions,
+                  required: 'A permission type is required to associate an available permission with a given role.',
+                },
+                roles: [{
+                  type: 'id',
+                  ref: 'role',
+                }],
+              },
+            ]
+          };
+        }
+      }
+
+      const model = new Model(new TestSchema(app), db);
+
+      const data = {};
+
+      return model.update(data).then((doc) => {
+        assert(db.update.calledOnce, 'Should call db update');
+        assert.deepEqual(doc.access, []);
+      });
+    });
+
+    it('Access reset', () => {
+      const prev = [
+        {
+          type: 'read_all',
+          roles: ['0000000000000001', '0000000000000002']
+        },
+        {
+          type: 'create_all',
+          roles: ['0000000000000001', '0000000000000002']
+        },
+      ];
+      sandbox.stub(db, 'read').resolves({
+        access: prev,
+      });
+      sandbox.spy(db, 'update');
+
+      class TestSchema extends Schema {
+        get name() {
+          return 'test';
+        }
+
+        get schema() {
+          return {
+            access: [
+              {
+                type: {
+                  type: 'string',
+                  enum: this.enumPermissions,
+                  required: 'A permission type is required to associate an available permission with a given role.',
+                },
+                roles: [{
+                  type: 'id',
+                  ref: 'role',
+                }],
+              },
+            ]
+          };
+        }
+      }
+
+      const model = new Model(new TestSchema(app), db);
+
+      const data = {
+        access: []
+      };
+
+      return model.update(data).then((doc) => {
+        assert(db.update.calledOnce, 'Should call db update');
+        assert.deepEqual(doc.access, data.access);
+      });
+    });
+
     it('Array Objects', () => {
       sandbox.spy(db, 'create');
 

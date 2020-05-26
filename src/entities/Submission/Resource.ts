@@ -141,7 +141,7 @@ export class Submission extends Resource {
     let { data, owner, access, metadata } = req.body;
 
     // Only allow setting owner if has "all" type permission.
-    if (!req.permissions.all && !req.permissions.admin) {
+    if (!req.permissions.all && !req.permissions.admin && !req.permissions.fieldAdmin) {
       owner = undefined;
     }
 
@@ -177,7 +177,7 @@ export class Submission extends Resource {
     req.body.data = req.body.data || {};
 
     // Ensure they cannot reset the submission id.
-    if (req.params.hasOwnProperty('submissionId')) {
+    if ('submissionId' in req.params) {
       req.body._id = req.params.submissionId;
     }
 
@@ -189,6 +189,40 @@ export class Submission extends Resource {
       req.body.roles = req.context.resources.submission.roles;
       req.body.externalIds = req.context.resources.submission.externalIds;
     }
+
+    req.body.access = [];
+
+    util.api.eachValue(req.context.resources.form.components, req.body.data, ({ component, data }) => {
+      if (component && component.key && component.defaultPermission) {
+        let value = _.get(data, component.key);
+        if (value) {
+          if (!Array.isArray(value)) {
+            value = [value];
+          }
+          const ids = value.map((item) => item && item._id ? item._id : false).filter((item) => item);
+          if (ids.length) {
+            const perm = _.find(req.body.access, {
+              type: component.defaultPermission
+            });
+            if (perm) {
+              perm.resources = [
+                ...perm.resources,
+                ...ids,
+              ]
+            }
+            else {
+              req.body.access.push({
+                type: component.defaultPermission,
+                resources: ids
+              });
+            }
+          }
+        }
+      }
+    }, {});
+
+    // Only allow valid permissions
+    req.body.access = req.body.access.filter(access => ['create', 'read', 'write', 'admin'].includes(access.type));
 
     // Ensure response is set.
     res.resource = {
