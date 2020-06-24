@@ -249,6 +249,16 @@ export class Form extends Resource {
   }
 
   protected prepare(item, req) {
+    // Copy existing access settings so they don't get lost.
+    ['access', 'submissionAccess'].forEach((key) => {
+      req.body[key] = (key in req.body) ?
+        req.body[key] :
+        _.get(req.context.resources.form, key);
+
+      req.body[key].forEach((item) => {
+        item.roles = item.roles.map((role) => role.toString());
+      });
+    });
     if (item.path) {
       const fragments = item.path.split('/');
       const index = this.app.config.reservedForms.indexOf(fragments[0]);
@@ -292,6 +302,7 @@ export class Form extends Resource {
           try {
             // This is a little weird but we need to test if the value will convert to the id but store as string.
             role = this.app.db.toID(role).toString();
+            prev[item.type].roles[index] = role;
           }
           catch (err) {
             return false;
