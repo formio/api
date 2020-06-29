@@ -253,11 +253,7 @@ export class Form extends Resource {
     ['access', 'submissionAccess'].forEach((key) => {
       req.body[key] = (key in req.body) ?
         req.body[key] :
-        _.get(req.context.resources.form, key);
-
-      req.body[key].forEach((item) => {
-        item.roles = item.roles.map((role) => role.toString());
-      });
+        _.get(req.context.resources.form, key, []);
     });
     if (item.path) {
       const fragments = item.path.split('/');
