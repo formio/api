@@ -268,8 +268,12 @@ export class Resource {
         owner: this.app.db.toID(req.user._id),
       },
       {
-        'access.type': { $in: ['read', 'write', 'admin'] },
-        'access.resources': { $in: userRoles },
+        access: {
+          $elemMatch: {
+            type: { $in: ['read', 'write', 'admin'] },
+            resources: { $in: userRoles },
+          },
+        },
       },
     ];
 
