@@ -1,4 +1,4 @@
-import * as cm from 'composable-middleware';
+import cm from 'composable-middleware';
 import {Resource} from '../../src/classes';
 
 // @Todo

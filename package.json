@@ -20,12 +20,14 @@
   "author": "Randall Knutson <randall@form.io>",
   "license": "UNLICENSED",
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "bcryptjs": "^2.4.3",
     "composable-middleware": "^0.3.0",
     "core-js": "^3.1.4",
     "debug": "^3.2.6",
     "fast-json-patch": "^2.0.6",
     "formiojs": "^4.10.5-rc.5",
+    "https-proxy-agent": "^5.0.0",
     "joi": "^13.2.0",
     "lodash": "^4.17.15",
     "memory-cache": "^0.2.0",
@@ -48,7 +50,7 @@
     "ts-node": "^8.4.1",
     "ts-sinon": "^1.0.24",
     "tslint": "^5.20.1",
-    "typescript": "^3.5.3"
+    "typescript": "^3.9.7"
   },
   "pre-commit": [
     "lint",

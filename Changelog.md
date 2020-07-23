@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ##
+### Added
+ - Fetch library to replace request.js.
+
 ### Fixed
  - Access query fixed to work with elemMatch.
 
