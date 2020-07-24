@@ -2,8 +2,8 @@
 /* tslint:disable */
 const {version} = require('../package.json');
 /* tslint:enable */
-import * as bcrypt from 'bcryptjs';
-import * as uuid from 'uuid/v4';
+import bcrypt from 'bcryptjs';
+import uuid from 'uuid/v4';
 import {Export as ExportClass} from './classes/Export';
 import {Import as ImportClass} from './classes/Import';
 import {Model} from './dbs/Model';
@@ -451,14 +451,16 @@ export class Api {
     }
 
     if (this.config.adminKey) {
-      // If admin key is set in config and matches what is sent in the header,
-      req.permissions.admin = true;
       if (req.headers['x-admin-key'] && this.config.adminKey === req.headers['x-admin-key']) {
+        // If admin key is set in config and matches what is sent in the header,
+        req.permissions.admin = true;
         return next();
       }
 
       // If using admin key as a bearer token
       if (req.headers.authorization && req.headers.authorization === `Bearer: ${this.config.adminKey}`) {
+        // If admin key is set in config and matches what is sent in the header,
+        req.permissions.admin = true;
         return next();
       }
     }

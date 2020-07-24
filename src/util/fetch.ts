@@ -2,7 +2,7 @@ import AbortController from 'abort-controller';
 import {Agent} from 'https';
 import HttpsProxyAgent from 'https-proxy-agent';
 import _ from 'lodash';
-import fetch from 'node-fetch';
+import nodeFetch from 'node-fetch';
 import {parse} from 'url';
 
 /**
@@ -123,7 +123,7 @@ export const fetch = (url, options: any = {}) => {
     });
   }
 
-  return fetch(`${url}${qs}`, init)
+  return nodeFetch(`${url}${qs}`, init)
     .then((response) => {
       if (response.ok) {
         response.body.on('data', keepAlive);
