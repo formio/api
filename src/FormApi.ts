@@ -458,7 +458,7 @@ export class Api {
       }
 
       // If using admin key as a bearer token
-      if (req.headers.authorization && req.headers.authorization === `Bearer: ${this.config.adminKey}`) {
+      if (req.headers.authorization && req.headers.authorization === `Bearer ${this.config.adminKey}`) {
         // If admin key is set in config and matches what is sent in the header,
         req.permissions.admin = true;
         return next();
@@ -624,7 +624,7 @@ export class Api {
         res.setHeader('x-jwt-token', res.token);
       }
       headers.push('Authorization');
-      res.setHeader('Authorization', `Bearer: ${res.token}`);
+      res.setHeader('Authorization', `Bearer ${res.token}`);
     }
 
     if (!res.resource) {
