@@ -246,12 +246,12 @@ export class Api {
     ];
   }
 
-  public loadEntities(req, model, query) {
-    return this.models[model].find(query, {}, req.context ? req.context.params : {});
+  public loadEntities(req, model, query, options = {}) {
+    return this.models[model].find(query, options, req.context ? req.context.params : {});
   }
 
-  public loadEntity(req, model, query) {
-    return this.loadEntities(req, model, query).then((docs) => Array.isArray(docs) ? docs[0] : docs);
+  public loadEntity(req, model, query, options = {}) {
+    return this.loadEntities(req, model, query, options).then((docs) => Array.isArray(docs) ? docs[0] : docs);
   }
 
   public query(query) {

@@ -2,7 +2,7 @@ import {Route} from '../classes';
 
 export class Current extends Route {
   get path() {
-    return `${super.path}/current`;
+    return '/current';
   }
 
   get description() {
