@@ -16,22 +16,29 @@ declare global {
 global.Text              = class {};
 global.HTMLElement       = class {};
 global.HTMLCanvasElement = class {};
-global.navigator         = {
-  userAgent: '',
-};
-global.document          = {
-  createElement: () => ({}),
-  cookie: '',
-  getElementsByTagName: () => [],
-  documentElement: {
-    style: {},
-  },
-};
-global.window            = {
-  addEventListener: () => ({}),
-  Event: {},
-  navigator: global.navigator,
-};
+
+// Workers do not allow define properties below
+// They were placed in try / catch to prevent runtime error
+try {
+  global.navigator         = {
+    userAgent: '',
+  };
+  global.document          = {
+    createElement: () => ({}),
+    cookie: '',
+    getElementsByTagName: () => [],
+    documentElement: {
+      style: {},
+    },
+  };
+  global.window            = {
+    addEventListener: () => ({}),
+    Event: {},
+    navigator: global.navigator,
+  };
+} catch (err) {
+  // Do nothing if environment throws an error
+}
 
 import {Displays, Formio} from 'formiojs/formio.form.js';
 import Evaluator from 'formiojs/utils/Evaluator.js';
