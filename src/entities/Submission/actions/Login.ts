@@ -1,8 +1,12 @@
 import * as bcrypt from 'bcryptjs';
-import {Action} from '../../../classes';
-import {lodash as _} from '../../../util/lodash';
+import { Action } from '../../../classes';
+import { lodash as _ } from '../../../util/lodash';
 
 export class Login extends Action {
+  // Should be a low number (or it will degrade experience)
+  // But not too low (should take much more time than bcrypt.compare is taking)
+  public static readonly MAX_JITTER = 100;
+
   public static info() {
     return {
       name: 'login',
@@ -98,7 +102,8 @@ export class Login extends Action {
         key: 'lockWait',
         input: true,
         label: 'Locked Account Wait Time',
-        description: 'The amount of time a person needs to wait before they can try to login again.',
+        description:
+          'The amount of time a person needs to wait before they can try to login again.',
         defaultValue: '1800',
         suffix: 'seconds',
       },
@@ -112,53 +117,70 @@ export class Login extends Action {
 
     // They must provide a username.
     if (!_.has(submission.data, this.settings.username)) {
-      setActionInfoMessage('Username not set or not found');
+      setActionInfoMessage('Username not set');
       return res.status(401).send('User or password was incorrect.');
     }
 
     // They must provide a password.
     if (!_.has(submission.data, this.settings.password)) {
-      setActionInfoMessage('Password not set or not found');
+      setActionInfoMessage('Password not set');
       return res.status(401).send('User or password was incorrect.');
     }
 
     const query = {
       form: { $in: this.settings.resources.map(this.app.db.toID) },
-      [`data.${this.settings.username}`]: _.get(submission.data, this.settings.username),
+      [`data.${this.settings.username}`]: _.get(
+        submission.data,
+        this.settings.username,
+      ),
     };
 
-    return this.app.models.Submission.read(query, req.context ? req.context.params : {})
-      .then((user) => {
-        if (!user) {
-          setActionInfoMessage('User not found');
-          return res.status(401).send('User or password was incorrect.');
-        }
+    return this.app.models.Submission.read(
+      query,
+      req.context ? req.context.params : {},
+    ).then((user) => {
+      const sendInvalid = () => {
+        // Deliberately vague to discourage user enumeration via Login
+        setActionInfoMessage(
+          'If you have not set a password yet, please use the reset password link.',
+        );
+        return res.status(401).send('Provided credentials are not valid.');
+      };
 
-        if (!_.get(user.data, this.settings.password)) {
-          setActionInfoMessage('Password not set');
-          return res.status(401).send('User account does not have a password. You must reset your password to login.');
+      setTimeout(() => {
+        // - User not found
+        // - Invalid password for user
+        // - User has not yet set a password
+        if (!user || !_.get(user.data, this.settings.password)) {
+          return sendInvalid();
         }
 
         // Need to use req.submission.data for password as it hasn't been encrypted yet.
-        return bcrypt.compare(
-          _.get(req.submission.data, this.settings.password, ''),
-          _.get(user.data, this.settings.password),
-        )
+        return bcrypt
+          .compare(
+            _.get(req.submission.data, this.settings.password, ''),
+            _.get(user.data, this.settings.password),
+          )
           .then((value) => {
             if (!value) {
-              setActionInfoMessage('Password did not match');
-              return res.status(401).send('User or password was incorrect.');
+              return sendInvalid();
             }
-            setActionInfoMessage('Password matched. Setting response data');
-            return this.app.loadEntity(req, 'Form', {
-              _id: this.app.db.toID(user.form),
-            })
+            return this.app
+              .loadEntity(req, 'Form', {
+                _id: this.app.db.toID(user.form),
+              })
               .then(async (form) => {
                 req.user = user;
-                res.token = this.app.generateToken(this.app.tokenPayload(user, form));
-                res.resource.item = await this.app.resources.Submission.finalize(user, req);
+                res.token = this.app.generateToken(
+                  this.app.tokenPayload(user, form),
+                );
+                res.resource.item = await this.app.resources.Submission.finalize(
+                  user,
+                  req,
+                );
               });
           });
-      });
+      }, Math.floor(Math.random() * Login.MAX_JITTER));
+    });
   }
 }
